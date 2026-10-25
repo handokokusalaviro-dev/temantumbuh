@@ -862,7 +862,7 @@ function poolKeyFor(level){ return POOLS[Math.max(3, Math.min(12, Math.floor(lev
 const APP_URL = 'https://handokokusalaviro-dev.github.io/temantumbuh/';
 const KEY = 'temantumbuh.v1';
 const SALT = 'tumbuh26';
-const COACH_PIN_HASH = '1204563995';
+const COACH_PIN_HASH = '3571941926';
 const coachPinOK = pin => String(hashStr('coach|' + pin + '|' + SALT)) === COACH_PIN_HASH;
 let DB = {v:1, profiles:[], activeId:null, lang:'en', coach:{pin:null, reports:[]}};
 let storageOK = true;
@@ -1787,8 +1787,8 @@ function vCoach(){
 
 /* ===== PIN, profiles, create ===== */
 function vPin(forWhat){
-  const len = 4;
-  const title = forWhat === 'coach' ? L('Coach PIN','PIN coach') : forWhat === 'parent' ? L('Parent PIN','PIN orang tua') : L(`Hi ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Enter your PIN`, `Hai ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Masukkan PIN-mu`);
+  const len = forWhat === 'coach' ? 6 : 4;
+  const title = forWhat === 'coach' ? L('Coach PIN (6 digits)','PIN coach (6 angka)') : forWhat === 'parent' ? L('Parent PIN','PIN orang tua') : L(`Hi ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Enter your PIN`, `Hai ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Masukkan PIN-mu`);
   return `<div class="stack" style="padding-top:20px"><div class="topbar"><button class="iconbtn" data-a="pinCancel" aria-label="back">${ic('back')}</button><h2 class="grow">${title}</h2></div>
   <div class="pindots">${Array.from({length:len}, (_, i) => i).map(i => `<i class="${S.pin.length > i ? 'f' : ''}"></i>`).join('')}</div>${S.pinErr ? `<p class="center" style="color:var(--bad)"><b>${L('Wrong PIN, try again','PIN salah, coba lagi')}</b></p>` : '<p class="center tiny muted">&nbsp;</p>'}
   <div class="pinpad">${[1,2,3,4,5,6,7,8,9].map(n => `<button data-a="pinKey" data-v="${n}">${n}</button>`).join('')}<button data-a="pinKey" data-v="del" aria-label="delete">⌫</button><button data-a="pinKey" data-v="0">0</button><span></span></div>
@@ -1948,7 +1948,7 @@ const A = {
   pinKey(v){
     S.pinErr = false;
     if (v === 'del'){ S.pin = S.pin.slice(0, -1); return render(); }
-    const need = 4;
+    const need = S.pinMode === 'coach' ? 6 : 4;
     if (S.pin.length >= need) return; S.pin += v; render();
     if (S.pin.length < need) return;
     setTimeout(() => {
