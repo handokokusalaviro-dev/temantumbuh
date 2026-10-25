@@ -6,6 +6,6 @@ Companion belajar bergaya Tamagotchi untuk kelas 3–12: latihan Math, English (
 - Alat coach: https://handokokusalaviro-dev.github.io/temantumbuh/#coach
 - Data pemain tersimpan di browser perangkat masing-masing (localStorage). Tidak ada server dan tidak ada akun.
 
-Status: beta untuk pilot internal SOC Academy.
+Status: beta publik (uji coba).
 
 Handoko Kusalaviro - 2026
