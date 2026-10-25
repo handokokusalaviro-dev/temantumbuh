@@ -281,10 +281,16 @@ table.tbl{width:100%; border-collapse:collapse; font-size:.86rem; font-variant-n
 .hall{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
 .hall .card{padding:8px; text-align:center; font-size:.82rem}
 .hall svg{width:100%; max-width:90px}
+
+.qpic{display:flex; justify-content:center; padding:8px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md)}
+.qpic svg{max-width:320px; width:100%; height:auto; max-height:180px}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 /* ================= CONTENT ================= */
 const BAND_NAME = {A:'G3–4', B:'G5–6', C:'G7–9', D:'G10–12'};
@@ -719,17 +725,17 @@ const G = {
 /* ---------- Stage 3 ---------- */
 add3(){ const a = R(125, 689), b = R(118, 899 - a); return IN(a + b, {q:`${a} + ${b} = ?`, topic:'add-sub', strand:'Number', explain:`Add the ones, then tens, then hundreds. Carry 1 when a column reaches 10 or more. ${a} + ${b} = ${a + b}.`}); },
 sub3(){ const a = R(320, 999), b = R(105, a - 60); return IN(a - b, {q:`${a} − ${b} = ?`, topic:'add-sub', strand:'Number', explain:`Subtract ones, tens, hundreds. If the top digit is smaller, exchange 1 ten for 10 ones. Check: ${a - b} + ${b} = ${a}.`}); },
-times3(){ const m = P([2,3,4,5,8,10]), n = R(2, 10); return IN(m * n, {q:`${m} × ${n} = ?`, topic:'times-tables', strand:'Number', explain:`${m} × ${n} means ${n} groups of ${m}: ${m * n}.`}); },
-div3(){ const m = P([2,3,4,5,8,10]), n = R(2, 10); return IN(n, {q:`${m * n} ÷ ${m} = ?`, topic:'division', strand:'Number', explain:`Think: ${m} × ? = ${m * n}. The answer is ${n}.`}); },
+times3(){ const m = P([2,3,4,5,8,10]), n = R(2, 10); return IN(m * n, {pic:PIC.array(n, m), q:`${m} × ${n} = ?`, topic:'times-tables', strand:'Number', explain:`${m} × ${n} means ${n} groups of ${m}: ${m * n}.`}); },
+div3(){ const m = P([2,3,4,5,8,10]), n = R(2, 10); return IN(n, {pic:PIC.groups(m, n), q:`${m * n} ÷ ${m} = ?`, topic:'division', strand:'Number', explain:`Think: ${m} × ? = ${m * n}. The answer is ${n}.`}); },
 place3(){ let n, d, pos; do { n = R(102, 987); const s = String(n); pos = R(0, 2); d = +s[pos]; if (d && s.split('').filter(c => +c === d).length === 1) break; } while (true);
   const val = d * [100, 10, 1][pos];
   return MC(N(val), [d * 1, d * 10, d * 100, d * 1000].filter(v => v !== val).map(N), {q:`What is the value of the digit ${d} in ${n}?`, topic:'place-value', strand:'Number', explain:`The ${d} is in the ${['hundreds','tens','ones'][pos]} place, so it is worth ${N(val)}.`}); },
-fracOf3(){ const [a, b] = P([[1,2],[1,4],[1,3],[3,4]]), w = b * R(2, 8); return IN(w / b * a, {q:`${a}/${b} of ${w} = ?`, topic:'fractions', strand:'Number', explain:`Divide by ${b} to find 1/${b}: ${w} ÷ ${b} = ${w / b}. ${a > 1 ? `Then multiply by ${a}: ${w / b * a}.` : ''}`}); },
+fracOf3(){ const [a, b] = P([[1,2],[1,4],[1,3],[3,4]]), w = b * R(2, 8); return IN(w / b * a, {pic:PIC.bar(a, b), q:`${a}/${b} of ${w} = ?`, topic:'fractions', strand:'Number', explain:`Divide by ${b} to find 1/${b}: ${w} ÷ ${b} = ${w / b}. ${a > 1 ? `Then multiply by ${a}: ${w / b * a}.` : ''}`}); },
 time3(){ const h = R(1, 11), m = P([0, 15, 30, 45]), add = P([15, 30, 45, 60, 90]); const f = (H, M) => { let t = H * 60 + M; let hh = Math.floor(t / 60) % 12; if (hh === 0) hh = 12; return hh + ':' + String(t % 60).padStart(2, '0'); };
   const ans = f(h, m + add); return MC(ans, [f(h, m + add + 15), f(h, m + add - 15), f(h + 1, m), f(h, m + add + 60)], {q:`It is ${f(h, m)}. What time will it be in ${add} minutes?`, topic:'time', strand:'Geometry & Measure', explain:`Count on ${add} minutes from ${f(h, m)}: ${ans}.`}); },
 money3(){ const price = R(15, 95) * 100, pay = P([10000, 20000]); return IN(pay - price, {int:true, unit:'Rp', q:`You pay ${rp(pay)} for a snack that costs ${rp(price)}. How much change do you get?`, topic:'money', strand:'Geometry & Measure', explain:`Change = ${rp(pay)} − ${rp(price)} = ${rp(pay - price)}.`}); },
 line3(){ const max = P([100, 1000]); const t = max === 100 ? R(11, 95) : R(11, 95) * 10; return {kind:'line', min:0, max, step: max / 100, target:t, tol: max * 0.04, q:`Move the marker to ${N(t)}.`, topic:'number-line', strand:'Number', explain:`${N(t)} is a little ${t % (max / 10) < max / 20 ? 'past' : 'before'} ${N(Math.round(t / (max / 10)) * (max / 10))}.`}; },
-kitchen3(){ const n = R(2, 9), k = P([2,3,4,5,8,10]); return IN(n * k, {q:`Your companion is cooking. There are ${n} bowls with ${k} berries in each bowl. How many berries altogether?`, topic:'times-tables', strand:'Number', explain:`${n} groups of ${k}: ${n} × ${k} = ${n * k}.`}); },
+kitchen3(){ const n = R(2, 9), k = P([2,3,4,5,8,10]); return IN(n * k, {pic:PIC.groups(n, k), q:`Your companion is cooking. There are ${n} bowls with ${k} berries in each bowl. How many berries altogether?`, topic:'times-tables', strand:'Number', explain:`${n} groups of ${k}: ${n} × ${k} = ${n * k}.`}); },
 tally3(){ const a = R(4, 12), b = R(2, a - 1); const c1 = P(['Red','Mango','Football']), c2 = P(['Blue','Durian','Badminton']); return IN(a - b, {q:`In a class survey, ${a} children chose ${c1} and ${b} chose ${c2}. How many more chose ${c1}?`, topic:'data', strand:'Statistics & Probability', explain:`Difference: ${a} − ${b} = ${a - b}.`}); },
 
 /* ---------- Stage 4 ---------- */
@@ -740,7 +746,7 @@ eqFrac4(){ const [n, d] = P([[1,2],[1,3],[2,3],[3,4],[1,4],[2,5]]), k = R(2, 5);
   return MC(c, w, {q:`Which fraction is equal to ${n}/${d}?`, topic:'fractions', strand:'Number', explain:`Multiply the top and bottom by the same number: ${n}×${k} / ${d}×${k} = ${c}.`}); },
 lineTenths4(){ let t; do { t = R(1, 29) / 10; } while (Number.isInteger(t)); return {kind:'line', min:0, max:3, step:0.1, target:t, tol:0.06, q:`Move the marker to ${t}.`, topic:'decimals', strand:'Number', explain:`${t} is ${Math.floor(t)} whole${Math.floor(t) === 1 ? '' : 's'} and ${Math.round((t % 1) * 10)} tenths.`}; },
 perim4(){ const l = R(3, 15), w = R(2, 10); return IN(2 * (l + w), {unit:'cm', q:`A rectangle is ${l} cm long and ${w} cm wide. What is its perimeter?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Perimeter = ${l} + ${w} + ${l} + ${w} = ${2 * (l + w)} cm.`}); },
-area4(){ const l = R(3, 12), w = R(2, 9); return IN(l * w, {unit:'cm²', q:`A rectangle is ${l} cm by ${w} cm. What is its area?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Area = length × width = ${l} × ${w} = ${l * w} cm².`}); },
+area4(){ const l = R(3, 12), w = R(2, 9); return IN(l * w, {pic:PIC.grid(l, w), unit:'cm²', q:`A rectangle is ${l} cm by ${w} cm. What is its area?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Area = length × width = ${l} × ${w} = ${l * w} cm².`}); },
 negTemp4(){ const s = R(1, 6), f = R(s + 1, s + 8); return IN(s - f, {neg:true, unit:'°C', q:`The temperature in Dieng at night is ${s} °C. It falls by ${f} degrees before morning. What is the new temperature?`, topic:'negative-numbers', strand:'Number', explain:`Count down ${f} from ${s}: you pass 0 and reach ${neg(s - f)} °C.`}); },
 mult4(){ const m = P([2, 5, 10]); const c = m * R(3, 12); const w = []; let g = 0; while (w.length < 3 && g++ < 50){ const v = R(11, 99); if (v % m && !w.includes(v)) w.push(v); } return MC(c, w, {q:`Which number is a multiple of ${m}?`, topic:'multiples', strand:'Number', explain:`${c} = ${m} × ${c / m}, so it is in the ${m} times table.`}); },
 factor4(){ const n = P([12, 18, 20, 24, 30, 36]); const fs = [], nf = []; for (let i = 2; i < n; i++) (n % i === 0 ? fs : nf).push(i); const c = P(fs); return MC(c, SH(nf).slice(0, 3), {q:`Which number is a factor of ${n}?`, topic:'factors-multiples', strand:'Number', explain:`${n} ÷ ${c} = ${n / c} with no remainder, so ${c} is a factor.`}); },
@@ -856,10 +862,133 @@ const POOLS = {
   11:['quadSolve10','simul10','inverse10','trig10','surd10','tree10','perp10','disc12','deriv12','dist12'],
   12:['disc12','deriv12','integ12','binom12','dist12','rad12','series12']
 };
-function genMath(key){ const q = G[key](); q.gen = key; return q; }
-function poolKeyFor(level){ return POOLS[Math.max(3, Math.min(12, Math.floor(level)))]; }
+/* ================= MATH: visuals, new templates, tiers ================= */
+/* Pictorial models (Concrete → Pictorial → Abstract). Colours use theme tokens. */
+const PIC = {
+  array(r, c){ const s = 22, w = c * s + 10, h = r * s + 10; let g = ''; for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) g += `<circle cx="${10 + j * s + 6}" cy="${10 + i * s + 6}" r="7" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.2"/>`; return `<svg viewBox="0 0 ${w + 6} ${h + 6}" role="img" aria-label="${r} rows of ${c}">${g}</svg>`; },
+  groups(n, k){ const per = Math.min(n, 5), rows = Math.ceil(n / per), W = per * 64, H = rows * 64; let g = ''; for (let i = 0; i < n; i++){ const cx = 32 + (i % per) * 64, cy = 32 + Math.floor(i / per) * 64; g += `<circle cx="${cx}" cy="${cy}" r="27" fill="none" stroke="var(--ink2)" stroke-width="2"/>`; for (let j = 0; j < k; j++){ const a = j / k * Math.PI * 2, rr = k === 1 ? 0 : 13; g += `<circle cx="${cx + Math.cos(a) * rr}" cy="${cy + Math.sin(a) * rr}" r="5" fill="var(--berry)"/>`; } } return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${n} groups of ${k}">${g}</svg>`; },
+  blocks(n){ const h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, o = n % 10; let x = 4, g = ''; for (let i = 0; i < h; i++){ g += `<rect x="${x}" y="4" width="60" height="60" fill="var(--sky)" fill-opacity=".25" stroke="var(--sky)" stroke-width="2"/>`; for (let k = 1; k < 10; k++) g += `<path d="M${x + k * 6} 4v60M${x} ${4 + k * 6}h60" stroke="var(--sky)" stroke-width=".6"/>`; x += 68; } for (let i = 0; i < t; i++){ g += `<rect x="${x}" y="4" width="8" height="60" fill="var(--leaf)" fill-opacity=".35" stroke="var(--leaf)" stroke-width="1.5"/>`; x += 12; } x += 4; for (let i = 0; i < o; i++){ g += `<rect x="${x + (i % 3) * 11}" y="${44 - Math.floor(i / 3) * 11}" width="9" height="9" fill="var(--sun)" stroke="var(--ink)" stroke-width="1"/>`; } x += 40; return `<svg viewBox="0 0 ${Math.max(x, 80)} 70" role="img" aria-label="base ten blocks">${g}</svg>`; },
+  bar(n, d){ const w = 300 / d; let g = ''; for (let i = 0; i < d; i++) g += `<rect x="${4 + i * w}" y="6" width="${w}" height="40" fill="${i < n ? 'var(--leaf)' : 'none'}" fill-opacity="${i < n ? .55 : 1}" stroke="var(--ink)" stroke-width="2"/>`; return `<svg viewBox="0 0 308 52" role="img" aria-label="${n} of ${d} parts shaded">${g}</svg>`; },
+  clock(h, m){ const ha = ((h % 12) + m / 60) / 12 * Math.PI * 2, ma = m / 60 * Math.PI * 2; let t = ''; for (let i = 1; i <= 12; i++){ const a = i / 12 * Math.PI * 2; t += `<text x="${70 + Math.sin(a) * 48}" y="${74 + -Math.cos(a) * 48}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${i}</text>`; } return `<svg viewBox="0 0 140 140" role="img" aria-label="clock"><circle cx="70" cy="70" r="62" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>${t}<path d="M70 70 L${70 + Math.sin(ha) * 30} ${70 - Math.cos(ha) * 30}" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/><path d="M70 70 L${70 + Math.sin(ma) * 44} ${70 - Math.cos(ma) * 44}" stroke="var(--coral)" stroke-width="3" stroke-linecap="round"/><circle cx="70" cy="70" r="4" fill="var(--ink)"/></svg>`; },
+  grid(l, w){ const s = 18; let g = ''; for (let i = 0; i < w; i++) for (let j = 0; j < l; j++) g += `<rect x="${4 + j * s}" y="${4 + i * s}" width="${s}" height="${s}" fill="var(--sky)" fill-opacity=".2" stroke="var(--sky)" stroke-width="1.2"/>`; return `<svg viewBox="0 0 ${l * s + 8} ${w * s + 8}" role="img" aria-label="${l} by ${w} squares">${g}</svg>`; }
+};
+const NAMES = ['Sari','Budi','Dewi','Raka','Putri','Adi','Nadia','Bima','Lina','Fajar'];
+const ITEMS = [['mangoes','mango'],['rambutan','rambutan'],['marbles','marble'],['stickers','sticker'],['cookies','cookie']];
+
+Object.assign(G, {
+/* ---------- Stage 3 ---------- */
+addTwo3(){ const a = R(14, 58), b = R(13, 89 - a); return IN(a + b, {q:`${a} + ${b} = ?`, topic:'add-sub', strand:'Number', explain:`Tens first: ${Math.floor(a / 10) * 10} + ${Math.floor(b / 10) * 10} = ${(Math.floor(a / 10) + Math.floor(b / 10)) * 10}. Ones: ${a % 10} + ${b % 10} = ${a % 10 + b % 10}. Total ${a + b}.`}); },
+arrayMul3(){ const r = R(2, 5), c = P([2, 5, 10, 3, 4]); return IN(r * c, {pic:PIC.array(r, c), picAlways:true, q:`How many dots? (${r} rows of ${c})`, topic:'times-tables', strand:'Number', explain:`${r} rows of ${c} is ${r} × ${c} = ${r * c}.`}); },
+blocks3(){ const n = R(101, 459); return IN(n, {pic:PIC.blocks(n), picAlways:true, q:'What number do the blocks show?', topic:'place-value', strand:'Number', explain:`Hundreds (big squares) ${Math.floor(n / 100)}, tens (rods) ${Math.floor(n / 10) % 10}, ones (cubes) ${n % 10}: ${n}.`}); },
+fracPic3(){ const [n, d] = P([[1,2],[1,4],[3,4],[1,3],[2,3],[2,4],[1,5]]); return MC(`${n}/${d}`, [`${d}/${n}`, `${n}/${d + 1}`, `${d - n}/${d}`].filter(s => s !== `${n}/${d}`), {pic:PIC.bar(n, d), picAlways:true, q:'What fraction of the bar is shaded?', topic:'fractions', strand:'Number', explain:`The bar has ${d} equal parts and ${n} ${n > 1 ? 'are' : 'is'} shaded: ${n}/${d}.`}); },
+clock3(){ const h = R(1, 12), m = P([0, 30, 15, 45]); const f = (H, M) => `${H}:${String(M).padStart(2, '0')}`; const c = f(h, m); return MC(c, [f(h % 12 + 1, m), f(h, (m + 30) % 60), f(m === 0 ? 12 : Math.max(1, m / 5), h * 5 % 60)].filter(s => s !== c), {pic:PIC.clock(h, m), picAlways:true, q:'What time does the clock show?', topic:'time', strand:'Geometry & Measure', explain:`The short hand points to the hour (${h}); the long hand shows ${m} minutes.`}); },
+shape3(){ const v = P([['triangle',3],['square',4],['pentagon',5],['hexagon',6],['octagon',8]]); return IN(v[1], {q:`How many sides does a ${v[0]} have?`, topic:'shapes', strand:'Geometry & Measure', explain:`A ${v[0]} has ${v[1]} straight sides.`}); },
+missAdd3(){ const b = R(115, 480), c = R(b + 105, 950); return IN(c - b, {q:`□ + ${b} = ${c}. What is □?`, topic:'add-sub', strand:'Number', explain:`Use the inverse: ${c} − ${b} = ${c - b}.`}); },
+missMul3(){ const m = P([3, 4, 5, 8, 10]), n = R(3, 10); return IN(n, {q:`□ × ${m} = ${m * n}. What is □?`, topic:'times-tables', strand:'Number', explain:`Think: ${m * n} ÷ ${m} = ${n}.`}); },
+duration3(){ const h = R(1, 10), m1 = P([0, 15, 30]), add = P([15, 30, 45, 60]); const t2 = h * 60 + m1 + add; const f = t => `${Math.floor(t / 60) % 12 || 12}:${String(t % 60).padStart(2, '0')}`; return IN(add, {unit:'min', q:`${P(NAMES)} starts reading at ${f(h * 60 + m1)} and stops at ${f(t2)}. How many minutes did they read?`, topic:'time', strand:'Geometry & Measure', explain:`Count on from ${f(h * 60 + m1)} to ${f(t2)}: ${add} minutes.`}); },
+order3(){ const s = new Set(); while (s.size < 4) s.add(R(102, 989)); const a = [...s]; const c = Math.max(...a); return MC(c, a.filter(x => x !== c), {q:'Which number is the greatest?', topic:'place-value', strand:'Number', explain:`Compare hundreds first, then tens, then ones. ${c} is the greatest.`}); },
+shareGroups3(){ const k = R(2, 5), n = P([2, 3, 4, 5]); return IN(n, {pic:PIC.groups(k, n), picAlways:true, q:`${k * n} ${P(ITEMS)[0]} are shared equally into ${k} bowls. How many in each bowl?`, topic:'division', strand:'Number', explain:`${k * n} ÷ ${k} = ${n}.`}); },
+
+/* ---------- Stage 4 ---------- */
+areaGrid4(){ const l = R(3, 8), w = R(2, 5); return IN(l * w, {unit:'squares', pic:PIC.grid(l, w), picAlways:true, q:'What is the area of the rectangle, in squares?', topic:'perimeter-area', strand:'Geometry & Measure', explain:`${w} rows of ${l} squares: ${l} × ${w} = ${l * w}.`}); },
+divRem4(){ const d = R(3, 9), q = R(4, 12), r = R(1, d - 1), n = d * q + r; return IN(r, {q:`${n} ÷ ${d} = ${q} remainder ?`, topic:'division', strand:'Number', explain:`${d} × ${q} = ${d * q}; ${n} − ${d * q} = ${r}.`}); },
+missSide4(){ const w = R(2, 9), l = R(w + 1, 15), p = 2 * (l + w); return IN(l, {unit:'cm', q:`A rectangle has a perimeter of ${p} cm and a width of ${w} cm. How long is it?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Half the perimeter is ${p / 2} cm = length + width. ${p / 2} − ${w} = ${l} cm.`}); },
+cmpFrac4(){ const n = P([1, 2, 3]), a = R(n + 1, 9); let b; do { b = R(n + 1, 10); } while (b === a); const big = a < b ? `${n}/${a}` : `${n}/${b}`; return MC(big, [a < b ? `${n}/${b}` : `${n}/${a}`, 'They are equal'], {q:`Which is bigger: ${n}/${a} or ${n}/${b}?`, topic:'fractions', strand:'Number', explain:`Same number of pieces taken (${n}); fewer equal pieces means bigger pieces. So ${big} is bigger.`}); },
+wordMul4(){ const packs = R(3, 6), each = P([10, 12, 15, 20]), eat = R(3, 9), it = P(ITEMS); return IN(packs * each - eat, {q:`${P(NAMES)} buys ${packs} packs of ${each} ${it[0]} and gives away ${eat}. How many are left?`, topic:'multi-step', strand:'Number', explain:`${packs} × ${each} = ${packs * each}, then ${packs * each} − ${eat} = ${packs * each - eat}.`}); },
+negDiff4(){ const a = -R(1, 6), b = R(1, 9); return IN(b - a, {unit:'°C', q:`At night it is ${neg(a)} °C. At noon it is ${b} °C. How many degrees warmer is noon?`, topic:'negative-numbers', strand:'Number', explain:`From ${neg(a)} up to 0 is ${-a}, then 0 to ${b} is ${b}: ${-a} + ${b} = ${b - a} degrees.`}); },
+
+/* ---------- Stage 5 ---------- */
+mul1d5(){ const a = R(112, 489), b = R(3, 9); return IN(a * b, {q:`${a} × ${b} = ?`, topic:'multiplication', strand:'Number', explain:`${Math.floor(a / 100) * 100} × ${b} + ${a % 100} × ${b} = ${Math.floor(a / 100) * 100 * b} + ${a % 100 * b} = ${a * b}.`}); },
+dec10_5(){ const x = R(12, 999) / 100, f = P([10, 100]); const ans = Math.round(x * f * 100) / 100; return IN(ans, {q:`${x} × ${f} = ?`, topic:'decimals', strand:'Number', explain:`Multiplying by ${f} moves each digit ${f === 10 ? 'one place' : 'two places'} to the left: ${ans}.`}); },
+improper5(){ const d = P([3, 4, 5, 6, 8]), w = R(1, 4); let r; do { r = R(1, d - 1); } while (gcd(r, d) !== 1); const n = w * d + r; return MC(`${w} ${r}/${d}`, [`${w + 1} ${r}/${d}`, `${r} ${w}/${d}`, `${w} ${d - r}/${d}`, `${w + 2} ${r}/${d}`], {q:`Write ${n}/${d} as a mixed number.`, topic:'fractions', strand:'Number', explain:`${n} ÷ ${d} = ${w} remainder ${r}, so ${w} ${r}/${d}.`}); },
+estimate5(){ const a = R(2, 9) * 10 + P([-1, 1, -2, 2]), b = R(2, 6) * 10 + P([-1, 1]); const e = Math.round(a / 10) * 10 * Math.round(b / 10) * 10; return MC(N(e), [N(e * 10), N(e / 10), N(e + Math.round(a / 10) * 100)], {q:`Estimate ${a} × ${b}. Which is closest?`, topic:'estimation', strand:'Number', explain:`Round first: ${Math.round(a / 10) * 10} × ${Math.round(b / 10) * 10} = ${N(e)}.`}); },
+error5(){ const a = R(25, 68), b = R(17, 99 - a > 17 ? 99 - a : 30); const right = a + b, wrong = right - 10; return MC('Forgot to carry the 1', ['Added the tens wrong on purpose', 'Nothing is wrong', 'Should have subtracted'], {q:`Nadia wrote ${a} + ${b} = ${wrong}. What went wrong? (The right answer is ${right}.)`, topic:'error-analysis', strand:'Number', explain:`${a % 10} + ${b % 10} = ${a % 10 + b % 10}, which needs a carry of 1 into the tens.`, regen: a % 10 + b % 10 < 10}); },
+money5(){ const p1 = R(12, 45) * 500, p2 = R(4, 20) * 500, q1 = R(2, 4), pay = 100000; const tot = p1 * q1 + p2; return IN(pay - tot, {int:true, unit:'Rp', q:`You buy ${q1} notebooks at ${rp(p1)} each and a pen for ${rp(p2)}. You pay ${rp(pay)}. How much change?`, topic:'money', strand:'Number', explain:`${q1} × ${rp(p1)} = ${rp(p1 * q1)}; + ${rp(p2)} = ${rp(tot)}; change = ${rp(pay - tot)}.`}); },
+
+/* ---------- Stage 6 ---------- */
+asn6(){ const v = P([['A multiple of 4 is even.','Always'],['An odd number times an odd number is even.','Never'],['A prime number is odd.','Sometimes'],['Adding two fractions less than 1 gives an answer less than 1.','Sometimes'],['A square has four lines of symmetry.','Always'],['Multiplying a number by 0.5 makes it bigger.','Sometimes'],['The product of two negative numbers is negative.','Never']]); return MC(v[1], ['Always','Sometimes','Never'], {q:`Always, sometimes or never true? "${v[0]}"`, topic:'reasoning', strand:'Number', explain: v[1] === 'Sometimes' ? 'Find one example where it works and one where it does not.' : v[1] === 'Always' ? 'It works for every case, and you can explain why.' : 'There is no case where it works.'}); },
+estimate6(){ const a = R(2, 9) * 100 + P([-2, -1, 1, 2]), b = R(2, 9) * 10 + P([-1, 1]); const e = Math.round(a / 100) * 100 * Math.round(b / 10) * 10; return MC(N(e), [N(e * 10), N(e / 10), N(Math.round(a / 100) * 100 + Math.round(b / 10) * 10)], {q:`Estimate ${a} × ${b}.`, topic:'estimation', strand:'Number', explain:`Round to ${Math.round(a / 100) * 100} × ${Math.round(b / 10) * 10} = ${N(e)}.`}); },
+missMean6(){ const m = R(8, 20), a = R(m - 5, m + 5), b = R(m - 5, m + 5), c = R(m - 5, m + 5), d = 4 * m - a - b - c; return d < 1 ? G.missMean6() : IN(d, {q:`The mean of four numbers is ${m}. Three of them are ${a}, ${b} and ${c}. What is the fourth?`, topic:'averages', strand:'Statistics & Probability', explain:`Total = 4 × ${m} = ${4 * m}. ${4 * m} − ${a + b + c} = ${d}.`}); },
+ratioWord6(){ const [a, b] = P([[2,3],[3,4],[1,4],[2,5]]), k = R(2, 8); const it = P([['flour','sugar'],['boys','girls'],['red beads','blue beads']]); return IN(b * k, {q:`The ratio of ${it[0]} to ${it[1]} is ${a}:${b}. There are ${a * k} ${it[0]}. How many ${it[1]}?`, topic:'ratio', strand:'Number', explain:`${a * k} ÷ ${a} = ${k}, so one part is ${k}. ${it[1]}: ${b} × ${k} = ${b * k}.`}); },
+
+/* ---------- Stage 7 ---------- */
+oneStep7(){ const x = R(-9, 15), a = R(2, 9), op = Math.random() < .5; if (op) return {kind:'balance', ans:x, left:`x + ${a}`, right:neg(x + a), q:`Solve: x + ${a} = ${neg(x + a)}`, topic:'equations', strand:'Algebra', explain:`Subtract ${a} from both sides: x = ${neg(x)}.`}; return {kind:'balance', ans:x, left:`${a}x`, right:neg(a * x), q:`Solve: ${a}x = ${neg(a * x)}`, topic:'equations', strand:'Algebra', explain:`Divide both sides by ${a}: x = ${neg(x)}.`}; },
+solveBr7(){ const x = R(-4, 10), a = R(2, 5), b = R(1, 6), c = R(1, a - 1 || 1), d = a * (x - b) - c * x; return {kind:'balance', ans:x, left:`${a}(x − ${b})`, right:lin(c, d, 'x'), q:`Solve: ${a}(x − ${b}) = ${lin(c, d, 'x')}`, topic:'equations', strand:'Algebra', explain:`Expand: ${a}x − ${a * b} = ${lin(c, d, 'x')}. Collect x: ${a - c}x = ${neg(d + a * b)}. x = ${neg(x)}.`}; },
+error7(){ const v = P([['3x + 2x = 5x²','The powers do not add: 3x + 2x = 5x'],['2(x + 4) = 2x + 4','The 4 must be multiplied by 2: 2x + 8'],['x − (3 − x) = −3','Subtracting a bracket changes both signs: x − 3 + x = 2x − 3'],['(x + 3)² = x² + 9','The middle term is missing: x² + 6x + 9']]); return MC(v[1], ['There is no mistake', 'The x should be removed', 'Both sides should be divided by x'], {q:`Find the mistake: ${v[0]}`, topic:'error-analysis', strand:'Algebra', explain:v[1] + '.'}); },
+isosceles7(){ const top = R(20, 140); const base = (180 - top) / 2; return Number.isInteger(base) ? IN(base, {unit:'°', q:`An isosceles triangle has a top angle of ${top}°. What is each base angle?`, topic:'angles', strand:'Geometry & Measure', explain:`The two base angles are equal: (180 − ${top}) ÷ 2 = ${base}°.`}) : G.isosceles7(); },
+
+/* ---------- Stage 8 ---------- */
+revPct8(){ const orig = R(4, 30) * 10000, p = P([10, 20, 25, 50]); const now = orig * (100 - p) / 100; return IN(orig, {int:true, unit:'Rp', q:`After a ${p}% discount, a bag costs ${rp(now)}. What was the original price?`, topic:'percentages', strand:'Number', explain:`${rp(now)} is ${100 - p}% of the original. ${rp(now)} ÷ ${(100 - p) / 100} = ${rp(orig)}.`}); },
+extAngle8(){ const n = P([5, 6, 8, 9, 10, 12, 15, 18, 20]); return IN(n, {q:`Each exterior angle of a regular polygon is ${360 / n}°. How many sides does it have?`, topic:'angles', strand:'Geometry & Measure', explain:`Exterior angles add to 360°: 360 ÷ ${360 / n} = ${n} sides.`}); },
+error8(){ const v = P([['To find 20% more than 50, I do 50 × 0.2 = 10.','That is only the increase; the new amount is 50 × 1.2 = 60'],['a³ × a⁴ = a¹²','Multiplying: add the powers, a⁷'],['The probability of rain is 0.3, so no rain is 0.3 too.','The two must add to 1: 1 − 0.3 = 0.7']]); return MC(v[1], ['There is no mistake', 'Multiply instead of divide', 'Round the answer'], {q:`What is wrong? ${v[0]}`, topic:'error-analysis', strand:'Number', explain:v[1] + '.'}); },
+
+/* ---------- Stage 9 ---------- */
+speed9(){ const s = P([40, 45, 50, 60, 72, 80]), t = P([0.5, 1.5, 2, 2.5, 3]); return IN(s * t, {unit:'km', q:`A bus travels at ${s} km/h for ${t} hours. How far does it go?`, topic:'rates', strand:'Number', explain:`Distance = speed × time = ${s} × ${t} = ${s * t} km.`}); },
+bounds9(){ const v = R(12, 95), u = P(['cm','kg','m']); return MC(`${v - 0.5} ≤ x < ${v + 0.5}`, [`${v - 1} ≤ x < ${v + 1}`, `${v} ≤ x < ${v + 1}`, `${v - 0.05} ≤ x < ${v + 0.05}`], {q:`A length is ${v} ${u}, correct to the nearest ${u}. Which shows its limits of accuracy?`, topic:'bounds', strand:'Number', explain:`Half a unit either side: lower bound ${v - 0.5}, upper bound ${v + 0.5}.`}); },
+
+/* ---------- IGCSE 0580 (Stage 10–11): Core ---------- */
+boundsIG(){ const v = R(3, 9) * 10, nearest = 10; return IN(v + nearest / 2, {ig:'C1.10', q:`The number of students is ${v}, correct to the nearest 10. What is the upper bound?`, topic:'bounds', strand:'Number', explain:`Half of 10 is 5: upper bound ${v + 5}.`}); },
+revPctIG(){ const orig = R(5, 40) * 20, p = P([5, 10, 15, 20, 25]); const nw = orig * (100 + p) / 100; return Number.isInteger(nw) ? IN(orig, {ig:'C1.13', q:`A price rises by ${p}% to ${nw} dollars. What was it before?`, topic:'percentages', strand:'Number', explain:`${nw} is ${100 + p}% of the original: ${nw} ÷ ${(100 + p) / 100} = ${orig}.`}) : G.revPctIG(); },
+sectorIG(){ const r = P([6, 9, 10, 12]), a = P([60, 90, 120, 30, 45]); const area = Math.round(a / 360 * Math.PI * r * r * 10) / 10; return IN(area, {tol:0.15, ig:'C5.3', unit:'cm²', q:`Find the area of a sector with radius ${r} cm and angle ${a}°. Give your answer to 1 decimal place.`, topic:'circles', strand:'Geometry & Measure', explain:`Area = ${a}/360 × π × ${r}² = ${area} cm².`}); },
+lineEqIG(){ let m = R(-3, 4); if (!m) m = 2; const c = R(-6, 6), x1 = R(-3, 1), x2 = x1 + R(1, 3); const s = lin(m, c, 'x').replace(/^/, 'y = '); return MC(s, ['y = ' + lin(c || 1, m, 'x'), 'y = ' + lin(-m, c, 'x'), 'y = ' + lin(m, -c || 3, 'x')], {ig:'C3.5', q:`A line passes through (${neg(x1)}, ${neg(m * x1 + c)}) and (${neg(x2)}, ${neg(m * x2 + c)}). What is its equation?`, topic:'graphs', strand:'Algebra', explain:`Gradient = ${m}. Substitute a point to find c = ${neg(c)}: ${s}.`}); },
+freqMeanIG(){ const xs = [1, 2, 3, 4]; const fs = xs.map(() => R(1, 8)); const tot = fs.reduce((a, b) => a + b, 0), sum = xs.reduce((a, x, i) => a + x * fs[i], 0); const m = Math.round(sum / tot * 100) / 100; return IN(m, {tol:0.01, ig:'C9.3', q:`Goals scored: 1 (${fs[0]} matches), 2 (${fs[1]}), 3 (${fs[2]}), 4 (${fs[3]}). Find the mean, to 2 decimal places.`, topic:'averages', strand:'Statistics & Probability', explain:`Σfx = ${sum}, Σf = ${tot}. Mean = ${sum}/${tot} = ${m}.`}); },
+parallelIG(){ const a = R(35, 145); const kind = P([['alternate', a],['co-interior', 180 - a],['corresponding', a]]); return IN(kind[1], {ig:'C4.6', unit:'°', q:`Two parallel lines are crossed by a transversal. One angle is ${a}°. Find the ${kind[0]} angle to it.`, topic:'angles', strand:'Geometry & Measure', explain: kind[0] === 'co-interior' ? `Co-interior angles add to 180°: ${180 - a}°.` : `${kind[0][0].toUpperCase() + kind[0].slice(1)} angles are equal: ${a}°.`}); },
+
+/* ---------- IGCSE 0580: Extended only ---------- */
+expGrowthIG(){ const p = P([1000, 2000, 5000]), r = P([10, 20, 5]), n = P([2, 3]); const v = Math.round(p * (1 + r / 100) ** n * 100) / 100; return IN(v, {tol:0.5, ig:'E1.17', q:`A population of ${p} grows by ${r}% each year. What is it after ${n} years?`, topic:'exponential', strand:'Number', explain:`${p} × ${1 + r / 100}^${n} = ${v}.`}); },
+rationaliseIG(){ const a = R(2, 9), b = P([2, 3, 5, 7]); return MC(`${a}√${b}/${b}`, [`${a}/${b}`, `√${b}/${a}`, `${a}√${b}`], {ig:'E1.18', q:`Rationalise the denominator: ${a}/√${b}`, topic:'surds', strand:'Number', explain:`Multiply top and bottom by √${b}: ${a}√${b}/${b}.`}); },
+algFracIG(){ let p = R(-6, 6), q = R(-6, 6); if (!p) p = 2; if (!q || q === p) q = p + 3; return MC(factor(q).replace(/[()]/g, ''), [factor(-q).replace(/[()]/g, ''), factor(p).replace(/[()]/g, ''), '1'], {ig:'E2.3', q:`Simplify: (${quad(p + q, p * q)}) / ${factor(p)}`, topic:'algebraic-fractions', strand:'Algebra', explain:`Factorise the top: ${factor(p)}${factor(q)}. Cancel ${factor(p)}: ${factor(q).replace(/[()]/g, '')}.`}); },
+proportionIG(){ const k = R(2, 6), x1 = R(2, 4), x2 = x1 + R(1, 3), sq = Math.random() < .5; const y1 = sq ? k * x1 * x1 : k * x1, y2 = sq ? k * x2 * x2 : k * x2; return IN(y2, {ig:'E2.8', q:`y is directly proportional to ${sq ? 'x²' : 'x'}. When x = ${x1}, y = ${y1}. Find y when x = ${x2}.`, topic:'proportion', strand:'Algebra', explain:`y = k${sq ? 'x²' : 'x'}, k = ${k}. y = ${k} × ${sq ? x2 + '²' : x2} = ${y2}.`}); },
+stationaryIG(){ const a = R(1, 3), r = R(-4, 4); const b = -2 * a * r, c = R(-5, 5); return IN(r, {ig:'E2.12', q:`Find the x-coordinate of the turning point of y = ${a === 1 ? '' : a}x² ${b < 0 ? '−' : '+'} ${Math.abs(b)}x ${c < 0 ? '−' : '+'} ${Math.abs(c)}.`, topic:'differentiation', strand:'Algebra', explain:`dy/dx = ${2 * a}x ${b < 0 ? '−' : '+'} ${Math.abs(b)} = 0, so x = ${neg(r)}.`}); },
+compositeIG(){ const a = R(2, 5), b = R(-4, 6), c = R(1, 4), x = R(-2, 4); const g = x + c, ans = a * g + b; return IN(ans, {ig:'E2.13', q:`f(x) = ${lin(a, b, 'x')} and g(x) = x + ${c}. Find fg(${neg(x)}).`, topic:'functions', strand:'Algebra', explain:`g(${neg(x)}) = ${g}, then f(${g}) = ${ans}.`}); },
+circleThmIG(){ const v = P(['centre','semicircle','cyclic']); if (v === 'centre'){ const a = R(25, 80); return IN(2 * a, {ig:'E4.7', unit:'°', q:`The angle at the circumference is ${a}°. Find the angle at the centre subtended by the same arc.`, topic:'circle-theorems', strand:'Geometry & Measure', explain:`The angle at the centre is twice the angle at the circumference: ${2 * a}°.`}); } if (v === 'semicircle'){ const a = R(20, 70); return IN(90 - a, {ig:'E4.7', unit:'°', q:`AB is a diameter and C is on the circle. Angle CAB = ${a}°. Find angle CBA.`, topic:'circle-theorems', strand:'Geometry & Measure', explain:`The angle in a semicircle is 90°, so 180 − 90 − ${a} = ${90 - a}°.`}); } const a = R(60, 130); return IN(180 - a, {ig:'E4.7', unit:'°', q:`ABCD is a cyclic quadrilateral. Angle A = ${a}°. Find angle C.`, topic:'circle-theorems', strand:'Geometry & Measure', explain:`Opposite angles in a cyclic quadrilateral add to 180°: ${180 - a}°.`}); },
+exactTrigIG(){ const t = P([['sin 30°','1/2'],['cos 60°','1/2'],['tan 45°','1'],['sin 60°','√3/2'],['cos 30°','√3/2'],['tan 60°','√3'],['sin 45°','√2/2']]); return MC(t[1], ['1/2','√3/2','√2/2','1','√3','1/√3'].filter(x => x !== t[1]).sort(() => Math.random() - .5), {ig:'E6.3', q:`Exact value of ${t[0]}?`, topic:'trigonometry', strand:'Geometry & Measure', explain:`From the 30-60-90 and 45-45-90 triangles: ${t[0]} = ${t[1]}.`}); },
+areaSinIG(){ const a = R(4, 12), b = R(4, 12), C = P([30, 150]); return IN(a * b / 4, {tol:0.01, ig:'E6.5', unit:'cm²', q:`Two sides of a triangle are ${a} cm and ${b} cm, with an included angle of ${C}°. Find the area. (sin ${C}° = 0.5)`, topic:'trigonometry', strand:'Geometry & Measure', explain:`Area = ½ab sin C = ½ × ${a} × ${b} × 0.5 = ${a * b / 4} cm².`}); },
+condProbIG(){ const r = R(3, 6), b = R(2, 5), n = r + b; const c = fstr(r - 1, n - 1); return MC(c, [fstr(r, n), fstr(r - 1, n), fstr(r, n - 1)].filter(s => s !== c), {ig:'E8.4', q:`A bag has ${r} red and ${b} blue counters. The first counter taken (not replaced) is red. What is the probability the second is red?`, topic:'probability', strand:'Statistics & Probability', explain:`After one red is removed: ${r - 1} red out of ${n - 1}. P = ${c}.`}); },
+histoIG(){ const w = P([5, 10, 20]), f = R(2, 12) * (w / 5); return IN(f / w, {tol:0.01, ig:'E9.7', q:`In a histogram, a class 20 ≤ t < ${20 + w} has frequency ${f}. What is its frequency density?`, topic:'statistics', strand:'Statistics & Probability', explain:`Frequency density = frequency ÷ class width = ${f} ÷ ${w} = ${f / w}.`}); }
+});
+
+/* Pools with difficulty tiers (1 = entry, 2 = core, 3 = stretch). Stage 10–11 tier 3 = IGCSE Extended-only. */
+const POOLS2 = {
+  3:['addTwo3:1','arrayMul3:1','blocks3:1','fracPic3:1','clock3:1','shape3:1','line3:1','kitchen3:1','tally3:1','shareGroups3:1',
+     'add3:2','sub3:2','times3:2','div3:2','place3:2','fracOf3:2','time3:2','order3:2',
+     'missAdd3:3','missMul3:3','duration3:3','money3:3'],
+  4:['areaGrid4:1','perim4:1','mult4:1','angle4:1','chance4:1','area4:1',
+     'mul4:2','round4:2','eqFrac4:2','lineTenths4:2','negTemp4:2','time24_4:2','divRem4:2',
+     'missSide4:3','cmpFrac4:3','wordMul4:3','negDiff4:3'],
+  5:['mul1d5:1','square5:1','convert5:1','median5:1','lineHund5:1','factor4:1',
+     'div5:2','round5:2','decAdd5:2','fracAdd5:2','pct5:2','prime5:2','dec10_5:2','estimate5:2',
+     'mul5:3','improper5:3','error5:3','money5:3'],
+  6:['ops6:1','tri6:1','cuboid6:1','range6:1','quad6:1','spinner6:1',
+     'int6:2','lcmHcf6:2','fracAdd6:2','pctQty6:2','mean6:2','estimate6:2',
+     'ratio6:3','asn6:3','missMean6:3','ratioWord6:3'],
+  7:['pow7:1','fdp7:1','ratioSimp7:1','seq7:1','straight7:1','oneStep7:1',
+     'subst7:2','solve7:2','triAng7:2','prob7:2','mixedAdd7:2',
+     'solveBr7:3','error7:3','isosceles7:3'],
+  8:['idx8:1','expand8:1','polygon8:1','prism8:1',
+     'pctChange8:2','fracDiv8:2','solve2_8:2','nth8:2','circle8:2','prob2_8:2',
+     'revPct8:3','extAngle8:3','error8:3'],
+  9:['stdForm9:1','expand2_9:1','grad9:1','relFreq9:1','correl9:1','speed9:1',
+     'ineq9:2','factorise9:2','pyth9:2','similar9:2',
+     'compound9:3','bounds9:3'],
+  10:['sets10:1','func10:1','boundsIG:1','revPctIG:1','parallelIG:1',
+      'quadSolve10:2','simul10:2','trig10:2','tree10:2','sectorIG:2','lineEqIG:2','freqMeanIG:2',
+      'inverse10:3','surd10:3','vector10:3','perp10:3','expGrowthIG:3','rationaliseIG:3','algFracIG:3','proportionIG:3','stationaryIG:3','compositeIG:3','circleThmIG:3','exactTrigIG:3','areaSinIG:3','condProbIG:3','histoIG:3'],
+  12:['disc12:1','rad12:1','dist12:1','series12:2','binom12:2','deriv12:2','integ12:3','stationaryIG:2','compositeIG:2']
+};
+POOLS2[11] = POOLS2[10];
+const IG_TAG = {sets10:'C1.2', func10:'E2.13', quadSolve10:'C2.5', simul10:'C2.5', trig10:'C6.2', tree10:'C8.3', inverse10:'E2.13', surd10:'E1.18', vector10:'E7.3', perp10:'E3.7'};
+function pickGen(stage, tier){
+  const pool = POOLS2[clamp(stage, 3, 12)].map(s => { const [k, t] = s.split(':'); return {k, t:+t}; });
+  const r = Math.random(); const want = Math.max(1, r < .6 ? tier : r < .9 ? tier - 1 : tier - 2);
+  let c = pool.filter(e => e.t === want); if (!c.length) c = pool.filter(e => e.t <= tier); if (!c.length) c = pool;
+  return P(c).k;
+}
+function genMath(key){ let q, g = 0; do { q = G[key](); } while (q.regen && g++ < 20); q.gen = key; if (!q.ig && IG_TAG[key]) q.ig = IG_TAG[key]; return q; }
+const tierOf = lv => Math.min(3, 1 + Math.floor(((lv % 1) + 1e-6) * 3));
 /* ================= CORE: state, helpers, art ================= */
 const APP_URL = 'https://handokokusalaviro-dev.github.io/temantumbuh/';
+const APP_VERSION = 'beta 4 · 25 Oct 2026';
 const KEY = 'temantumbuh.v1';
 const SALT = 'tumbuh26';
 const COACH_PIN_HASH = '3571941926';
@@ -961,7 +1090,7 @@ function safetyCheck(text){
   if (SAFETY_WORDS.some(w => t.includes(w))){ ME.flags.safety = dkey(); save(); S.modal = {type:'care'}; return true; }
   return false;
 }
-function addJournal(type, prompt, text){ if (!text || !text.trim()) return; ME.journal.unshift({id:rid(5), date:dkey(), type, prompt, text:text.trim(), shared:false}); safetyCheck(text); }
+function addJournal(type, prompt, text){ if (!text || !text.trim()) return; const j = {id:rid(8), date:dkey(), type, prompt, text:text.trim(), shared:false}; ME.journal.unshift(j); safetyCheck(text); if (typeof pushJournal === 'function') pushJournal(j); }
 
 let toastTimer = null;
 function toast(msg){ S.toast = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = null; const t = document.querySelector('.toast'); if (t) t.remove(); }, 2600); }
@@ -1110,7 +1239,8 @@ const SUBJ = {
 function levelLabel(subj){
   const lv = ME.levels[subj], g = Math.floor(lv);
   if (subj === 'eng'){ const b = bandOf(g); return {A:'CEFR A1', B:'CEFR A2', C:'CEFR B1', D:'CEFR B1+/B2'}[b]; }
-  if (g >= 12) return 'AS'; if (g >= 10) return 'IGCSE'; return 'Stage ' + g;
+  const t = tierOf(lv);
+  if (g >= 12) return 'AS · ' + L('level','level') + ' ' + t + '/3'; if (g >= 10) return 'IGCSE · ' + (t === 3 ? 'Extended' : 'Core') + ' ' + t + '/3'; return 'Stage ' + g + ' · ' + L('level','level') + ' ' + t + '/3';
 }
 function topicKey(q){ return q.subj + ':' + q.topic; }
 function updateTopic(q, ok){
@@ -1125,14 +1255,14 @@ function dueTopics(subj){ const today = dkey(); return Object.entries(ME.topics)
 function startDrill(subj, mode){
   mode = mode || 'normal';
   const placement = mode === 'normal' && !ME.placed[subj];
-  const D = {subj, mode, placement, i:0, n:10, results:[], streakOK:0, streakNo:0, coins:0, fixOK:0, levelStart:ME.levels[subj], used:[], why:false, rewards: mode === 'boss' || !coreDone(), phase:'q', q:null, lastGen:null};
+  const D = {challenge: mode === 'normal' && !placement && teen() && !!ME.challenge, subj, mode, placement, i:0, n:10, results:[], streakOK:0, streakNo:0, coins:0, fixOK:0, levelStart:ME.levels[subj], used:[], why:false, rewards: mode === 'boss' || !coreDone(), phase:'q', q:null, lastGen:null};
   if (mode === 'boss'){ D.items = ME.queue.slice(0, 10); D.subj = 'mix'; D.n = Math.max(5, D.items.length); while (D.items.length < D.n) D.items.push(null); }
   S.drill = D; S.view = 'drill'; nextQ();
 }
 function placementLevel(i){ const g = ME.grade; const seq = g <= 5 ? [g - 1, g - 1, g - 1, g - 1, g, g, g, g, g, g] : [g - 1, g - 1, g - 1, g, g, g, g, g + 1, g + 1, g + 1]; return clamp(seq[i], 3, 12); }
 /* stretch questions only when the learner is doing well in this session */
 function stretchOK(D){ const ok = D.results.filter(r => r === 'ok').length; return D.i >= 4 && ok / D.i >= .8; }
-function curLevel(D, subj){ return D.placement ? placementLevel(D.i) : ME.levels[subj]; }
+function curLevel(D, subj){ return D.placement ? placementLevel(D.i) + (subj === 'math' && ME.grade > 5 ? 1 / 3 : 0) : ME.levels[subj]; }
 
 function makeMath(D, forceLv){
   let lv = forceLv || curLevel(D, 'math');
@@ -1140,14 +1270,16 @@ function makeMath(D, forceLv){
     const W = P(WHY[bandOf(lv)]); const ord = SH(W.opts.map((_, i) => i));
     return {kind:'mcq', why:true, subj:'math', topic:'reasoning', lv, q:W.q, opts:ord.map(i => W.opts[i]), a:ord.indexOf(W.a), explain:'Reasoning means explaining why, not only what. ' + W.opts[W.a]};
   }
-  let key;
+  let key, stage = Math.floor(lv), tier = tierOf(lv);
+  if (D.challenge){ if (tier < 3) tier++; else if (stage < 12){ stage++; tier = 1; } }
   if (!D.placement && !forceLv){
     const r = Math.random(), due = dueTopics('math').filter(t => t.gen);
     if (r < .2 && due.length) key = P(due).gen;
-    else if (r < .3 && stretchOK(D)) lv = clamp(Math.floor(lv) + 1, 3, 12);
-    else if (r < .5) lv = clamp(Math.floor(lv) - 1, 3, 12);
+    else if (r < .3 && stretchOK(D) && tier === 3 && stage < 12){ stage++; tier = 1; }
+    else if (r < .4 && stage > 3){ stage--; tier = 3; }
   }
-  if (!key){ const pool = poolKeyFor(lv); let g = 0; do { key = P(pool); } while (key === D.lastGen && g++ < 6); }
+  if (!key){ let g = 0; do { key = pickGen(stage, tier); } while (key === D.lastGen && g++ < 6); }
+  lv = stage + (tier - 1) / 3;
   D.lastGen = key;
   const q = genMath(key); q.subj = 'math'; q.lv = lv; return q;
 }
@@ -1184,7 +1316,7 @@ function nextQ(){
   else if (D.subj === 'math') q = makeMath(D);
   else q = makeBank(D, D.subj);
   if (q.why) D.why = true;
-  D.q = q; D.phase = 'q'; D.sel = null; D.reason = null; D.twin = false;
+  D.q = q; D.phase = 'q'; D.sel = null; D.reason = null; D.twin = false; if (ME.classCode && D.i % 3 === 0) syncSoon();
   render(); setTimeout(() => { if (q.kind === 'listen') speak(q.say); const el = document.getElementById('ans'); if (el) el.focus(); }, 60);
 }
 function queuePush(q){
@@ -1193,7 +1325,9 @@ function queuePush(q){
   if (!ME.queue.some(r => (r.gen && r.gen === ref.gen) || (r.id && r.id === ref.id))) ME.queue.push(Object.assign(ref, {added:dkey(), topic:q.topic}));
   if (ME.queue.length > 30) ME.queue.shift();
 }
-function setLevel(subj, delta){ if (subj === 'mix') return; const cap = Math.min(12, ME.grade + 3), low = Math.max(3, ME.grade - 3); ME.levels[subj] = clamp(Math.round((ME.levels[subj] + delta) * 2) / 2, low, cap); }
+function setLevel(subj, delta){ if (subj === 'mix') return; const low = Math.max(3, ME.grade - 3);
+  if (subj === 'math'){ const cap = Math.min(12 + 2 / 3, ME.grade + 3); ME.levels.math = clamp(Math.round((ME.levels.math + (delta > 0 ? 1 : -1) / 3) * 3) / 3, low, cap); return; }
+  const cap = Math.min(12, ME.grade + 3); ME.levels[subj] = clamp(Math.round((ME.levels[subj] + delta) * 2) / 2, low, cap); }
 
 function graded(ok){
   const D = S.drill, q = D.q, subj = q.subj;
@@ -1225,7 +1359,7 @@ function finishDrill(){
   if (D.placement){
     const at = lv => { let n = 0, k = 0; D.results.forEach((r, i) => { if (placementLevel(i) === lv){ n++; if (r === 'ok') k++; } }); return n ? k / n : 0; };
     const g = ME.grade; let lv = g; if (at(clamp(g + 1, 3, 12)) >= .67 && at(g) >= .75) lv = clamp(g + 1, 3, 12); else if (at(g) < .5) lv = clamp(g - 1, 3, 12);
-    ME.levels[D.subj] = lv; ME.placed[D.subj] = true; D.placedTo = lv;
+    ME.levels[D.subj] = D.subj === 'math' && ME.grade > 5 ? lv + 1 / 3 : lv; ME.placed[D.subj] = true; D.placedTo = lv;
   }
   const key = D.mode === 'boss' ? 'boss' : D.subj;
   const rec = d.drills[key] || (d.drills[key] = {s:0, n:0, c:0}); rec.s++; rec.n += D.n; rec.c += c;
@@ -1233,6 +1367,7 @@ function finishDrill(){
   else if (D.rewards) D.got = give({coins:D.coins, xp:10 + (D.why ? 5 : 0), st:{energy:30 + (D.why ? 5 : 0)}});
   else { D.got = 0; give({xp:0, st:{energy:10}}); }
   D.correct = c; D.fixes = f; D.phase = 'done'; save(); render();
+  logEvent('drill', {subj:D.mode === 'boss' ? 'boss' : D.subj, n:D.n, c, fix:f, lv:D.mode === 'boss' ? null : ME.levels[D.subj], placement:D.placement, challenge:!!D.challenge}); syncSoon();
 }
 
 /* speech for listening items */
@@ -1250,7 +1385,7 @@ function vDrill(){
     <span class="pill num"><i class="coin"></i>+${D.coins}</span></div>
   <div class="dots" aria-label="progress">${dots}</div>
   ${D.phase === 'twin' || D.phase === 'twinfb' ? `<span class="tag warn">${L('Twin question: same idea, new numbers','Soal kembar: ide sama, angka baru')}</span>` : ''}
-  ${q.why ? `<span class="tag info">${L('Explain why','Jelaskan alasannya')}</span>` : ''}
+  <div class="row">${q.why ? `<span class="tag info">${L('Explain why','Jelaskan alasannya')}</span>` : ''}${q.ig && ME.grade >= 10 ? `<span class="tag">IGCSE ${q.ig}</span>` : ''}${q.topic === 'error-analysis' ? `<span class="tag info">${L('Find the mistake','Temukan kesalahan')}</span>` : ''}${D.challenge ? `<span class="tag warn">Challenge</span>` : ''}</div>
   ${qBody(D, q)}
   </div>`;
 }
@@ -1264,6 +1399,7 @@ function qBody(D, q){
   if (q.kind === 'read') h += `<div class="card passage">${q.passage.map((s, i) => `<button class="sent ${D.phase === 'evidence' ? 'pickable' : ''} ${D.evPick === i ? (i === q.ev ? 'ev-ok' : 'ev-no') : ''}" ${D.phase === 'evidence' ? `data-a="evidence" data-v="${i}"` : 'tabindex="-1"'}>${esc(s)}</button>`).join('')}</div>`;
   if (q.kind === 'poe') return h + poeBody(D, q, sciHelp);
   h += `<p class="qtext">${esc(q.q || L('Build the sentence','Susun kalimatnya'))}</p>${sciHelp}`;
+  if (q.pic && (q.picAlways || tierOf(q.lv || 3) === 1 || D.phase === 'fixexp')) h += `<div class="qpic">${q.pic}</div>`;
   if (q.kind === 'balance') h += balanceSVG(q.left, q.right);
   if (['mcq','vocab','listen','read'].includes(q.kind)){
     h += `<div class="opts ${q.kind === 'vocab' ? 'grid3' : ''}">${q.opts.map((o, i) => { let cls = ''; if (locked || D.phase === 'evidence'){ if (i === q.a) cls = 'right'; else if (i === D.sel) cls = 'wrong'; } return `<button class="opt ${q.kind === 'vocab' ? 'big' : ''} ${cls}" ${locked || D.phase === 'evidence' ? 'disabled' : `data-a="pick" data-v="${i}"`}>${esc(o)}</button>`; }).join('')}</div>`;
@@ -1338,6 +1474,7 @@ function vDrillDone(){
   <button class="btn ghost block" data-a="go" data-v="practice">${L('Practice something else','Latihan yang lain')}</button></div>`;
 }
 /* ================= VIEWS ================= */
+function privNote(){ return ME && ME.classCode ? L('Your coach can read this.','Coach-mu bisa membaca ini.') : L('Only you can see this. You can choose to share it later.','Hanya kamu yang bisa melihat ini. Kamu bisa memilih untuk membagikannya nanti.'); }
 function moodOf(){ const s = ME.stats; if (coreDone() || new Date().getHours() >= 21) return 'sleep'; const lo = Math.min(s.energy, s.mood); return lo < 35 ? 'sad' : lo < 55 ? 'ok' : 'happy'; }
 function petLine(){
   const d = day(), s = ME.stats, n = esc(ME.name);
@@ -1432,6 +1569,7 @@ function vHome(){
   const pend = ME.pending.length;
   return `<div class="stack">${topbar()}
   ${storageOK ? '' : `<div class="notice">${L('This browser is not saving progress. Ask a parent to copy a backup code from the Parent area.','Browser ini tidak menyimpan progres. Minta orang tua menyalin kode cadangan di Area orang tua.')}</div>`}
+  ${inboxCard()}
   ${roomHTML({jump:S.params.jump})}
   ${teen() ? teenStatus() : ''}
   <div class="card stack">${xpBlock()}${statBars()}</div>
@@ -1469,6 +1607,7 @@ function vPractice(){
   const w = wk().write;
   return `<div class="stack">${topbar(L('Practice','Latihan'))}
   ${coreDone() ? `<div class="notice">${L('Your companion is asleep. You can still practise, but coins are paused until tomorrow.','Companion sedang tidur. Kamu tetap bisa latihan, tapi koin berhenti sampai besok.')}</div>` : ''}
+  ${teen() ? `<div class="card stack-sm"><div class="row between"><b>${L('Difficulty','Tingkat kesulitan')}</b><div class="seg"><button class="${ME.challenge ? '' : 'on'}" data-a="setChallenge" data-v="0">${L('Standard','Standar')}</button><button class="${ME.challenge ? 'on' : ''}" data-a="setChallenge" data-v="1">Challenge</button></div></div><p class="tiny muted">${L('Challenge starts Math one level higher. Your choice; your level still adapts.','Challenge memulai Math satu level lebih tinggi. Kamu yang memilih; levelmu tetap menyesuaikan.')}</p></div>` : ''}
   <div class="stack-sm">${Object.entries(SUBJ).map(([k, s]) => { const r = d.drills[k]; return `<button class="card tap row" data-a="drill" data-v="${k}"><span class="subj"><span class="ic" style="background:color-mix(in srgb, ${s.color} 22%, transparent);color:${s.color}">${ic(s.icon)}</span></span>
     <span class="grow"><b>${tx(s)}</b> <span class="muted small">· ${tx(teen() ? s.tgame : s.game)}</span><br><span class="small muted">${ME.placed[k] ? levelLabel(k) : L('First time: a short warm-up finds your level','Pertama kali: pemanasan singkat mencari levelmu')}</span></span>
     ${r ? `<span class="tag good">${r.c}/${r.n}</span>` : ''}</button>`; }).join('')}</div>
@@ -1508,7 +1647,7 @@ function vReview(){
     <div class="row"><label class="field grow"><span class="small">${L('Real time (min)','Waktu nyata (menit)')}</span><input class="input" id="ra${i}" inputmode="numeric" value="${p.actual || ''}" placeholder="—"></label>
     <label class="field grow"><span class="small">${L('If not done, why?','Kalau belum, kenapa?')}</span><select class="input" id="rw${i}"><option value="">—</option>${why.map(([k, l]) => `<option value="${k}" ${p.why === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div></div>`).join('') : `<p class="muted">${L('No plan today. Tomorrow, start with a check-in.','Tidak ada rencana hari ini. Besok mulai dengan check-in.')}</p>`}
   </div>
-  <div class="card stack"><label class="field"><span>${tx(mq)}</span><textarea class="input" id="rtext" maxlength="300" placeholder="${L('One sentence is enough','Satu kalimat sudah cukup')}"></textarea></label><p class="tiny muted">${L('Only you can see this. You can choose to share it later.','Hanya kamu yang bisa melihat ini. Kamu bisa memilih untuk membagikannya nanti.')}</p></div>
+  <div class="card stack"><label class="field"><span>${tx(mq)}</span><textarea class="input" id="rtext" maxlength="300" placeholder="${L('One sentence is enough','Satu kalimat sudah cukup')}"></textarea></label><p class="tiny muted">${privNote()}</p></div>
   <button class="btn block" data-a="reviewSave">${L('Save review','Simpan review')}</button></div>`;
 }
 function calib(d){
@@ -1584,7 +1723,7 @@ function vQuest(){
   } else if (step === 1){
     body = `<div class="card stack"><p>${L('Do the mission in real life. Come back when you have done it.','Lakukan misinya di dunia nyata. Kembali setelah kamu melakukannya.')}</p><p class="qtext">${esc(tx(Q.task))}</p><button class="btn" data-a="qStep" data-v="2">${L('I did it','Sudah kulakukan')}</button></div>`;
   } else {
-    body = `<div class="card stack"><label class="field"><span>${esc(tx(Q.reflect))}</span><textarea class="input" id="qref" maxlength="500"></textarea></label><p class="tiny muted">${L('Private by default. Your parent only sees that the quest was completed.','Privat secara default. Orang tua hanya melihat bahwa quest selesai.')}</p>
+    body = `<div class="card stack"><label class="field"><span>${esc(tx(Q.reflect))}</span><textarea class="input" id="qref" maxlength="500"></textarea></label><p class="tiny muted">${privNote()} ${L('Your parent only sees that the quest was completed.','Orang tua hanya melihat bahwa quest selesai.')}</p>
     ${self ? `<div class="stack-sm"><span class="label">${L('Self-check','Cek diri')}</span>${[L('I did the action','Aku melakukan aksinya'), L('I thought about why it matters','Aku memikirkan kenapa ini penting'), L('I would do it again','Aku mau melakukannya lagi')].map((t, i) => `<div class="sortrow"><span>${t}</span><div class="seg">${[1, 2, 3].map(v => `<button class="${(q.self || [])[i] === v ? 'on' : ''}" data-a="qSelf" data-v="${i}:${v}">${v}</button>`).join('')}</div></div>`).join('')}</div>` : ''}
     <button class="btn" data-a="qFinish">${self ? L('Complete quest','Selesaikan quest') : L('Ask a parent to confirm','Minta orang tua konfirmasi')}</button></div>`;
   }
@@ -1615,7 +1754,7 @@ function vCoachM(){
   const c = ME.coach.find(x => x.id === S.params.cid); if (!c) return vMissions();
   const gated = c.agr && !ME.agreement;
   return `<div class="stack">${topbar(L('Coach mission','Misi coach'), 'missions')}<div class="card stack"><h3>${esc(c.t)}</h3>${c.d ? `<p class="small muted">${esc(c.d)}</p>` : ''}
-  <div class="steps">${c.steps.map((s, i) => { const lock = gated && i >= 2; return `<div class="step ${s.done ? 'done' : ''}"><span class="n">${i + 1}</span><div class="grow stack-sm"><span>${esc(s.t)}</span>${lock ? `<span class="tag warn">${L('Waiting for your parent to agree to the honesty promise','Menunggu orang tua menyetujui janji kejujuran')}</span>` : s.done ? (s.note ? `<span class="tiny muted">${esc(s.note)}</span>` : '') : (i === c.steps.findIndex(x => !x.done) ? `<textarea class="input" id="cm${i}" maxlength="400" placeholder="${L('Note (private)','Catatan (privat)')}"></textarea><button class="btn sm soft" data-a="cmStep" data-v="${i}">${L('Mark done','Tandai selesai')}</button>` : '')}</div></div>`; }).join('')}</div>
+  <div class="steps">${c.steps.map((s, i) => { const lock = gated && i >= 2; return `<div class="step ${s.done ? 'done' : ''}"><span class="n">${i + 1}</span><div class="grow stack-sm"><span>${esc(s.t)}</span>${lock ? `<span class="tag warn">${L('Waiting for your parent to agree to the honesty promise','Menunggu orang tua menyetujui janji kejujuran')}</span>` : s.done ? (s.note ? `<span class="tiny muted">${esc(s.note)}</span>` : '') : (i === c.steps.findIndex(x => !x.done) ? `<textarea class="input" id="cm${i}" maxlength="400" placeholder="${L('Note','Catatan')}"></textarea><button class="btn sm soft" data-a="cmStep" data-v="${i}">${L('Mark done','Tandai selesai')}</button>` : '')}</div></div>`; }).join('')}</div>
   ${c.status === 'open' && c.steps.every(s => s.done) ? `<button class="btn" data-a="cmFinish">${L('Ask for a final check','Minta pengecekan akhir')}</button>` : statusTag(c.status)}</div></div>`;
 }
 
@@ -1730,10 +1869,12 @@ function vParent(){
     <div class="card stack"><h3>${L('Player settings','Pengaturan pemain')}</h3>
       <label class="field"><span>${L('Grade','Kelas')}</span><select class="input" id="sGrade">${[3,4,5,6,7,8,9,10,11,12].map(g => `<option ${ME.grade === g ? 'selected' : ''}>${g}</option>`).join('')}</select></label>
       <label class="field"><span>${L('Language for instructions','Bahasa instruksi')}</span><select class="input" id="sLang"><option value="en" ${ME.lang === 'en' ? 'selected' : ''}>English</option><option value="id" ${ME.lang === 'id' ? 'selected' : ''}>Bahasa Indonesia</option></select></label>
+      <label class="field"><span>${L('Parent name','Nama orang tua')}</span><input class="input" id="sPName" maxlength="40" value="${esc(ME.parentName || '')}"></label>
       <label class="field"><span>${L('Parent WhatsApp number (optional)','Nomor WhatsApp orang tua (opsional)')}</span><input class="input" id="sPhone" inputmode="tel" value="${esc(ME.phone)}" placeholder="08…"></label>
       <label class="field"><span>${L('New child PIN (leave empty to keep)','PIN anak baru (kosongkan jika tetap)')}</span><input class="input" id="sPin" inputmode="numeric" maxlength="4"></label>
       <label class="field"><span>${L('New parent PIN (leave empty to keep)','PIN orang tua baru (kosongkan jika tetap)')}</span><input class="input" id="sPPin" inputmode="numeric" maxlength="4"></label>
       <button class="btn" data-a="saveSettings">${L('Save settings','Simpan pengaturan')}</button></div>
+    <div class="card stack-sm"><h3>${L('Class (coach dashboard)','Kelas (dashboard coach)')}</h3>${ME.classCode ? `<p class="small">${L('Joined','Tergabung')}: <b>${esc(ME.className || ME.classCode)}</b> (${esc(ME.classCode)}). ${L('Activity, scores, missions and written reflections are sent to the coach.','Aktivitas, skor, misi, dan refleksi tertulis dikirim ke coach.')}</p>${ME.syncErr ? `<p class="tiny" style="color:var(--bad)">${L('Last sync problem','Masalah sinkron terakhir')}: ${esc(ME.syncErr)}</p>` : ''}<button class="btn ghost sm" data-a="leaveClass">${L('Stop sending data','Berhenti mengirim data')}</button>` : `<p class="small muted">${L('Joining a class lets the coach see activity, scores, missions and written reflections, and send messages or missions.','Bergabung ke kelas membuat coach bisa melihat aktivitas, skor, misi, dan refleksi tertulis, serta mengirim pesan atau misi.')}</p><div class="row"><input class="input grow" id="jcCode" maxlength="8" placeholder="${L('Class code','Kode kelas')}" style="text-transform:uppercase"><button class="btn sm" data-a="joinClassBtn">${L('I agree, join','Saya setuju, gabung')}</button></div>`}</div>
     <div class="card stack-sm"><h3>${L('Backup','Cadangan')}</h3><p class="small muted">${L('Progress is saved in this browser. Copy this code somewhere safe to move to another device.','Progres tersimpan di browser ini. Salin kode ini ke tempat aman untuk pindah perangkat.')}</p><button class="btn soft" data-a="copy" data-v="backup">${ic('copy', 'style="width:16px;height:16px"')} ${L('Copy backup code','Salin kode cadangan')}</button></div>
     <div class="card stack-sm"><h3>${L('Remove this player','Hapus pemain ini')}</h3>${S.params.confirmDel ? `<p class="small">${L('This deletes all progress on this device. Are you sure?','Ini menghapus semua progres di perangkat ini. Yakin?')}</p><div class="row"><button class="btn warn sm" data-a="delPlayer">${L('Delete','Hapus')}</button><button class="btn ghost sm" data-a="pset" data-v="confirmDel:0">${L('Cancel','Batal')}</button></div>` : `<button class="btn ghost sm" data-a="pset" data-v="confirmDel:1">${L('Delete player…','Hapus pemain…')}</button>`}</div>`;
   }
@@ -1759,10 +1900,11 @@ function reportText(){
 /* ===== coach (device-level) ===== */
 function vCoach(){
   if (!S.unlockedCoach) return vPin('coach');
-  const tab = S.params.ctab || 'students';
-  const tabs = [['students',L('Students','Siswa')],['mission',L('New mission','Misi baru')]];
+  const tab = S.params.ctab || 'live';
+  const tabs = [['live',L('Live dashboard','Dashboard live')],['students',L('WhatsApp reports','Laporan WhatsApp')],['mission',L('Mission code','Kode misi')]];
   let body = '';
-  if (tab === 'students'){
+  if (tab === 'live'){ if (!ADM.started){ ADM.started = true; adminStart(); } body = vAdminLive(); }
+  else if (tab === 'students'){
     const reps = DB.coach.reports;
     body = `<div class="card stack-sm"><label class="field"><span>${L('Paste a report code from WhatsApp','Tempel kode laporan dari WhatsApp')}</span><textarea class="input" id="repIn" placeholder="TT1.…" style="min-height:70px"></textarea></label><button class="btn" data-a="importRep">${L('Add report','Tambah laporan')}</button></div>
     ${reps.length ? `<div class="card scroll-x"><table class="tbl"><thead><tr><th>${L('Student','Siswa')}</th><th>${L('Week','Minggu')}</th><th>${L('Days','Hari')}</th><th>Math</th><th>Eng</th><th>Sci</th><th>${L('Plans','Rencana')}</th><th>Fix-It</th><th>${L('Mistakes','Salah')}</th><th>EF</th><th>${L('Flag','Tanda')}</th><th></th></tr></thead><tbody>
@@ -1805,7 +1947,7 @@ function vProfiles(){
   <div class="row" style="justify-content:center"><button class="btn ghost sm" data-a="restore">${L('Restore from backup','Pulihkan dari cadangan')}</button><button class="btn ghost sm" data-a="openCoach_">${L('Coach tools','Alat coach')}</button></div>
   ${S.params.restoreOpen ? `<div class="card stack-sm"><textarea class="input" id="bkIn" placeholder="TTB1.…"></textarea><button class="btn" data-a="doRestore">${L('Restore','Pulihkan')}</button></div>` : ''}
   ${storageOK ? '' : `<div class="notice">${L('This browser is blocking saved data, so progress will be lost when the page closes.','Browser ini memblokir penyimpanan, jadi progres akan hilang saat halaman ditutup.')}</div>`}
-  <p class="tiny muted center">${L('Progress is stored on this device only.','Progres hanya disimpan di perangkat ini.')}</p></div>`;
+  <p class="tiny muted center">${L('Progress is stored on this device only.','Progres hanya disimpan di perangkat ini.')} · ${APP_VERSION}</p></div>`;
 }
 function vCreate(){
   const c = S.create, st = c.step;
@@ -1822,7 +1964,10 @@ function vCreate(){
     <label class="field"><span>${L('Child PIN (4 digits)','PIN anak (4 angka)')}</span><input class="input" id="cPin" inputmode="numeric" maxlength="4" autocomplete="off"></label>
     <label class="field"><span>${L('Parent PIN (4 digits, keep it secret from your child)','PIN orang tua (4 angka, rahasiakan dari anak)')}</span><input class="input" id="cPPin" inputmode="numeric" maxlength="4" autocomplete="off" type="password"></label>
     <label class="field"><span>${L('Parent WhatsApp number (optional)','Nomor WhatsApp orang tua (opsional)')}</span><input class="input" id="cPhone" inputmode="tel" placeholder="08…"></label>
-    <p class="tiny muted">${L('The parent PIN confirms real-life missions and opens the Parent area. Everything stays on this device.','PIN orang tua untuk mengonfirmasi misi kehidupan dan membuka Area orang tua. Semua tetap di perangkat ini.')}</p>`;
+    <label class="field"><span>${L('Parent name (optional)','Nama orang tua (opsional)')}</span><input class="input" id="cPName" maxlength="40"></label>
+    <label class="field"><span>${L('Class code from the coach (optional)','Kode kelas dari coach (opsional)')}</span><input class="input" id="cClass" maxlength="8" autocomplete="off" style="text-transform:uppercase"></label>
+    <label class="row" style="align-items:flex-start"><input type="checkbox" id="cConsent" style="width:20px;height:20px;margin-top:2px"><span class="small">${L('If a class code is entered: I agree that my child\'s activity, scores, missions and written reflections are sent to the school coach for this pilot.','Jika kode kelas diisi: saya setuju aktivitas, skor, misi, dan refleksi tertulis anak saya dikirim ke coach sekolah untuk pilot ini.')}</span></label>
+    <p class="tiny muted">${L('The parent PIN confirms real-life missions and opens the Parent area. Without a class code, everything stays on this device.','PIN orang tua untuk mengonfirmasi misi kehidupan dan membuka Area orang tua. Tanpa kode kelas, semua tetap di perangkat ini.')}</p>`;
   return `<div class="stack" style="padding-top:12px"><div class="topbar"><button class="iconbtn" data-a="cBack" aria-label="back">${ic('back')}</button><h2 class="grow">${L('New player','Pemain baru')}</h2><span class="tag">${st}/3</span></div>
   <div class="card stack">${body}${c.err ? `<p style="color:var(--bad)"><b>${c.err}</b></p>` : ''}</div><button class="btn block" data-a="cNext">${st === 3 ? (teenFirst ? L('Set up my space','Siapkan ruangku') : L('Hatch my companion','Tetaskan companion')) : L('Next','Lanjut')}</button></div>`;
 }
@@ -1870,6 +2015,201 @@ function modalHTML(){
   }
   return `<div class="overlay" role="dialog" aria-modal="true"><div class="sheet">${inner}</div></div>`;
 }
+/* ================= SYNC (Firebase) + ADMIN DASHBOARD ================= */
+const FB_CONFIG = {apiKey:'AIzaSyAX_KWZ2f-ZpNCaDv2A4MxMmf8rBl44mZ4', authDomain:'temantumbuh-acc0f.firebaseapp.com', projectId:'temantumbuh-acc0f', storageBucket:'temantumbuh-acc0f.firebasestorage.app', messagingSenderId:'703107729352', appId:'1:703107729352:web:13e0276a1b4a52853922fd'};
+const ADMIN_EMAILS = ['handokokusalaviro@gmail.com'];
+const SA = {};
+const SYNC = {ok:false, starting:null, inboxUnsub:null, inboxFor:null, inbox:[], beat:null, last:0, soon:null};
+const ADM = {user:null, students:[], classes:[], unsub:[], sel:null, detail:null, detailUnsub:[], filter:'all', err:''};
+
+function fbAvailable(){ return typeof window !== 'undefined' && window.firebase && firebase.initializeApp; }
+function fbStart(){
+  if (SYNC.starting) return SYNC.starting;
+  SYNC.starting = (async () => {
+    if (!fbAvailable()) return false;
+    try { if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG); SYNC.auth = firebase.auth(); SYNC.db = firebase.firestore();
+      await new Promise(res => { const u = SYNC.auth.onAuthStateChanged(() => { u(); res(); }); });
+      SYNC.ok = true; return true; } catch (e) { console.warn('firebase', e); return false; }
+  })();
+  return SYNC.starting;
+}
+const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+const isAdminUser = u => !!u && !u.isAnonymous && u.emailVerified && ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+
+/* ---------- child side ---------- */
+async function kidAuth(){ if (!(await fbStart())) return null; const u = SYNC.auth.currentUser; if (u && u.isAnonymous) return u; if (u && !u.isAnonymous) return null; /* a coach is signed in on this device: do not mix */ const r = await SYNC.auth.signInAnonymously(); return r.user; }
+function activityLabel(){
+  const v = S.view, D = S.drill;
+  if (v === 'drill' && D){ const s = D.mode === 'boss' ? 'Boss Review' : tx(SUBJ[D.subj]); return D.phase === 'done' ? `${s} · finished` : `${s} · Q${D.i + 1}/${D.n}${D.q && D.q.topic ? ' · ' + D.q.topic : ''}`; }
+  const m = {home:'Home', checkin:'Check-in', practice:'Practice menu', timer:S.timer ? (S.timer.mode === 'focus' ? 'Focus timer' : 'Task timer: ' + (S.timer.label || '')) : 'Timer', review:'Evening review', missions:'Missions', ef:'Life skill', quest:'Weekly quest', enq:'Quest Map', write:'Postcard', season:'Season quest', coachm:'Coach mission', valreq:'Asking for a check', room:'Room', growth:'Growth', goal:'My target', parent:'Parent area'};
+  return m[v] || v;
+}
+function studentDoc(){
+  const r = reportData();
+  return {ownerUid:SYNC.auth.currentUser.uid, secret:ME.syncSecret, classCode:ME.classCode, name:ME.name, grade:ME.grade, lang:ME.lang, pet:ME.pet, petName:ME.petName,
+    stage:ME.stage, xp:ME.xp, coins:ME.coins, pd:ME.pd, streak:ME.streak, stats:ME.stats, levels:ME.levels, report:r,
+    pending:ME.pending.map(p => ({pid:p.pid, kind:p.kind, title:p.title, created:p.created, validator:p.validator})),
+    goal:ME.goal || null, today:(() => { const d = day(); return {checkin:!!d.checkin, mood:d.mood || null, plan:d.plan.map(p => ({t:p.t, est:p.est, done:!!p.done, actual:p.actual || null})), review:!!d.reviewDone, drills:d.drills}; })(),
+    parentName:ME.parentName || '', parentPhone:ME.phone || '', activity:activityLabel(), visible:!document.hidden, lastSeen:TS(), version:APP_VERSION};
+}
+async function syncNow(){
+  if (!ME || !ME.classCode) return;
+  try { const u = await kidAuth(); if (!u) return;
+    if (!ME.syncSecret){ ME.syncSecret = rid(16); save(); }
+    await SYNC.db.collection('students').doc(ME.id).set(studentDoc(), {merge:true});
+    SYNC.last = Date.now(); ME.syncErr = null; listenInbox();
+  } catch (e) { console.warn('sync', e); ME.syncErr = String(e.code || e.message || e); }
+}
+function syncSoon(){ clearTimeout(SYNC.soon); SYNC.soon = setTimeout(syncNow, 2500); }
+function syncHeartbeat(){ clearInterval(SYNC.beat); SYNC.beat = setInterval(() => { if (ME && ME.classCode && !document.hidden) syncNow(); }, 45000); }
+document.addEventListener('visibilitychange', () => { if (ME && ME.classCode) syncNow(); });
+async function logEvent(type, data){
+  if (!ME || !ME.classCode) return;
+  try { const u = await kidAuth(); if (!u) return; await SYNC.db.collection('students').doc(ME.id).collection('events').add({type, data:data || {}, at:TS(), date:dkey()}); } catch (e) { console.warn('event', e); }
+}
+async function pushJournal(j){
+  if (!ME || !ME.classCode) return;
+  try { const u = await kidAuth(); if (!u) return; await SYNC.db.collection('students').doc(ME.id).collection('journal').doc(j.id).set({date:j.date, type:j.type, prompt:j.prompt || '', text:j.text, shared:!!j.shared, at:TS()}); } catch (e) { console.warn('journal', e); }
+}
+function listenInbox(){
+  if (!SYNC.ok || !ME || !ME.classCode || SYNC.inboxFor === ME.id) return;
+  if (SYNC.inboxUnsub) SYNC.inboxUnsub();
+  SYNC.inboxFor = ME.id;
+  SYNC.inboxUnsub = SYNC.db.collection('students').doc(ME.id).collection('inbox').orderBy('at', 'desc').limit(30).onSnapshot(snap => {
+    SYNC.inbox = snap.docs.map(d => Object.assign({id:d.id}, d.data()));
+    for (const m of SYNC.inbox){
+      if (m.type === 'mission' && !m.done && m.mission && !ME.coach.some(c => c.id === m.mission.id)){
+        ME.coach.push({id:m.mission.id, t:m.mission.t, d:m.mission.d || '', v:m.mission.v === 'parent' ? 'parent' : 'coach', agr:!!m.mission.agr, steps:(m.mission.steps || []).filter(Boolean).map(t => ({t, done:false})), status:'open'});
+        save(); snap.docs.find(d => d.id === m.id).ref.update({done:true, doneAt:TS()}).catch(() => {});
+        toast(L('New mission from your coach','Misi baru dari coach'));
+      }
+      if (m.type === 'confirm' && !m.done){
+        const p = ME.pending.find(x => x.pid === m.pid);
+        if (p) resolvePending(p);
+        snap.docs.find(d => d.id === m.id).ref.update({done:true, doneAt:TS()}).catch(() => {});
+      }
+    }
+    if (!S._typing) render();
+  }, e => console.warn('inbox', e));
+}
+function stopInbox(){ if (SYNC.inboxUnsub) SYNC.inboxUnsub(); SYNC.inboxUnsub = null; SYNC.inboxFor = null; SYNC.inbox = []; }
+async function joinClass(code){
+  code = String(code || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{4,8}$/.test(code)) return L('Class codes are 4–8 letters or numbers.','Kode kelas berisi 4–8 huruf atau angka.');
+  if (!(await fbStart())) return L('Cannot reach the server. Check the internet connection.','Server tidak terjangkau. Periksa koneksi internet.');
+  try { const u = await kidAuth(); if (!u) return L('A coach account is signed in on this device. Use another device for players.','Akun coach sedang masuk di perangkat ini. Gunakan perangkat lain untuk pemain.');
+    const c = await SYNC.db.collection('classes').doc(code).get(); if (!c.exists) return L('That class code does not exist.','Kode kelas tidak ditemukan.');
+    ME.classCode = code; ME.className = c.data().name || code; if (!ME.syncSecret) ME.syncSecret = rid(16); save(); await syncNow(); return null;
+  } catch (e) { return L('Could not join: ','Gagal bergabung: ') + (e.code || e.message); }
+}
+function inboxCard(){
+  if (!ME || !ME.classCode) return '';
+  const msgs = SYNC.inbox.filter(m => m.type === 'message');
+  if (!msgs.length) return '';
+  const unread = msgs.filter(m => !m.read);
+  const show = (unread.length ? unread : msgs).slice(0, 3);
+  return `<div class="card stack-sm" style="border-left:4px solid var(--leaf)"><div class="row between"><span class="label">${L('From your coach','Dari coach-mu')}</span>${unread.length ? `<span class="tag warn">${unread.length} ${L('new','baru')}</span>` : ''}</div>${show.map(m => `<div class="stack-sm"><p>${esc(m.text)}</p><div class="row between"><span class="tiny muted">${m.at && m.at.toDate ? m.at.toDate().toLocaleString(lang() === 'id' ? 'id-ID' : 'en-GB', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : ''}</span>${m.read ? '' : `<button class="btn sm soft" data-a="readMsg" data-v="${m.id}">${L('Got it','Oke, dibaca')}</button>`}</div></div>`).join('<div class="divider"></div>')}</div>`;
+}
+SA.readMsg = async function(id){ try { await SYNC.db.collection('students').doc(ME.id).collection('inbox').doc(id).update({read:true, readAt:TS()}); } catch (e) { toast(L('Could not update. Try again later.','Gagal memperbarui. Coba lagi nanti.')); } };
+SA.joinClassBtn = async function(){ const err = await joinClass(readVal('jcCode')); if (err){ toast(err); return; } toast(L('Joined the class','Berhasil bergabung ke kelas')); S._clear = true; render(); };
+SA.leaveClass = async function(){ ME.classCode = null; ME.className = null; save(); stopInbox(); toast(L('This player no longer sends data to the coach','Pemain ini tidak lagi mengirim data ke coach')); render(); };
+
+/* ---------- admin side ---------- */
+function adminSignedIn(){ return isAdminUser(ADM.user); }
+async function adminStart(){
+  if (!(await fbStart())){ ADM.err = L('Live dashboard needs the online version of the app (GitHub Pages) and an internet connection.','Dashboard live butuh versi online (GitHub Pages) dan koneksi internet.'); render(); return; }
+  ADM.user = SYNC.auth.currentUser; if (adminSignedIn()) adminListen(); render();
+}
+SA.adminSignIn = async function(){
+  if (!(await fbStart())){ ADM.err = L('Cannot reach the server.','Server tidak terjangkau.'); render(); return; }
+  try { const prov = new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'}); const r = await SYNC.auth.signInWithPopup(prov); ADM.user = r.user;
+    if (!adminSignedIn()){ ADM.err = L(`${r.user.email} is not an admin.`, `${r.user.email} bukan admin.`); await SYNC.auth.signOut(); ADM.user = null; } else { ADM.err = ''; adminListen(); }
+  } catch (e) { ADM.err = String(e.code || e.message); }
+  render();
+};
+SA.adminSignOut = async function(){ ADM.unsub.forEach(u => u()); ADM.unsub = []; ADM.detailUnsub.forEach(u => u()); ADM.detailUnsub = []; try { await SYNC.auth.signOut(); } catch (e) {} ADM.user = null; ADM.students = []; ADM.sel = null; render(); };
+function adminListen(){
+  ADM.unsub.forEach(u => u()); ADM.unsub = [];
+  ADM.unsub.push(SYNC.db.collection('students').onSnapshot(s => { ADM.students = s.docs.map(d => Object.assign({id:d.id}, d.data())); if (!S._typing) render(); }, e => { ADM.err = String(e.code || e.message); render(); }));
+  ADM.unsub.push(SYNC.db.collection('classes').onSnapshot(s => { ADM.classes = s.docs.map(d => Object.assign({code:d.id}, d.data())); if (!S._typing) render(); }, e => console.warn(e)));
+  clearInterval(ADM.tick); ADM.tick = setInterval(() => { if (S.view === 'coach' && S.params.ctab === 'live' && !S._typing) render(); }, 30000);
+}
+function seenInfo(st){
+  const t = st.lastSeen && st.lastSeen.toMillis ? st.lastSeen.toMillis() : 0; if (!t) return {k:'never', label:L('never','belum pernah'), ms:Infinity};
+  const ms = Date.now() - t, min = ms / 60000, h = min / 60, d = h / 24;
+  if (min < 2 && st.visible !== false) return {k:'online', label:'online', ms};
+  if (h < 24) return {k:'today', label: min < 60 ? Math.round(min) + L(' min ago',' mnt lalu') : Math.round(h) + L(' h ago',' jam lalu'), ms};
+  return {k: d >= 3 ? 'inactive' : 'recent', label:Math.floor(d) + L(' days ago',' hari lalu'), ms};
+}
+const DOT = {online:'var(--good)', today:'var(--sky)', recent:'var(--warn)', inactive:'var(--bad)', never:'var(--line)'};
+function vAdminLive(){
+  if (!adminSignedIn()) return `<div class="card stack"><h3>${L('Live dashboard','Dashboard live')}</h3><p class="small muted">${L('Sign in with an admin Google account to see players who joined a class.','Masuk dengan akun Google admin untuk melihat pemain yang bergabung ke kelas.')}</p>${ADM.err ? `<p style="color:var(--bad)"><b>${esc(ADM.err)}</b></p>` : ''}<button class="btn" data-a="adminSignIn">${L('Sign in with Google','Masuk dengan Google')}</button><p class="tiny muted">${L('Use a different device from the players\' devices.','Gunakan perangkat yang berbeda dari perangkat pemain.')}</p></div>`;
+  if (ADM.sel) return vAdminStudent();
+  const list = ADM.students.slice().map(s => Object.assign(s, {_seen:seenInfo(s)})).sort((a, b) => a._seen.ms - b._seen.ms);
+  const f = ADM.filter; const shown = list.filter(s => f === 'all' || (f === 'online' && s._seen.k === 'online') || (f === 'inactive' && ['inactive','never'].includes(s._seen.k)) || (f === 'flag' && s.report && (s.report.safety || s.report.lowMood)) || (f === 'pending' && s.pending && s.pending.length) || (f.startsWith('c:') && s.classCode === f.slice(2)));
+  const n = k => list.filter(s => s._seen.k === k).length;
+  const a = v => v == null ? '—' : v + '%';
+  return `<div class="row between"><span class="small muted">${esc(ADM.user.email)}</span><button class="btn ghost sm" data-a="adminSignOut">${L('Sign out','Keluar')}</button></div>
+  <div class="minis"><div><span class="label">Online</span><b class="num" style="color:var(--good)">${n('online')}</b></div><div><span class="label">${L('Today','Hari ini')}</span><b class="num">${n('today') + n('online')}</b></div><div><span class="label">${L('Off ≥3 days','Off ≥3 hari')}</span><b class="num" style="color:var(--bad)">${n('inactive') + n('never')}</b></div><div><span class="label">${L('Players','Pemain')}</span><b class="num">${list.length}</b></div></div>
+  <div class="row">${[['all',L('All','Semua')],['online','Online'],['inactive',L('Off ≥3 days','Off ≥3 hari')],['pending',L('Waiting for check','Menunggu dicek')],['flag',L('Check in','Sapa')]].concat(ADM.classes.map(c => ['c:' + c.code, c.name || c.code])).map(([k, l]) => `<button class="chip ${f === k ? 'on' : ''}" data-a="admFilter" data-v="${k}">${esc(l)}</button>`).join('')}</div>
+  ${shown.length ? `<div class="card scroll-x"><table class="tbl"><thead><tr><th>${L('Player','Pemain')}</th><th>${L('Status','Status')}</th><th>${L('Doing now / last','Sedang / terakhir')}</th><th>Lv</th><th>${L('Streak','Beruntun')}</th><th>Math</th><th>Eng</th><th>Sci</th><th>${L('Plans','Rencana')}</th><th>${L('Waiting','Menunggu')}</th><th></th></tr></thead><tbody>
+  ${shown.map(s => { const r = s.report || {acc:{}}; const flag = r.safety || r.lowMood; return `<tr><td><button class="btn ghost sm" data-a="admOpen" data-v="${esc(s.id)}" style="min-height:0;padding:4px 8px"><b>${esc(s.name)}</b></button><br><span class="tiny muted">G${s.grade} · ${esc(s.classCode || '')}</span></td>
+    <td><span class="row" style="gap:6px;flex-wrap:nowrap"><i style="width:10px;height:10px;border-radius:50%;background:${DOT[s._seen.k]};display:inline-block"></i>${esc(s._seen.label)}</span></td><td class="small">${esc(s.activity || '—')}</td><td>${(s.stage || 0) + 1}</td><td>${s.streak || 0}</td><td>${a(r.acc && r.acc.math)}</td><td>${a(r.acc && r.acc.eng)}</td><td>${a(r.acc && r.acc.sci)}</td><td>${a(r.plan)}</td><td>${s.pending && s.pending.length ? `<span class="tag warn">${s.pending.length}</span>` : ''}</td><td>${flag ? `<span class="tag warn">${L('Check in','Sapa')}</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : `<div class="card"><p class="muted">${list.length ? L('No players match this filter.','Tidak ada pemain untuk filter ini.') : L('No players yet. Create a class code below and give it to students.','Belum ada pemain. Buat kode kelas di bawah lalu berikan ke siswa.')}</p></div>`}
+  <div class="card stack-sm"><h3>${L('Message everyone in a class','Pesan ke semua di kelas')}</h3><div class="row"><select class="input" id="bcClass" style="flex:1">${ADM.classes.map(c => `<option value="${esc(c.code)}">${esc(c.name || c.code)} (${esc(c.code)})</option>`).join('')}</select></div><textarea class="input" id="bcText" maxlength="500" placeholder="${L('e.g. Great week, everyone! Boss Review is open on Sunday.','mis. Minggu yang hebat! Boss Review terbuka hari Minggu.')}"></textarea><button class="btn soft" data-a="admBroadcast" ${ADM.classes.length ? '' : 'disabled'}>${L('Send to class','Kirim ke kelas')}</button></div>
+  <div class="card stack-sm"><h3>${L('Class codes','Kode kelas')}</h3>${ADM.classes.map(c => `<div class="row between"><span><b class="num">${esc(c.code)}</b> · ${esc(c.name || '')}</span><span class="tiny muted">${ADM.students.filter(s => s.classCode === c.code).length} ${L('players','pemain')}</span></div>`).join('') || `<p class="small muted">${L('No classes yet.','Belum ada kelas.')}</p>`}
+    <div class="row"><input class="input grow" id="newClass" maxlength="40" placeholder="${L('Class name, e.g. Pilot Nov 2026','Nama kelas, mis. Pilot Nov 2026')}"><button class="btn sm" data-a="admNewClass">${L('Create code','Buat kode')}</button></div>
+    <p class="tiny muted">${L('Students enter this code in Parent area → Settings → Join a class (or when creating a player).','Siswa memasukkan kode ini di Area orang tua → Pengaturan → Gabung kelas (atau saat membuat pemain).')}</p></div>
+  ${ADM.err ? `<p class="small" style="color:var(--bad)">${esc(ADM.err)}</p>` : ''}`;
+}
+function vAdminStudent(){
+  const s = ADM.students.find(x => x.id === ADM.sel); if (!s){ ADM.sel = null; return vAdminLive(); }
+  const r = s.report || {acc:{}, fix:{}}, seen = seenInfo(s), det = ADM.detail || {journal:[], events:[], inbox:[]};
+  const a = v => v == null ? '—' : v + '%';
+  const phone = (s.parentPhone || '').replace(/[^0-9]/g, '').replace(/^0/, '62');
+  const tmpl = [
+    [L('Inactive reminder','Pengingat tidak aktif'), `Halo ${s.parentName || 'Bapak/Ibu'}, ini coach Teman Tumbuh. ${s.name} belum membuka Teman Tumbuh sejak ${seen.label}. Boleh dibantu diingatkan 10–15 menit hari ini? Terima kasih.`],
+    [L('Weekly update','Kabar mingguan'), `Halo ${s.parentName || 'Bapak/Ibu'}, kabar minggu ini untuk ${s.name}: aktif ${r.active || 0}/7 hari, ${r.sessions || 0} sesi latihan, akurasi Math ${a(r.acc.math)}, English ${a(r.acc.eng)}, Science ${a(r.acc.sci)}. Terima kasih atas dukungannya.`],
+    [L('Celebrate','Apresiasi'), `Halo ${s.parentName || 'Bapak/Ibu'}, saya ingin berbagi kabar baik: ${s.name} konsisten minggu ini (${s.streak || 0} hari beruntun). Mohon sampaikan apresiasi dari kami ya.`]
+  ];
+  return `<div class="stack"><div class="row"><button class="btn ghost sm" data-a="admBack">← ${L('All players','Semua pemain')}</button></div>
+  <div class="card stack-sm"><div class="row between"><h2>${esc(s.name)}</h2><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:50%;background:${DOT[seen.k]};display:inline-block"></i>${esc(seen.label)}</span></div>
+    <span class="small muted">G${s.grade} · ${esc(s.classCode || '')} · ${esc(s.petName || '')} · Lv ${(s.stage || 0) + 1} · ${s.xp || 0} XP · ${L('streak','beruntun')} ${s.streak || 0} · ${esc(s.version || '')}</span>
+    <p><b>${L('Now / last','Sekarang / terakhir')}:</b> ${esc(s.activity || '—')}</p>
+    ${r.safety || r.lowMood ? `<div class="notice"><b>${L('Check in with this student.','Sapa siswa ini.')}</b> ${r.safety ? L('Their writing included a safety word on ','Tulisannya memuat kata pemicu pada ') + esc(r.safety) + '. ' : ''}${r.lowMood ? L('Lowest mood 3 days in a row.','Mood terendah 3 hari berturut-turut.') : ''} ${L('Follow the counselor protocol.','Ikuti protokol konselor.')}</div>` : ''}</div>
+  <div class="minis"><div><span class="label">Math</span><b class="num">${a(r.acc.math)}</b></div><div><span class="label">Eng</span><b class="num">${a(r.acc.eng)}</b></div><div><span class="label">Sci</span><b class="num">${a(r.acc.sci)}</b></div><div><span class="label">${L('Plans','Rencana')}</span><b class="num">${a(r.plan)}</b></div></div>
+  <div class="card stack-sm"><h3>${L('Today','Hari ini')}</h3>${s.today ? `<p class="small">${L('Check-in','Check-in')}: ${s.today.checkin ? '✓' : '—'}${s.today.mood ? ' (mood ' + s.today.mood + '/5)' : ''} · ${L('Review','Review')}: ${s.today.review ? '✓' : '—'}</p>${(s.today.plan || []).map(p => `<div class="row small"><span class="grow">${p.done ? '✓' : '○'} ${esc(p.t)}</span><span class="tiny muted num">${p.est}′${p.actual ? ' → ' + p.actual + '′' : ''}</span></div>`).join('')}` : '<p class="small muted">—</p>'}
+    ${s.goal ? `<p class="small"><b>${L('Target','Target')}:</b> ${esc(s.goal.text)} (${s.goal.steps.filter(x => x.done).length}/${s.goal.steps.length})</p>` : ''}</div>
+  <div class="card stack-sm"><h3>${L('Waiting for a check','Menunggu dicek')}</h3>${(s.pending || []).length ? s.pending.map(p => `<div class="row between"><span class="small"><b>${esc(p.title)}</b><br><span class="tiny muted">${esc(p.kind)} · ${esc(p.created)}</span></span><button class="btn sm" data-a="admConfirm" data-v="${esc(p.pid)}">${L('Confirm','Konfirmasi')}</button></div>`).join('') : `<p class="small muted">${L('Nothing waiting.','Tidak ada.')}</p>`}</div>
+  <div class="card stack-sm"><h3>${L('Send a message','Kirim pesan')}</h3><textarea class="input" id="admMsg" maxlength="500" placeholder="${L('Shown on the player\'s home screen','Tampil di layar utama pemain')}"></textarea><button class="btn soft" data-a="admSendMsg">${L('Send to player','Kirim ke pemain')}</button></div>
+  <div class="card stack-sm"><h3>${L('Give an extra mission','Beri misi tambahan')}</h3><input class="input" id="amT" maxlength="60" placeholder="${L('Mission title','Judul misi')}">${[0, 1, 2].map(i => `<textarea class="input" id="amS${i}" maxlength="240" style="min-height:56px" placeholder="${L('Step','Langkah')} ${i + 1}"></textarea>`).join('')}
+    <div class="row"><select class="input" id="amV" style="flex:1"><option value="coach">${L('Final check by coach','Dicek akhir oleh coach')}</option><option value="parent">${L('Final check by parent','Dicek akhir oleh orang tua')}</option></select></div>
+    <div class="row">${Object.entries(COACH_TEMPLATES).filter(([k]) => k !== 'blank').map(([k, t]) => `<button class="chip" data-a="admTpl" data-v="${k}">${esc(t.t)}</button>`).join('')}</div>
+    <button class="btn soft" data-a="admSendMission">${L('Send mission','Kirim misi')}</button></div>
+  <div class="card stack-sm"><h3>${L('Message the parent (WhatsApp)','Pesan ke orang tua (WhatsApp)')}</h3>${phone ? '' : `<p class="small muted">${L('No parent number saved. The parent can add it in Parent area → Settings.','Nomor orang tua belum ada. Orang tua bisa menambahkannya di Area orang tua → Pengaturan.')}</p>`}
+    <div class="row">${tmpl.map(([l, t]) => `<a class="btn ghost sm" href="https://wa.me/${phone}?text=${encodeURIComponent(t)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('')}</div></div>
+  <div class="card stack-sm"><h3>${L('Reflections','Refleksi')}</h3>${det.journal.length ? det.journal.map(j => `<div class="stack-sm"><span class="tiny muted">${esc(j.date)} · ${esc(j.type)}${j.prompt ? ' · ' + esc(j.prompt) : ''}</span><p>${esc(j.text)}</p></div>`).join('<div class="divider"></div>') : `<p class="small muted">${L('No reflections yet.','Belum ada refleksi.')}</p>`}</div>
+  <div class="card stack-sm"><h3>${L('Recent activity','Aktivitas terbaru')}</h3>${det.events.length ? `<div class="scroll-x"><table class="tbl"><tbody>${det.events.map(e => `<tr><td class="tiny muted">${e.at && e.at.toDate ? e.at.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : esc(e.date || '')}</td><td>${esc(e.type)}</td><td class="small">${esc(evtText(e))}</td></tr>`).join('')}</tbody></table></div>` : `<p class="small muted">—</p>`}</div>
+  <div class="card stack-sm"><h3>${L('Messages sent','Pesan terkirim')}</h3>${det.inbox.length ? det.inbox.map(m => `<div class="row between small"><span class="grow">${m.type === 'mission' ? L('Mission: ','Misi: ') + esc(m.mission && m.mission.t) : m.type === 'confirm' ? '✓ ' + L('confirmed a mission','mengonfirmasi misi') : esc(m.text)}</span><span class="tiny muted">${m.read || m.done ? L('seen','dilihat') : L('not yet','belum')}</span></div>`).join('') : `<p class="small muted">—</p>`}</div></div>`;
+}
+function evtText(e){ const d = e.data || {}; if (e.type === 'drill') return `${d.subj} ${d.c}/${d.n}${d.lv ? ' · level ' + d.lv : ''}${d.fix ? ' · Fix-It ' + d.fix : ''}`; if (e.type === 'mission') return `${d.kind}: ${d.title || ''}`; if (e.type === 'checkin') return `mood ${d.mood} · ${d.tasks} tasks`; if (e.type === 'review') return `${d.done}/${d.tasks} done`; return JSON.stringify(d).slice(0, 80); }
+function admOpenDetail(id){
+  ADM.detailUnsub.forEach(u => u()); ADM.detailUnsub = []; ADM.detail = {journal:[], events:[], inbox:[]};
+  const ref = SYNC.db.collection('students').doc(id);
+  ADM.detailUnsub.push(ref.collection('journal').orderBy('at', 'desc').limit(40).onSnapshot(s => { ADM.detail.journal = s.docs.map(d => d.data()); if (!S._typing) render(); }, e => console.warn(e)));
+  ADM.detailUnsub.push(ref.collection('events').orderBy('at', 'desc').limit(30).onSnapshot(s => { ADM.detail.events = s.docs.map(d => d.data()); if (!S._typing) render(); }, e => console.warn(e)));
+  ADM.detailUnsub.push(ref.collection('inbox').orderBy('at', 'desc').limit(20).onSnapshot(s => { ADM.detail.inbox = s.docs.map(d => d.data()); if (!S._typing) render(); }, e => console.warn(e)));
+}
+SA.admFilter = v => { ADM.filter = v; render(); };
+SA.admOpen = id => { ADM.sel = id; admOpenDetail(id); render(); window.scrollTo(0, 0); };
+SA.admBack = () => { ADM.sel = null; ADM.detailUnsub.forEach(u => u()); ADM.detailUnsub = []; render(); };
+async function admInbox(id, data){ await SYNC.db.collection('students').doc(id).collection('inbox').add(Object.assign({at:TS(), from:ADM.user.email, read:false, done:false}, data)); }
+SA.admSendMsg = async () => { const t = readVal('admMsg').trim(); if (!t) return; try { await admInbox(ADM.sel, {type:'message', text:t}); S._clear = true; toast(L('Message sent','Pesan terkirim')); render(); } catch (e) { toast(String(e.code || e.message)); } };
+SA.admTpl = k => { const t = COACH_TEMPLATES[k]; const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; }; set('amT', t.t); [0, 1, 2].forEach(i => set('amS' + i, i < 2 ? t.steps[i] : t.steps.slice(2).join('\n'))); const v = document.getElementById('amV'); if (v) v.value = t.v; };
+SA.admSendMission = async () => { const t = readVal('amT').trim(); const steps = [0, 1, 2].flatMap(i => readVal('amS' + i).split('\n')).map(s => s.trim()).filter(Boolean); if (!t || !steps.length){ toast(L('Add a title and at least one step.','Isi judul dan minimal satu langkah.')); return; }
+  try { await admInbox(ADM.sel, {type:'mission', mission:{id:rid(6), t, d:'', v:readVal('amV'), agr:/honest|jujur/i.test(t), steps}}); S._clear = true; toast(L('Mission sent','Misi terkirim')); render(); } catch (e) { toast(String(e.code || e.message)); } };
+SA.admConfirm = async pid => { try { await admInbox(ADM.sel, {type:'confirm', pid}); toast(L('Confirmation sent. It applies when the player\'s app is open.','Konfirmasi terkirim. Berlaku saat app pemain terbuka.')); } catch (e) { toast(String(e.code || e.message)); } };
+SA.admBroadcast = async () => { const t = readVal('bcText').trim(), c = readVal('bcClass'); if (!t || !c) return; const targets = ADM.students.filter(s => s.classCode === c); try { await Promise.all(targets.map(s => admInbox(s.id, {type:'message', text:t}))); S._clear = true; toast(L(`Sent to ${targets.length} players`, `Terkirim ke ${targets.length} pemain`)); render(); } catch (e) { toast(String(e.code || e.message)); } };
+SA.admNewClass = async () => { const name = readVal('newClass').trim(); if (!name){ toast(L('Type a class name.','Tulis nama kelas.')); return; } const code = Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join(''); try { await SYNC.db.collection('classes').doc(code).set({name, created:TS(), by:ADM.user.email}); S._clear = true; toast(L(`Class code ${code} created`, `Kode kelas ${code} dibuat`)); render(); } catch (e) { toast(String(e.code || e.message)); } };
 /* ================= ACTIONS ================= */
 const STORY = {
   SA:{en:p => `${p} found a still lake and noticed its reflection changing with its feelings.`, id:p => `${p} menemukan danau yang tenang dan melihat bayangannya berubah mengikuti perasaannya.`},
@@ -1879,8 +2219,8 @@ const STORY = {
   DM:{en:p => `${p} reached a fork in the road and chose the path that felt right, even though it was longer.`, id:p => `${p} tiba di persimpangan dan memilih jalan yang terasa benar, walau lebih panjang.`},
   own:{en:p => `${p} drew its own map and followed it all the way.`, id:p => `${p} menggambar peta sendiri dan mengikutinya sampai akhir.`}
 };
-function go(v){ S.view = v; S.params.jump = false; render(); window.scrollTo(0, 0); }
-function enterProfile(p){ ME = p; DB.activeId = p.id; tickDay(); weekPlan(); save(); S.view = 'home'; S.params = {}; }
+function go(v){ S.view = v; S.params.jump = false; render(); window.scrollTo(0, 0); if (ME && ME.classCode) syncSoon(); }
+function enterProfile(p){ ME = p; DB.activeId = p.id; tickDay(); weekPlan(); save(); S.view = 'home'; S.params = {}; stopInbox(); if (ME.classCode){ syncNow(); syncHeartbeat(); } }
 function requestCheck(kind, ref, title, validator, wkKey){
   const p = {pid:rid(5), kind, ref, title, validator, created:dkey(), ts:Date.now(), wk:wkKey || weekKey()};
   ME.pending.push(p); save(); S.params.pid = p.pid; go('valreq');
@@ -1890,6 +2230,7 @@ function resolvePending(p, o = {}){
   ME.pending = ME.pending.filter(x => x.pid !== p.pid);
   const w = itemFor(p), part = !!o.partial, st = part ? 'partial' : 'done';
   const half = r => part ? {xp:Math.round((r.xp || 0) / 2)} : r;
+  logEvent('mission', {kind:p.kind, title:p.title || '', partial:part}); syncSoon();
   if (p.kind === 'ef'){ if (w.ef) w.ef.status = st; give(Object.assign(half({coins:5, xp:15, st:{home:15}, pd:1}), {label:part ? '' : L('Life skill week complete','Minggu life skill selesai')})); }
   else if (p.kind === 'quest'){ if (w.quest){ w.quest.status = st; if (!part) addStory(w.quest); } give(Object.assign(half({xp:40, st:{bond:40}, pd:1}), {label:part ? '' : L('Quest complete: new story chapter','Quest selesai: bab cerita baru')})); }
   else if (p.kind === 'enq'){ if (w.enq) w.enq.status = st; if (!part) ME.regions++; give(Object.assign(half({coins:5, xp:25, st:{bond:25}, pd:1}), {label:part ? '' : L('New map region unlocked','Wilayah peta baru terbuka')})); }
@@ -1931,18 +2272,20 @@ const A = {
   restore(){ S.params.restoreOpen = !S.params.restoreOpen; render(); },
   doRestore(){ try { const s = readVal('bkIn').trim(); if (!s.startsWith('TTB1.')) throw 0; const p = b64d(s.slice(5)); if (!p.id || !p.days) throw 0; DB.profiles = DB.profiles.filter(x => x.id !== p.id).concat([p]); save(); S.params.restoreOpen = false; toast(L('Player restored','Pemain dipulihkan')); render(); } catch (e) { toast(L('That code did not work. Copy the whole code and try again.','Kode tidak berhasil. Salin seluruh kode lalu coba lagi.')); } },
   openCoach_(){ S.view = 'coach'; S.params = {}; if (!S.unlockedCoach){ S.pinMode = 'coach'; S.pin = ''; S.pinErr = false; } render(); },
-  switchUser(){ ME = null; DB.activeId = null; S.unlockedParent = false; save(); S.params = {}; go('home'); },
+  switchUser(){ stopInbox(); ME = null; DB.activeId = null; S.unlockedParent = false; save(); S.params = {}; go('home'); },
   cBack(){ const c = S.create; if (c.step > 1){ c.step--; render(); } else { S.create = null; go('home'); } },
   cPet(v){ const c = S.create; c.petName = readVal('cPetName') || c.petName; c.pet = v; if (!c.petName) c.petName = tx(PETS[v]).split(' ').pop(); S.form = null; render(); },
   cNext(){
     const c = S.create; c.err = '';
     if (c.step === 1){ c.name = readVal('cName').trim(); c.grade = +readVal('cGrade'); c.lang = readVal('cLang'); if (!c.name){ c.err = L('Please type a name.','Tulis nama dulu.'); return render(); } if (ME == null) DB.lang = c.lang; c.step = 2; S.form = null; return render(); }
     if (c.step === 2){ c.petName = readVal('cPetName').trim(); if (!c.pet){ c.err = L('Choose a companion.','Pilih companion.'); return render(); } if (!c.petName) c.petName = tx(PETS[c.pet]); c.step = 3; S.form = null; return render(); }
-    const pin = readVal('cPin'), ppin = readVal('cPPin'), phone = readVal('cPhone');
+    const pin = readVal('cPin'), ppin = readVal('cPPin'), phone = readVal('cPhone'), code = readVal('cClass').trim(), pname = readVal('cPName').trim(), consent = (document.getElementById('cConsent') || {}).checked;
+    if (code && !consent){ c.err = L('To join a class, the parent must tick the data consent box.','Untuk bergabung ke kelas, orang tua harus mencentang persetujuan data.'); return render(); }
     if (!/^\d{4}$/.test(pin) || !/^\d{4}$/.test(ppin)){ c.err = L('Both PINs need exactly 4 digits.','Kedua PIN harus tepat 4 angka.'); return render(); }
     if (pin === ppin){ c.err = L('Use a different PIN for the parent.','Gunakan PIN berbeda untuk orang tua.'); return render(); }
     const p = newProfile({name:c.name, grade:c.grade, pin, parentPin:ppin, pet:c.pet, petName:c.petName, lang:c.lang, phone});
-    DB.profiles.push(p); enterProfile(p); S.create = null; S.modal = {type:'welcome'}; render();
+    p.parentName = pname; DB.profiles.push(p); enterProfile(p); S.create = null; S.modal = {type:'welcome'}; render();
+    if (code) joinClass(code).then(err => { toast(err || L('Joined the class','Berhasil bergabung ke kelas')); render(); });
   },
   /* pin */
   pinKey(v){
@@ -1972,7 +2315,7 @@ const A = {
     if (!c.mood){ toast(L('Pick how you feel first.','Pilih perasaanmu dulu.')); return; }
     const plan = c.plan.filter(p => p.t.trim()).map(p => { const old = d.plan.find(o => o.t === p.t.trim()); return {t:p.t.trim(), slot:p.slot, est:+p.est, done:old ? old.done : false, actual:old ? old.actual : null}; });
     if (!plan.length){ toast(L('Add at least one task.','Tambahkan minimal satu tugas.')); return; }
-    const first = !d.checkin; d.mood = c.mood; d.plan = plan; d.checkin = true; S.params.ci = null;
+    const first = !d.checkin; d.mood = c.mood; d.plan = plan; d.checkin = true; S.params.ci = null; logEvent('checkin', {mood:c.mood, tasks:plan.length});
     if (first){ give({coins:2, xp:5, st:{mood:20}}); give({coins:3, xp:10, st:{home:20}, label:L('Plan saved','Rencana tersimpan')}); }
     else { save(); toast(L('Plan updated','Rencana diperbarui')); }
     S.params.jump = true; S.view = 'home'; render();
@@ -1989,7 +2332,7 @@ const A = {
     d.plan.forEach((p, i) => { const el = document.getElementById('rd' + i); if (el) p.done = el.checked; const a = parseInt(readVal('ra' + i), 10); if (a > 0) p.actual = a; p.why = readVal('rw' + i) || null; });
     const t = readVal('rtext'); const mq = META_Q[(new Date().getDate()) % META_Q.length];
     if (t.trim()) addJournal(L('Evening review','Review malam'), tx(mq), t);
-    d.reviewDone = true; give({coins:3, xp:15, st:{home:20, mood:10}, label:L('Review saved','Review tersimpan')});
+    d.reviewDone = true; logEvent('review', {tasks:d.plan.length, done:d.plan.filter(p => p.done).length, text:!!t.trim()}); give({coins:3, xp:15, st:{home:20, mood:10}, label:L('Review saved','Review tersimpan')});
     render();
   },
   /* practice */
@@ -2007,6 +2350,7 @@ const A = {
     if (isNaN(val)){ toast(L('Type a number','Ketik angka')); return; }
     graded(Math.abs(val - q.ans) <= (q.tol || 1e-6));
   },
+  setChallenge(v){ ME.challenge = v === '1'; save(); render(); },
   toggleNeg(){ const el = document.getElementById('ans'); if (!el) return; let v = el.value.trim(); v = /^[-−]/.test(v) ? v.replace(/^[-−]\s*/, '') : '−' + v; el.value = v; S.drill.typed = v; el.focus(); },
   checkLine(){ const D = S.drill, q = D.q; const v = +(document.getElementById('lineIn') || {}).value; D.line = v; graded(Math.abs(v - q.target) <= q.tol); },
   tile(i){ const q = S.drill.q; q.picked.push(+i); render(); },
@@ -2090,7 +2434,7 @@ const A = {
   saveSettings(){ const g = +readVal('sGrade'), l = readVal('sLang'), ph = readVal('sPhone').trim(), pin = readVal('sPin'), pp = readVal('sPPin');
     if ((pin && !/^\d{4}$/.test(pin)) || (pp && !/^\d{4}$/.test(pp))){ toast(L('PINs need exactly 4 digits.','PIN harus tepat 4 angka.')); return; }
     if (g !== ME.grade){ ME.grade = g; ME.levels = {math:g, eng:g, sci:g}; ME.placed = {math:false, eng:false, sci:false}; }
-    ME.lang = l; ME.phone = ph; if (pin) ME.pin = pin; if (pp) ME.parentPin = pp; save(); toast(L('Settings saved','Pengaturan tersimpan')); S.form = null; render(); },
+    ME.lang = l; ME.phone = ph; ME.parentName = readVal('sPName').trim(); if (pin) ME.pin = pin; if (pp) ME.parentPin = pp; save(); toast(L('Settings saved','Pengaturan tersimpan')); S.form = null; render(); },
   delPlayer(){ DB.profiles = DB.profiles.filter(p => p.id !== ME.id); DB.activeId = null; ME = null; S.unlockedParent = false; S.params = {}; save(); go('home'); },
   copy(v){ if (v === 'report') copyText(L('Report code','Kode laporan'), reportText()); else if (v === 'backup') copyText(L('Backup code','Kode cadangan'), 'TTB1.' + b64e(ME)); else if (v === 'cm') copyText(L('Mission code','Kode misi'), S.params.cmCode); },
   /* coach */
@@ -2122,6 +2466,7 @@ A.eggDone = function(){ const c = S.create; c.petName = readVal('cPetName').trim
 function snap(){ const o = {}; document.querySelectorAll('#app input[id], #app textarea[id], #app select[id]').forEach(el => { o[el.id] = el.type === 'checkbox' ? {c:el.checked} : {v:el.value}; }); return o; }
 function render(){
   const app = document.getElementById('app');
+  const live = (!S._click && S._lastView === S.view) ? snap() : null;
   document.body.classList.toggle('teen', !!ME && ME.grade >= 7);
   document.documentElement.lang = lang();
   let h;
@@ -2133,18 +2478,24 @@ function render(){
   else if (S.view === 'parent' && !S.unlockedParent){ S.pinMode = 'parent'; h = vPin('parent'); }
   else h = ({home:vHome, checkin:vCheckin, practice:vPractice, drill:vDrill, timer:vTimer, review:vReview, missions:vMissions, choose:vChoose, ef:vEF, quest:vQuest, enq:vEnq, season:vSeason, write:vWrite, coachm:vCoachM, valreq:vValReq, goal:vGoal, room:vRoom, growth:vGrowth, parent:vParent, newEgg:vNewEgg}[S.view] || vHome)();
   app.innerHTML = h + (S.modal ? modalHTML() : '') + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
-  if (S.form && S.formView === S.view){ for (const id in S.form){ const el = document.getElementById(id); if (!el) continue; if ('c' in S.form[id]) el.checked = S.form[id].c; else if (!el.disabled || el.tagName === 'INPUT') el.value = S.form[id].v; } }
+  const keep = S._clear ? null : S._click ? (S.form && S.formView === S.view ? S.form : null) : live; S._clear = false;
+  if (keep){ for (const id in keep){ const el = document.getElementById(id); if (!el) continue; if ('c' in keep[id]) el.checked = keep[id].c; else el.value = keep[id].v; } }
+  S._lastView = S.view;
 }
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('#app textarea, #app input[type=text], #app input:not([type])')) S._typing = true; });
+document.addEventListener('focusout', () => { S._typing = false; });
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
   const fn = A[el.dataset.a]; if (!fn) return;
   if (el.tagName !== 'A') e.preventDefault();
-  S.form = snap(); S.formView = S.view;
-  try { fn(el.dataset.v, el); } catch (err) { console.error(err); toast(L('Something went wrong. Please try again.','Ada yang salah. Coba lagi.')); }
+  S.form = snap(); S.formView = S.view; S._click = true;
+  try { const r = fn(el.dataset.v, el); if (r && r.then) r.catch(err => console.error(err)); } catch (err) { console.error(err); toast(L('Something went wrong. Please try again.','Ada yang salah. Coba lagi.')); }
+  S._click = false;
 });
 document.addEventListener('input', e => { if (e.target.id === 'lineIn' && S.drill){ S.drill.line = +e.target.value; const v = document.querySelector('.nval'); if (v){ const q = S.drill.q; const dec = q.step < 1 ? (q.step < .1 ? 2 : 1) : 0; v.textContent = Number(e.target.value).toFixed(dec); } } });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'ans'){ e.preventDefault(); S.form = snap(); S.formView = S.view; A.checkInput(); } });
 
+Object.assign(A, SA);
 function boot(){
   load();
   const h = (location.hash || '').slice(1);
