@@ -53,7 +53,39 @@ body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 html,body{min-height:100%}
 body{background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.45;
   padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:0;}
-body.teen{ --font-display:'Lexend', system-ui, sans-serif; --r-lg:16px; --r-md:12px; }
+body.teen{ --font-display:'Lexend', system-ui, sans-serif; --r-lg:14px; --r-md:10px;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface2:#E3E8EF; --ink:#151B24; --ink2:#5A6577; --line:#D3DAE4;
+  --leaf:#3559C7; --leaf-soft:#E0E7FA; --on-leaf:#FFFFFF; --grape:#6B54C9; --home:#1E8A8A; --energy:#D9902A; --mood:#C24F6E; --bond:#6B54C9;
+  --wall:#D9DFE8; --floor:#B79A7A; --floor-line:#A58969; --desk:#6E5643; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) body.teen{
+  --bg:#0F1319; --surface:#171D26; --surface2:#202836; --ink:#E6EAF1; --ink2:#9BA6B8; --line:#2C3545;
+  --leaf:#7C9BFF; --leaf-soft:#232F4D; --on-leaf:#0B1020; --grape:#A493F0; --home:#4CC3C3; --energy:#F0B45A; --mood:#EE7F9C; --bond:#A493F0;
+  --wall:#1C2533; --floor:#3B3027; --floor-line:#4A3D31; --desk:#5A4535; } }
+:root[data-theme="dark"] body.teen{
+  --bg:#0F1319; --surface:#171D26; --surface2:#202836; --ink:#E6EAF1; --ink2:#9BA6B8; --line:#2C3545;
+  --leaf:#7C9BFF; --leaf-soft:#232F4D; --on-leaf:#0B1020; --grape:#A493F0; --home:#4CC3C3; --energy:#F0B45A; --mood:#EE7F9C; --bond:#A493F0;
+  --wall:#1C2533; --floor:#3B3027; --floor-line:#4A3D31; --desk:#5A4535; }
+body.teen .bob{animation:none}
+body.teen .brand-dot{border-radius:8px}
+body.teen .room{aspect-ratio:16/9}
+.room.teenroom .floor::after{opacity:.25}
+.room.teenroom .desk{position:absolute; left:52%; right:6%; bottom:22%; height:7%; background:var(--desk); border-radius:4px; z-index:2}
+.room.teenroom .desk::before,.teenroom .desk::after{content:""; position:absolute; top:100%; width:5%; height:250%; background:var(--desk)}
+.room.teenroom .desk::before{left:6%} .room.teenroom .desk::after{right:6%}
+.room.teenroom .pet{left:auto; right:9%; bottom:29%; width:15%; transform:none}
+.room.teenroom .slot.desk1{left:56%; bottom:29%; width:15%; z-index:3}
+.room.teenroom .slot.desk2{left:71%; bottom:29%; width:10%; z-index:3}
+.room.teenroom .slot.floor1{left:3%; bottom:6%; width:16%} .room.teenroom .slot.floor2{left:22%; bottom:6%; width:14%}
+.room.teenroom .slot.wall1{left:8%; top:10%; width:17%} .room.teenroom .slot.wall2{left:58%; top:8%; width:17%}
+.room.teenroom .slot.rug{width:44%; left:30%}
+.room.teenroom .slot.mentor{left:40%; bottom:10%; width:9%}
+.room.teenroom .night{background:rgba(5,10,25,.45)}
+.mood-row.words .mood{font-size:.78rem; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 2px}
+.mood-row.words .mood b{font-size:1.2rem; font-family:var(--font-display)}
+.minis{display:grid; grid-template-columns:repeat(4, 1fr); gap:8px}
+.minis>div{background:var(--surface2); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.minis b{font-size:1.15rem; font-family:var(--font-display)}
+
 #app{max-width:600px; margin:0 auto; padding-bottom:96px}
 h1,h2,h3{font-family:var(--font-display); font-weight:600; line-height:1.15; margin:0; text-wrap:balance}
 h1{font-size:1.7rem} h2{font-size:1.3rem} h3{font-size:1.06rem}
@@ -268,8 +300,10 @@ const PETS = {
   dragon: {en:'Little dragon', id:'Naga kecil', color:'#72B6E2', accent:'#F6D46C'},
   robot:  {en:'Robot', id:'Robot', color:'#A7B9C7', accent:'#53D3C3', teen:true},
   fox:    {en:'Explorer fox', id:'Rubah penjelajah', color:'#E8844B', accent:'#FFFFFF', teen:true},
-  spirit: {en:'Forest spirit', id:'Roh hutan', color:'#93DCCB', accent:'#E9FFF8', teen:true}
+  spirit: {en:'Forest spirit', id:'Roh hutan', color:'#93DCCB', accent:'#E9FFF8', teen:true},
+  orb:    {en:'Orb', id:'Orb', color:'#8E9BF5', accent:'#E4E8FF', teen:true}
 };
+const TEEN_STAGES = [{en:'Rookie', id:'Rookie'},{en:'Builder', id:'Builder'},{en:'Strategist', id:'Strategist'},{en:'Pro', id:'Pro'},{en:'Mentor', id:'Mentor'}];
 
 const STAGES = [
   {en:'Egg', id:'Telur', xp:0, pd:0},
@@ -707,7 +741,8 @@ eqFrac4(){ const [n, d] = P([[1,2],[1,3],[2,3],[3,4],[1,4],[2,5]]), k = R(2, 5);
 lineTenths4(){ let t; do { t = R(1, 29) / 10; } while (Number.isInteger(t)); return {kind:'line', min:0, max:3, step:0.1, target:t, tol:0.06, q:`Move the marker to ${t}.`, topic:'decimals', strand:'Number', explain:`${t} is ${Math.floor(t)} whole${Math.floor(t) === 1 ? '' : 's'} and ${Math.round((t % 1) * 10)} tenths.`}; },
 perim4(){ const l = R(3, 15), w = R(2, 10); return IN(2 * (l + w), {unit:'cm', q:`A rectangle is ${l} cm long and ${w} cm wide. What is its perimeter?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Perimeter = ${l} + ${w} + ${l} + ${w} = ${2 * (l + w)} cm.`}); },
 area4(){ const l = R(3, 12), w = R(2, 9); return IN(l * w, {unit:'cm²', q:`A rectangle is ${l} cm by ${w} cm. What is its area?`, topic:'perimeter-area', strand:'Geometry & Measure', explain:`Area = length × width = ${l} × ${w} = ${l * w} cm².`}); },
-negTemp4(){ const s = R(1, 6), f = R(s + 1, s + 8); return IN(s - f, {unit:'°C', q:`The temperature in Dieng at night is ${s} °C. It falls by ${f} degrees before morning. What is the new temperature?`, topic:'negative-numbers', strand:'Number', explain:`Count down ${f} from ${s}: you pass 0 and reach ${neg(s - f)} °C.`}); },
+negTemp4(){ const s = R(1, 6), f = R(s + 1, s + 8); return IN(s - f, {neg:true, unit:'°C', q:`The temperature in Dieng at night is ${s} °C. It falls by ${f} degrees before morning. What is the new temperature?`, topic:'negative-numbers', strand:'Number', explain:`Count down ${f} from ${s}: you pass 0 and reach ${neg(s - f)} °C.`}); },
+mult4(){ const m = P([2, 5, 10]); const c = m * R(3, 12); const w = []; let g = 0; while (w.length < 3 && g++ < 50){ const v = R(11, 99); if (v % m && !w.includes(v)) w.push(v); } return MC(c, w, {q:`Which number is a multiple of ${m}?`, topic:'multiples', strand:'Number', explain:`${c} = ${m} × ${c / m}, so it is in the ${m} times table.`}); },
 factor4(){ const n = P([12, 18, 20, 24, 30, 36]); const fs = [], nf = []; for (let i = 2; i < n; i++) (n % i === 0 ? fs : nf).push(i); const c = P(fs); return MC(c, SH(nf).slice(0, 3), {q:`Which number is a factor of ${n}?`, topic:'factors-multiples', strand:'Number', explain:`${n} ÷ ${c} = ${n / c} with no remainder, so ${c} is a factor.`}); },
 angle4(){ const a = P([R(15, 80), 90, R(100, 170)]); const c = a < 90 ? 'acute' : a === 90 ? 'right' : 'obtuse'; return MC(c, ['acute','right','obtuse','reflex'], {q:`An angle of ${a}° is…`, topic:'angles', strand:'Geometry & Measure', explain:`Acute < 90°, right = 90°, obtuse between 90° and 180°.`}); },
 time24_4(){ const h = R(13, 23), m = P([0, 15, 30, 45]); const f = (H) => (H % 12 || 12) + ':' + String(m).padStart(2, '0'); const c = f(h) + ' pm'; return MC(c, [f(h) + ' am', h + ':' + String(m).padStart(2, '0') + ' pm', f(h + 1) + ' pm'], {q:`What is ${h}:${String(m).padStart(2, '0')} in 12-hour time?`, topic:'time', strand:'Geometry & Measure', explain:`Subtract 12 from hours after 12: ${h} − 12 = ${h - 12}, so ${c}.`}); },
@@ -811,8 +846,8 @@ series12(){ const a = R(1, 10), d = R(2, 6), n = R(6, 15); return IN(n / 2 * (2 
 
 const POOLS = {
   3:['add3','sub3','times3','div3','place3','fracOf3','time3','money3','line3','kitchen3','tally3'],
-  4:['mul4','round4','eqFrac4','lineTenths4','perim4','area4','negTemp4','factor4','angle4','time24_4','chance4'],
-  5:['mul5','div5','round5','decAdd5','fracAdd5','pct5','square5','prime5','convert5','median5','lineHund5'],
+  4:['mul4','round4','eqFrac4','lineTenths4','perim4','area4','negTemp4','mult4','angle4','time24_4','chance4'],
+  5:['factor4','mul5','div5','round5','decAdd5','fracAdd5','pct5','square5','prime5','convert5','median5','lineHund5'],
   6:['ops6','int6','lcmHcf6','fracAdd6','pctQty6','ratio6','tri6','cuboid6','mean6','range6','quad6','spinner6'],
   7:['pow7','fdp7','ratioSimp7','subst7','solve7','seq7','straight7','triAng7','prob7','mixedAdd7'],
   8:['idx8','pctChange8','fracDiv8','expand8','solve2_8','nth8','polygon8','circle8','prism8','prob2_8'],
@@ -827,6 +862,8 @@ function poolKeyFor(level){ return POOLS[Math.max(3, Math.min(12, Math.floor(lev
 const APP_URL = 'https://handokokusalaviro-dev.github.io/temantumbuh/';
 const KEY = 'temantumbuh.v1';
 const SALT = 'tumbuh26';
+const COACH_PIN_HASH = '1204563995';
+const coachPinOK = pin => String(hashStr('coach|' + pin + '|' + SALT)) === COACH_PIN_HASH;
 let DB = {v:1, profiles:[], activeId:null, lang:'en', coach:{pin:null, reports:[]}};
 let storageOK = true;
 let ME = null;
@@ -837,6 +874,9 @@ function save(){ try { localStorage.setItem(KEY, JSON.stringify(DB)); storageOK 
 
 const lang = () => (ME ? ME.lang : DB.lang) || 'en';
 const L = (en, id) => (lang() === 'id' && id) ? id : en;
+const teen = () => !!ME && ME.grade >= 7;
+const LT = (ken, kid, ten, tid) => teen() ? L(ten, tid || ten) : L(ken, kid);
+const stageName = (i, p) => tx(((p || ME) && (p || ME).grade >= 7 ? TEEN_STAGES : STAGES)[i]);
 const tx = o => !o ? '' : typeof o === 'string' ? o : (o[lang()] || o.en);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -937,14 +977,16 @@ function eggSVG(c, crack){
 }
 function petSVG(sp, stage, mood = 'happy', o = {}){
   const pd = PETS[sp] || PETS.cat, c = pd.color, a = pd.accent;
+  if (stage === 0 && o.teen){ return petSVG(sp, 3, 'sleep', {teen:true, dim:true}); }
   if (stage === 0) return eggSVG(c, o.crack);
+  if (o.teen && stage > 0) stage = 3;
   const sc = [0, .74, .87, 1, 1][stage];
   const sleep = mood === 'sleep';
   const eyes = sleep ? `<path d="M76 88 q8 7 16 0 M108 88 q8 7 16 0" stroke="${OL}" stroke-width="4" fill="none" stroke-linecap="round"/>`
     : `<g class="blink"><ellipse cx="84" cy="86" rx="7" ry="8.5" fill="${OL}"/><ellipse cx="116" cy="86" rx="7" ry="8.5" fill="${OL}"/><circle cx="86.5" cy="82.5" r="2.6" fill="#fff"/><circle cx="118.5" cy="82.5" r="2.6" fill="#fff"/></g>`;
   const brows = mood === 'sad' ? `<path d="M74 72 L92 76 M126 72 L108 76" stroke="${OL}" stroke-width="3.5" stroke-linecap="round"/>` : '';
   const mouth = sleep ? `<ellipse cx="100" cy="104" rx="4" ry="3" fill="${OL}"/>` : mood === 'sad' ? `<path d="M90 108 Q100 99 110 108" stroke="${OL}" stroke-width="4" fill="none" stroke-linecap="round"/>` : mood === 'ok' ? `<path d="M92 104 L108 104" stroke="${OL}" stroke-width="4" stroke-linecap="round"/>` : `<path d="M89 100 Q100 113 111 100" stroke="${OL}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-  const cheeks = `<circle cx="70" cy="100" r="7" fill="#F49AB0" opacity=".55"/><circle cx="130" cy="100" r="7" fill="#F49AB0" opacity=".55"/>`;
+  const cheeks = o.teen ? '' : `<circle cx="70" cy="100" r="7" fill="#F49AB0" opacity=".55"/><circle cx="130" cy="100" r="7" fill="#F49AB0" opacity=".55"/>`;
   const face = eyes + brows + mouth;
   const st = `stroke="${OL}" stroke-width="4"`;
   let back = '', body = '', head = '', front = '';
@@ -988,21 +1030,25 @@ function petSVG(sp, stage, mood = 'happy', o = {}){
       back = `<path d="M100 46 V26" stroke="${OL}" stroke-width="4"/><circle cx="100" cy="22" r="8" fill="${a}" ${st}/>`;
       body = `<rect x="62" y="120" width="76" height="58" rx="16" fill="${c}" ${st}/><circle cx="100" cy="148" r="11" fill="${a}" ${st}/><rect x="40" y="128" width="18" height="38" rx="9" fill="${c}" ${st}/><rect x="142" y="128" width="18" height="38" rx="9" fill="${c}" ${st}/><rect x="72" y="176" width="20" height="12" rx="4" fill="#6E8391" ${st}/><rect x="108" y="176" width="20" height="12" rx="4" fill="#6E8391" ${st}/>`;
       head = `<rect x="54" y="46" width="92" height="78" rx="22" fill="${c}" ${st}/><rect x="66" y="66" width="68" height="40" rx="14" fill="#23323B"/>`;
-      return wrapPet(sc, back + body + head + (sleep ? `<path d="M76 88 h14 M110 88 h14" stroke="${a}" stroke-width="5" stroke-linecap="round"/>` : `<g class="blink"><rect x="74" y="78" width="16" height="16" rx="6" fill="${a}"/><rect x="110" y="78" width="16" height="16" rx="6" fill="${a}"/></g>`) + (mood === 'sad' ? `<path d="M90 100 q10 -5 20 0" stroke="${a}" stroke-width="3" fill="none"/>` : `<path d="M90 98 q10 6 20 0" stroke="${a}" stroke-width="3" fill="none"/>`) + stageBits(stage, 44), stage, c);
+      return wrapPet(sc, back + body + head + (sleep ? `<path d="M76 88 h14 M110 88 h14" stroke="${a}" stroke-width="5" stroke-linecap="round"/>` : `<g class="blink"><rect x="74" y="78" width="16" height="16" rx="6" fill="${a}"/><rect x="110" y="78" width="16" height="16" rx="6" fill="${a}"/></g>`) + (mood === 'sad' ? `<path d="M90 100 q10 -5 20 0" stroke="${a}" stroke-width="3" fill="none"/>` : `<path d="M90 98 q10 6 20 0" stroke="${a}" stroke-width="3" fill="none"/>`) + (o.teen ? '' : stageBits(stage, 44)), stage, c, o);
+    case 'orb':
+      back = `<ellipse cx="100" cy="118" rx="86" ry="22" fill="none" stroke="${c}" stroke-width="6" opacity=".55" transform="rotate(-14 100 118)"/>`;
+      body = `<circle cx="100" cy="112" r="60" fill="${c}" ${st}/><circle cx="78" cy="88" r="14" fill="#fff" opacity=".35"/>`;
+      return wrapPet(sc, back + body + (sleep ? `<path d="M78 112 h14 M108 112 h14" stroke="${OL}" stroke-width="4.5" stroke-linecap="round"/>` : `<g class="blink"><rect x="80" y="102" width="10" height="18" rx="5" fill="${OL}"/><rect x="110" y="102" width="10" height="18" rx="5" fill="${OL}"/></g>`) + (mood === 'sad' ? `<path d="M92 136 q8 -4 16 0" stroke="${OL}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` : `<path d="M92 134 q8 5 16 0" stroke="${OL}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`), stage, c, o);
     case 'spirit':
       back = `<circle cx="100" cy="118" r="84" fill="${c}" opacity=".18"/><path d="M100 40 q-4 -18 -20 -20 q4 16 20 20 q4 -22 22 -24 q-6 18 -22 24" fill="#5CBF77" ${st} stroke-linejoin="round"/>`;
       body = `<path d="M100 40 C142 40 154 104 154 134 C154 166 130 186 100 186 C70 186 46 166 46 134 C46 104 58 40 100 40Z" fill="${c}" ${st}/><ellipse cx="100" cy="150" rx="26" ry="20" fill="${a}" opacity=".8"/>`;
-      return wrapPet(sc, back + body + cheeks + face + stageBits(stage, 40), stage, c);
+      return wrapPet(sc, back + body + cheeks + face + (o.teen ? '' : stageBits(stage, 40)), stage, c, o);
   }
-  return wrapPet(sc, back + body + head + cheeks + face + front + stageBits(stage, sp === 'turtle' ? 50 : 46), stage, c);
+  return wrapPet(sc, back + body + head + cheeks + face + front + (o.teen ? '' : stageBits(stage, sp === 'turtle' ? 50 : 46)), stage, c, o);
 }
 function stageBits(stage, topY){
   if (stage === 4) return `<path d="M78 ${topY} L84 ${topY - 20} L100 ${topY - 8} L116 ${topY - 20} L122 ${topY} Z" fill="#F6C945" stroke="${OL}" stroke-width="3.5" stroke-linejoin="round"/><circle cx="100" cy="${topY - 10}" r="3.5" fill="#E8667E"/>`;
   if (stage === 3) return `<path d="M128 ${topY + 2} l5 -11 l5 11 l-10 -7 h10 z" fill="#F6C945" stroke="${OL}" stroke-width="2"/>`;
   return '';
 }
-function wrapPet(sc, inner, stage, c){
-  return `<svg viewBox="0 0 200 200" role="img" aria-label="Companion"><ellipse cx="100" cy="190" rx="${52 * sc}" ry="7" fill="rgba(0,0,0,.14)"/>${stage === 4 ? `<circle cx="100" cy="120" r="94" fill="${c}" opacity=".14"/>` : ''}<g class="bob"><g transform="translate(100 190) scale(${sc}) translate(-100 -190)">${inner}</g></g></svg>`;
+function wrapPet(sc, inner, stage, c, o = {}){
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="Companion" ${o.dim ? 'opacity=".5"' : ''}><ellipse cx="100" cy="190" rx="${52 * sc}" ry="7" fill="rgba(0,0,0,.14)"/>${stage === 4 ? `<circle cx="100" cy="120" r="94" fill="${c}" opacity=".14"/>` : ''}<g class="bob"><g transform="translate(100 190) scale(${sc}) translate(-100 -190)">${inner}</g></g></svg>`;
 }
 
 /* decor */
@@ -1019,6 +1065,10 @@ const DECOR = {
   beanbag:{en:'Beanbag', id:'Bantal duduk', price:55, slot:'floor', svg:`<path d="M14 86 Q8 52 34 40 Q52 30 70 42 Q94 56 86 86 Z" fill="#7457CF"/><path d="M30 60 Q50 52 70 62" stroke="#9A80EC" stroke-width="5" fill="none" stroke-linecap="round"/>`},
   guitar:{en:'Guitar', id:'Gitar', price:70, slot:'floor', svg:`<rect x="47" y="6" width="8" height="46" fill="#6B4A2F"/><rect x="44" y="2" width="14" height="10" rx="3" fill="#4A3220"/><circle cx="51" cy="62" r="17" fill="#D9883B"/><circle cx="51" cy="80" r="15" fill="#D9883B"/><circle cx="51" cy="66" r="5" fill="#4A3220"/>`},
   telescope:{en:'Telescope', id:'Teleskop', price:90, slot:'floor', svg:`<rect x="20" y="30" width="56" height="14" rx="5" fill="#2F84CC" transform="rotate(-24 48 37)"/><path d="M48 46 L30 92 M48 46 L66 92 M48 46 L48 92" stroke="#6B5B4E" stroke-width="5" stroke-linecap="round"/>`},
+  laptop:{en:'Laptop', id:'Laptop', price:60, slot:'desk', svg:`<rect x="18" y="26" width="64" height="42" rx="4" fill="#2B3440"/><rect x="23" y="31" width="54" height="32" rx="2" fill="#5EA0E8"/><path d="M10 72 H90 L84 80 H16 Z" fill="#8A95A3"/>`},
+  headphones:{en:'Headphones', id:'Headphone', price:35, slot:'desk', svg:`<path d="M24 64 V50 a26 26 0 0 1 52 0 V64" fill="none" stroke="#2B3440" stroke-width="7"/><rect x="16" y="56" width="16" height="26" rx="7" fill="#E5603A"/><rect x="68" y="56" width="16" height="26" rx="7" fill="#E5603A"/>`},
+  whiteboard:{en:'Whiteboard', id:'Papan tulis', price:45, slot:'wall', svg:`<rect x="8" y="16" width="84" height="60" rx="3" fill="#FFFFFF" stroke="#8A95A3" stroke-width="4"/><path d="M18 32 h30 M18 44 h44 M18 56 h22" stroke="#3A6FD8" stroke-width="3.5" stroke-linecap="round"/><circle cx="74" cy="48" r="8" fill="none" stroke="#E5603A" stroke-width="3"/>`},
+  corkboard:{en:'Goal board', id:'Papan target', price:40, slot:'wall', svg:`<rect x="10" y="16" width="80" height="62" rx="4" fill="#C9965F" stroke="#8A6238" stroke-width="4"/><rect x="20" y="26" width="22" height="18" fill="#FFF3B0"/><rect x="50" y="24" width="28" height="20" fill="#CDE8FF"/><rect x="28" y="52" width="30" height="18" fill="#FFD3DD"/><circle cx="31" cy="27" r="2.5" fill="#E5603A"/><circle cx="64" cy="25" r="2.5" fill="#3A6FD8"/>`},
   garland:{en:'Season garland', id:'Hiasan musim', price:30, slot:'season', seasonal:true}
 };
 function decorSVG(id){
@@ -1053,9 +1103,9 @@ const ICON = {
 const ic = (n, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICON[n]}</svg>`;
 /* ================= DRILL ENGINE ================= */
 const SUBJ = {
-  math:{en:'Math', id:'Matematika', game:{en:'Kitchen Count', id:'Dapur Hitung'}, icon:'calc', color:'var(--sun)'},
-  eng:{en:'English', id:'Bahasa Inggris', game:{en:'Word Garden', id:'Kebun Kata'}, icon:'chat', color:'var(--leaf)'},
-  sci:{en:'Science', id:'Sains', game:{en:'Lab', id:'Lab'}, icon:'flask', color:'var(--sky)'}
+  math:{en:'Math', id:'Matematika', game:{en:'Kitchen Count', id:'Dapur Hitung'}, tgame:{en:'Problem set', id:'Set soal'}, icon:'calc', color:'var(--sun)'},
+  eng:{en:'English', id:'Bahasa Inggris', game:{en:'Word Garden', id:'Kebun Kata'}, tgame:{en:'Language set', id:'Set bahasa'}, icon:'chat', color:'var(--leaf)'},
+  sci:{en:'Science', id:'Sains', game:{en:'Lab', id:'Lab'}, tgame:{en:'Lab set', id:'Set lab'}, icon:'flask', color:'var(--sky)'}
 };
 function levelLabel(subj){
   const lv = ME.levels[subj], g = Math.floor(lv);
@@ -1079,7 +1129,9 @@ function startDrill(subj, mode){
   if (mode === 'boss'){ D.items = ME.queue.slice(0, 10); D.subj = 'mix'; D.n = Math.max(5, D.items.length); while (D.items.length < D.n) D.items.push(null); }
   S.drill = D; S.view = 'drill'; nextQ();
 }
-function placementLevel(i){ const g = ME.grade; const seq = [g - 1, g - 1, g - 1, g, g, g, g, g + 1, g + 1, g + 1]; return clamp(seq[i], 3, 12); }
+function placementLevel(i){ const g = ME.grade; const seq = g <= 5 ? [g - 1, g - 1, g - 1, g - 1, g, g, g, g, g, g] : [g - 1, g - 1, g - 1, g, g, g, g, g + 1, g + 1, g + 1]; return clamp(seq[i], 3, 12); }
+/* stretch questions only when the learner is doing well in this session */
+function stretchOK(D){ const ok = D.results.filter(r => r === 'ok').length; return D.i >= 4 && ok / D.i >= .8; }
 function curLevel(D, subj){ return D.placement ? placementLevel(D.i) : ME.levels[subj]; }
 
 function makeMath(D, forceLv){
@@ -1092,7 +1144,7 @@ function makeMath(D, forceLv){
   if (!D.placement && !forceLv){
     const r = Math.random(), due = dueTopics('math').filter(t => t.gen);
     if (r < .2 && due.length) key = P(due).gen;
-    else if (r < .3) lv = clamp(Math.floor(lv) + 1, 3, 12);
+    else if (r < .3 && stretchOK(D)) lv = clamp(Math.floor(lv) + 1, 3, 12);
     else if (r < .5) lv = clamp(Math.floor(lv) - 1, 3, 12);
   }
   if (!key){ const pool = poolKeyFor(lv); let g = 0; do { key = P(pool); } while (key === D.lastGen && g++ < 6); }
@@ -1110,7 +1162,7 @@ function prepBank(item, subj, lv){
 }
 function makeBank(D, subj, forceLv, topic){
   let lv = forceLv || curLevel(D, subj);
-  if (!D.placement && !forceLv){ const r = Math.random(); if (r < .1) lv = clamp(Math.floor(lv) + 2, 3, 12); else if (r < .25) lv = clamp(Math.floor(lv) - 2, 3, 12); }
+  if (!D.placement && !forceLv){ const r = Math.random(); if (r < .1 && stretchOK(D)) lv = clamp(Math.floor(lv) + 2, 3, 12); else if (r < .25) lv = clamp(Math.floor(lv) - 2, 3, 12); }
   const bank = bankFor(subj, lv); const seen = ME.seen[subj] || [];
   let cands = bank.filter(x => !D.used.includes(x.id) && (!topic || x.topic === topic));
   const fresh = cands.filter(x => !seen.includes(x.id)); if (fresh.length) cands = fresh;
@@ -1194,7 +1246,7 @@ function vDrill(){
   const dots = Array.from({length:D.n}, (_, i) => `<i class="${D.results[i] || ''} ${i === D.i ? 'cur' : ''}">${D.results[i] === 'ok' ? '✓' : D.results[i] === 'fix' ? '↻' : D.results[i] === 'no' ? '·' : ''}</i>`).join('');
   return `<div class="stack">
   <div class="topbar"><button class="iconbtn" data-a="quitDrill" aria-label="${L('Leave','Keluar')}">${ic('back')}</button>
-    <div class="grow"><div class="label">${D.placement ? L('Warm-up: finding your level','Pemanasan: mencari levelmu') : esc(tx(sj.game || sj))}</div><h2>${esc(tx(sj))}</h2></div>
+    <div class="grow"><div class="label">${D.placement ? L('Warm-up: finding your level','Pemanasan: mencari levelmu') : esc(tx((teen() && sj.tgame) || sj.game || sj))}</div><h2>${esc(tx(sj))}</h2></div>
     <span class="pill num"><i class="coin"></i>+${D.coins}</span></div>
   <div class="dots" aria-label="progress">${dots}</div>
   ${D.phase === 'twin' || D.phase === 'twinfb' ? `<span class="tag warn">${L('Twin question: same idea, new numbers','Soal kembar: ide sama, angka baru')}</span>` : ''}
@@ -1217,7 +1269,7 @@ function qBody(D, q){
     h += `<div class="opts ${q.kind === 'vocab' ? 'grid3' : ''}">${q.opts.map((o, i) => { let cls = ''; if (locked || D.phase === 'evidence'){ if (i === q.a) cls = 'right'; else if (i === D.sel) cls = 'wrong'; } return `<button class="opt ${q.kind === 'vocab' ? 'big' : ''} ${cls}" ${locked || D.phase === 'evidence' ? 'disabled' : `data-a="pick" data-v="${i}"`}>${esc(o)}</button>`; }).join('')}</div>`;
   }
   if (q.kind === 'input' || q.kind === 'balance'){
-    h += `<div class="row"><input id="ans" class="input answer-in grow" inputmode="${q.int ? 'numeric' : 'decimal'}" autocomplete="off" placeholder="${q.kind === 'balance' ? 'x = ?' : '?'}" ${locked ? 'disabled' : ''} value="${esc(D.typed || '')}">${q.unit ? `<span class="muted"><b>${esc(q.unit)}</b></span>` : ''}</div>
+    h += `<div class="row"><input id="ans" class="input answer-in grow" inputmode="${q.int ? 'numeric' : 'decimal'}" autocomplete="off" placeholder="${q.kind === 'balance' ? 'x = ?' : '?'}" ${locked ? 'disabled' : ''} value="${esc(D.typed || '')}">${!locked && (q.neg || q.kind === 'balance' || (q.lv >= 6 && !q.int)) ? `<button class="btn ghost sm" data-a="toggleNeg" aria-label="${L('Make negative or positive','Jadikan negatif atau positif')}" style="min-width:56px;font-size:1.2rem">±</button>` : ''}${q.unit ? `<span class="muted"><b>${esc(q.unit)}</b></span>` : ''}</div>
     ${locked ? '' : `<button class="btn block" data-a="checkInput">${L('Check','Cek')}</button>`}`;
   }
   if (q.kind === 'line'){
@@ -1251,14 +1303,14 @@ function poeBody(D, q, help){
 function afterBody(D, q){
   const ex = esc(q.explain || '');
   if (D.phase === 'evidence') return `<div class="feedback ok"><b>${L('Correct! Bonus: tap the sentence that proves it.','Benar! Bonus: ketuk kalimat yang membuktikannya.')}</b>${D.evPick != null ? `<p>${D.evPick === q.ev ? L('Yes, that is the evidence. +1 coin','Ya, itu buktinya. +1 koin') : L('Not that one. The proof is highlighted.','Bukan itu. Buktinya disorot.')}</p><button class="btn block" data-a="next">${L('Next','Lanjut')}</button>` : `<button class="btn ghost sm" data-a="next">${L('Skip bonus','Lewati bonus')}</button>`}</div>`;
-  if (D.phase === 'fb') return `<div class="feedback ok"><b>${P(lang() === 'id' ? ['Mantap!','Tepat!','Kerja bagus!'] : ['Nice work!','Exactly right!','You got it!'])}</b>${ex ? `<p class="small">${ex}</p>` : ''}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
+  if (D.phase === 'fb') return `<div class="feedback ok"><b>${teen() ? L('Correct.','Benar.') : P(lang() === 'id' ? ['Mantap!','Tepat!','Kerja bagus!'] : ['Nice work!','Exactly right!','You got it!'])}</b>${ex ? `<p class="small">${ex}</p>` : ''}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
   if (D.phase === 'fix') return `<div class="feedback no"><b>${L('Not this time. What happened?','Belum tepat. Apa yang terjadi?')}</b>
     <div class="row">${[['rushed',L('I rushed','Terburu-buru')],['unsure',L('I didn\'t understand','Aku belum paham')],['misread',L('I misread it','Salah baca soal')]].map(([k, t]) => `<button class="chip" data-a="reason" data-v="${k}">${t}</button>`).join('')}</div></div>`;
   if (D.phase === 'fixexp'){
     const tip = {rushed:L('Slow down: read the question twice and check your answer before you tap.','Pelan-pelan: baca soal dua kali dan cek jawabanmu sebelum mengetuk.'), unsure:L('Here is how it works:','Begini caranya:'), misread:L('Find the key words first: the numbers, the question word, the unit.','Cari kata kunci dulu: angkanya, kata tanya, satuannya.')}[D.reason];
     return `<div class="feedback no"><b>${tip}</b><p>${ex}</p>${answerLine(q)}<button class="btn block" data-a="twin">${L('Try a twin question','Coba soal kembar')}</button></div>`;
   }
-  if (D.phase === 'twinfb') return `<div class="feedback ${D.lastOK ? 'ok' : 'no'}"><b>${D.lastOK ? L('Fixed it! That is real learning. +1 coin','Berhasil diperbaiki! Itu belajar sungguhan. +1 koin') : L('Still tricky. It goes to your Boss Review so you can try again later.','Masih sulit. Soal ini masuk Boss Review supaya bisa dicoba lagi nanti.')}</b>${D.lastOK ? '' : `<p class="small">${ex}</p>${answerLine(q)}`}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
+  if (D.phase === 'twinfb') return `<div class="feedback ${D.lastOK ? 'ok' : 'no'}"><b>${D.lastOK ? LT('Fixed it! That is real learning. +1 coin','Berhasil diperbaiki! Itu belajar sungguhan. +1 koin','Fixed. Correcting a mistake is where most learning happens. +1 coin','Diperbaiki. Memperbaiki kesalahan adalah inti belajar. +1 koin') : L('Still tricky. It goes to your Boss Review so you can try again later.','Masih sulit. Soal ini masuk Boss Review supaya bisa dicoba lagi nanti.')}</b>${D.lastOK ? '' : `<p class="small">${ex}</p>${answerLine(q)}`}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
   return '';
 }
 function answerLine(q){
@@ -1278,7 +1330,7 @@ function vDrillDone(){
   const D = S.drill, n = D.n;
   const lvl = D.placement ? L(`Your starting level: ${D.subj === 'eng' ? levelLabel('eng') : 'Stage ' + D.placedTo}`, `Level awalmu: ${D.subj === 'eng' ? levelLabel('eng') : 'Stage ' + D.placedTo}`) : D.levelMsg === 'up' ? L('Level up! Questions will be a bit harder next time.','Naik level! Soal berikutnya sedikit lebih menantang.') : D.levelMsg === 'down' ? L('We stepped back a little so you can build strength.','Kita mundur sedikit supaya kamu makin kuat.') : '';
   return `<div class="stack"><div class="topbar"><h2 class="grow">${L('Session complete','Sesi selesai')}</h2></div>
-  <div class="card center stack" style="align-items:center"><div style="width:150px">${petSVG(ME.pet, ME.stage, 'happy')}</div>
+  <div class="card center stack" style="align-items:center">${teen() ? '' : `<div style="width:150px">${petSVG(ME.pet, ME.stage, 'happy')}</div>`}
   <h1 class="num">${D.correct}/${n}</h1><p class="muted">${L('first-try correct','benar di percobaan pertama')}${D.fixes ? ` · ${D.fixes} ${L('fixed with Fix-It','diperbaiki lewat Fix-It')}` : ''}</p>
   ${lvl ? `<span class="tag info">${lvl}</span>` : ''}
   <p>${D.rewards || D.mode === 'boss' ? L(`+${D.got} coins · Energy up`, `+${D.got} koin · Energi naik`) : L('Practice mode: your companion is asleep, so no coins now. Your progress still counts.','Mode latihan: companion sedang tidur, jadi tidak ada koin. Progresmu tetap tercatat.')}</p></div>
@@ -1289,6 +1341,14 @@ function vDrillDone(){
 function moodOf(){ const s = ME.stats; if (coreDone() || new Date().getHours() >= 21) return 'sleep'; const lo = Math.min(s.energy, s.mood); return lo < 35 ? 'sad' : lo < 55 ? 'ok' : 'happy'; }
 function petLine(){
   const d = day(), s = ME.stats, n = esc(ME.name);
+  if (teen()){
+    if (ME.stage === 0 && !d.checkin) return L('Your space is set up. Start with a 2-minute check-in and 3 tasks.','Ruangmu sudah siap. Mulai dengan check-in 2 menit dan 3 tugas.');
+    if (coreDone()) return L('Day complete. Anything extra still counts for your stats, not for coins.','Hari ini selesai. Latihan tambahan tetap masuk statistik, tapi tidak memberi koin.');
+    if (!d.checkin) return L('No plan yet today. What are your 3 tasks?','Belum ada rencana hari ini. Apa 3 tugasmu?');
+    if (!Object.values(d.drills).some(x => x.s > 0)) return L('No practice yet. A 10-question set takes about 8 minutes.','Belum latihan. Satu set 10 soal sekitar 8 menit.');
+    if (!d.reviewDone) return L('Close the day: compare your time guesses with reality.','Tutup hari: bandingkan tebakan waktumu dengan kenyataan.');
+    return L('On track today.','Hari ini sesuai rencana.');
+  }
   if (ME.stage === 0) return L('I\'m almost ready to hatch… keep going!','Aku hampir menetas… terus semangat!');
   if (coreDone()) return L('Zzz… great day. See you tomorrow!','Zzz… hari yang hebat. Sampai besok!');
   if (!d.checkin) return L(`Good to see you, ${n}! How are you today?`, `Senang ketemu, ${n}! Apa kabarmu hari ini?`);
@@ -1299,13 +1359,13 @@ function petLine(){
 }
 function topbar(title, back){
   if (back) return `<div class="topbar"><button class="iconbtn" data-a="go" data-v="${back}" aria-label="${L('Back','Kembali')}">${ic('back')}</button><h2 class="grow">${title}</h2><span class="pill"><i class="coin"></i>${ME.coins}</span></div>`;
-  return `<div class="topbar"><div class="brand grow"><span class="brand-dot">${ic('sprout', 'style="width:16px;height:16px;color:#fff"')}</span>${esc(ME.petName)}</div>
-  <span class="pill" title="${L('Day streak','Hari beruntun')}">🔥 ${ME.streak}</span><span class="pill"><i class="coin"></i>${ME.coins}</span>
+  return `<div class="topbar"><div class="brand grow"><span class="brand-dot">${ic('sprout', 'style="width:16px;height:16px;color:#fff"')}</span>${teen() ? esc(ME.name) : esc(ME.petName)}</div>
+  <span class="pill" title="${L('Day streak','Hari beruntun')}">${ic('star', 'style="width:14px;height:14px"')} ${ME.streak}</span><span class="pill"><i class="coin"></i>${ME.coins}</span>
   <button class="iconbtn" data-a="parentGate" aria-label="${L('Parent area','Area orang tua')}">${ic('lock')}</button><button class="iconbtn" data-a="switchUser" aria-label="${L('Switch player','Ganti pemain')}">${ic('users')}</button></div>`;
 }
 function tabbar(){
-  const t = [['home','home',L('Home','Rumah')],['practice','calc',L('Practice','Latihan')],['missions','target',L('Missions','Misi')],['room','sofa',L('Room','Kamar')],['growth','sprout',L('Growth','Tumbuh')]];
-  const cur = ['home','practice','missions','room','growth'].includes(S.view) ? S.view : ({checkin:'home', review:'home', timer:'home', ef:'missions', quest:'missions', enq:'missions', coachm:'missions', write:'missions', season:'missions', valreq:'missions', choose:'missions'}[S.view] || '');
+  const t = [['home','home',LT('Home','Rumah','Today','Hari ini')],['practice','calc',L('Practice','Latihan')],['missions','target',L('Missions','Misi')],['room','sofa',LT('Room','Kamar','Space','Ruang')],['growth','sprout',LT('Growth','Tumbuh','Stats','Statistik')]];
+  const cur = ['home','practice','missions','room','growth'].includes(S.view) ? S.view : ({checkin:'home', review:'home', timer:'home', ef:'missions', quest:'missions', enq:'missions', coachm:'missions', write:'missions', season:'missions', valreq:'missions', choose:'missions', goal:'home'}[S.view] || '');
   return `<nav class="tabbar" aria-label="main"><div class="in">${t.map(([v, i, l]) => `<button class="tab ${cur === v ? 'on' : ''}" data-a="go" data-v="${v}">${ic(i)}<span>${l}</span></button>`).join('')}</div></nav>`;
 }
 function roomHTML(o = {}){
@@ -1313,39 +1373,70 @@ function roomHTML(o = {}){
   const slot = n => pl[n] ? `<div class="slot ${n}">${decorSVG(pl[n])}</div>` : '';
   const crack = ME.stage === 0 && ME.xp >= 15;
   const mentor = ME.mentors[0];
-  return `<div class="room">${pl.season ? `<div class="season">${decorSVG('garland')}</div>` : ''}<div class="floor"></div>${slot('wall1')}${slot('wall2')}${slot('rug')}${slot('floor1')}${slot('floor2')}
-    ${mentor ? `<div class="slot mentor" title="${esc(mentor.name)}">${petSVG(mentor.pet, 4, 'happy')}</div>` : ''}
-    <div class="pet ${o.jump ? 'happy-jump' : ''}">${petSVG(ME.pet, ME.stage, mood, {crack})}</div>
+  const T = teen();
+  return `<div class="room ${T ? 'teenroom' : ''}">${pl.season ? `<div class="season">${decorSVG('garland')}</div>` : ''}<div class="floor"></div>${slot('wall1')}${slot('wall2')}${slot('rug')}${slot('floor1')}${slot('floor2')}
+    ${T ? `<div class="desk"></div>${slot('desk1')}${slot('desk2')}` : ''}
+    ${mentor ? `<div class="slot mentor" title="${esc(mentor.name)}">${petSVG(mentor.pet, 4, 'happy', {teen:T})}</div>` : ''}
+    <div class="pet ${o.jump && !T ? 'happy-jump' : ''}">${petSVG(ME.pet, ME.stage, mood, {crack, teen:T})}</div>
     ${mood === 'sleep' ? '<div class="night"></div><div class="zzz">z z</div>' : ''}
-    ${o.noSpeech ? '' : `<div class="speech">${petLine()}</div>`}</div>`;
+    ${o.noSpeech || T ? '' : `<div class="speech">${petLine()}</div>`}</div>`;
+}
+function teenStatus(){
+  const ps = planStats(), acc = ['math','eng','sci'].map(s => accSeries(s)[3]);
+  return `<div class="card stack-sm"><div class="row"><span style="width:44px;flex:none">${petSVG(ME.pet, ME.stage, moodOf(), {teen:true})}</span><div class="grow"><span class="label">${esc(ME.petName)} · co-pilot</span><p><b>${petLine()}</b></p></div></div>
+  <div class="minis">${[['Math', acc[0]], ['Eng', acc[1]], ['Sci', acc[2]]].map(([k, v]) => `<div><span class="label">${k}</span><b class="num">${v == null ? '—' : v + '%'}</b></div>`).join('')}<div><span class="label">${L('Plans','Rencana')}</span><b class="num">${ps.rate == null ? '—' : ps.rate + '%'}</b></div></div>
+  <p class="tiny muted">${L('Accuracy this week (first try) · plans finished in the last 14 days','Akurasi minggu ini (percobaan pertama) · rencana selesai 14 hari terakhir')}</p></div>`;
+}
+function goalCard(){
+  const g = ME.goal;
+  if (!g) return `<button class="card tap stack-sm" data-a="go" data-v="goal"><span class="label">${L('My target','Targetku')}</span><b>${L('Set one target of your own','Tetapkan satu target milikmu')}</b><span class="small muted">${L('A grade, an exam, a habit. You choose it, then break it into 3 steps.','Nilai, ujian, atau kebiasaan. Kamu yang memilih, lalu pecah jadi 3 langkah.')}</span></button>`;
+  const done = g.steps.filter(s => s.done).length;
+  return `<button class="card tap stack-sm" data-a="go" data-v="goal"><div class="row between"><span class="label">${L('My target','Targetku')}</span>${g.status === 'done' ? `<span class="tag good">${L('Reached','Tercapai')}</span>` : `<span class="tag info num">${done}/${g.steps.length}</span>`}</div><b>${esc(g.text)}</b>${g.by ? `<span class="tiny muted">${L('By','Sebelum')} ${g.by}</span>` : ''}<div class="bar"><i style="width:${done / g.steps.length * 100}%;background:var(--leaf)"></i></div></button>`;
+}
+function vGoal(){
+  const g = ME.goal;
+  if (!g || S.params.editGoal) return `<div class="stack">${topbar(L('My target','Targetku'), 'home')}<div class="card stack">
+    <label class="field"><span>${L('What do you want to achieve?','Apa yang ingin kamu capai?')}</span><input class="input" id="gText" maxlength="90" value="${esc(g ? g.text : '')}" placeholder="${L('e.g. B in IGCSE Maths, sleep before 23:00','mis. nilai B IGCSE Matematika, tidur sebelum 23:00')}"></label>
+    <label class="field"><span>${L('Why does it matter to you?','Kenapa ini penting buatmu?')}</span><input class="input" id="gWhy" maxlength="140" value="${esc(g ? g.why : '')}"></label>
+    <label class="field"><span>${L('By when?','Sampai kapan?')}</span><input class="input" id="gBy" type="date" value="${g ? g.by : ''}"></label>
+    ${[0, 1, 2].map(i => `<label class="field"><span>${L('Step','Langkah')} ${i + 1}</span><input class="input" id="gS${i}" maxlength="90" value="${esc(g && g.steps[i] ? g.steps[i].t : '')}"></label>`).join('')}
+    <p class="tiny muted">${L('Good steps are actions you control ("do 2 past papers"), not results ("get an A").','Langkah yang baik adalah tindakan yang bisa kamu kendalikan ("kerjakan 2 soal tahun lalu"), bukan hasil ("dapat A").')}</p>
+    <button class="btn" data-a="goalSave">${L('Save target','Simpan target')}</button></div></div>`;
+  return `<div class="stack">${topbar(L('My target','Targetku'), 'home')}<div class="card stack"><h3>${esc(g.text)}</h3>${g.why ? `<p class="small muted">${esc(g.why)}</p>` : ''}${g.by ? `<span class="tag">${L('By','Sebelum')} ${g.by}</span>` : ''}
+    <div class="steps">${g.steps.map((s, i) => `<div class="step ${s.done ? 'done' : ''}"><span class="n">${i + 1}</span><div class="grow row between"><span>${esc(s.t)}</span>${s.done ? `<span class="tiny muted">${s.date}</span>` : `<button class="btn sm soft" data-a="goalStep" data-v="${i}">${L('Done','Selesai')}</button>`}</div></div>`).join('')}</div>
+    ${g.status !== 'done' && g.steps.every(s => s.done) ? `<label class="field"><span>${L('Looking back: what worked, and what would you change?','Melihat ke belakang: apa yang berhasil, dan apa yang akan kamu ubah?')}</span><textarea class="input" id="gRef" maxlength="500"></textarea></label><button class="btn" data-a="goalDone">${L('Close this target','Tutup target ini')}</button>` : ''}
+    <div class="row"><button class="btn ghost sm" data-a="goalEdit">${L('Edit','Ubah')}</button>${g.status === 'done' ? `<button class="btn soft sm" data-a="goalNew">${L('Set a new target','Buat target baru')}</button>` : ''}</div></div></div>`;
 }
 function statBars(){
-  const st = [['energy',L('Energy','Energi')],['home',L('Home','Rumah')],['mood',L('Mood','Mood')],['bond',L('Bond','Ikatan')]];
+  const st = teen() ? [['energy',L('Practice','Latihan')],['home',L('Planning','Perencanaan')],['mood',L('Reflection','Refleksi')],['bond',L('Character','Karakter')]] : [['energy',L('Energy','Energi')],['home',L('Home','Rumah')],['mood',L('Mood','Mood')],['bond',L('Bond','Ikatan')]];
   return `<div class="stats">${st.map(([k, l]) => `<div class="stat"><b>${l}</b><div class="bar"><i style="width:${ME.stats[k]}%;background:var(--${k})"></i></div></div>`).join('')}</div>`;
 }
 function xpBlock(){
   const n = nextStage(), cur = STAGES[ME.stage];
-  if (!n) return `<div class="row between"><b>${tx(cur)}</b><span class="small muted">${L('Ready to become a mentor (see Growth)','Siap menjadi mentor (lihat Tumbuh)')}</span></div>`;
+  const lvl = i => teen() ? 'Lv ' + (i + 1) + ' · ' + stageName(i) : tx(STAGES[i]);
+  if (!n) return `<div class="row between"><b>${lvl(ME.stage)}</b><span class="small muted">${L('Ready to become a mentor (see Growth)','Siap menjadi mentor (lihat Tumbuh)')}</span></div>`;
   const pct = clamp((ME.xp - cur.xp) / (n.xp - cur.xp) * 100, 0, 100);
   const needPd = Math.max(0, n.pd - ME.pd);
-  return `<div class="stack-sm"><div class="row between"><b>${tx(cur)} → ${tx(n)}</b><span class="small muted num">${ME.xp} / ${n.xp} XP</span></div><div class="bar xpbar"><i style="width:${pct}%;background:var(--leaf)"></i></div>
-  ${needPd ? `<p class="tiny muted">${L(`Also needs ${needPd} more confirmed life mission${needPd > 1 ? 's' : ''} to grow.`, `Juga butuh ${needPd} misi kehidupan lagi yang terkonfirmasi untuk tumbuh.`)}</p>` : ''}</div>`;
+  return `<div class="stack-sm"><div class="row between"><b>${lvl(ME.stage)} → ${lvl(ME.stage + 1)}</b><span class="small muted num">${ME.xp} / ${n.xp} XP</span></div><div class="bar xpbar"><i style="width:${pct}%;background:var(--leaf)"></i></div>
+  ${needPd ? `<p class="tiny muted">${LT(`Also needs ${needPd} more confirmed life mission${needPd > 1 ? 's' : ''} to grow.`, `Juga butuh ${needPd} misi kehidupan lagi yang terkonfirmasi untuk tumbuh.`, `Level-up also needs ${needPd} more completed life mission${needPd > 1 ? 's' : ''}. Practice alone is not enough.`, `Naik level juga butuh ${needPd} misi kehidupan lagi. Latihan saja tidak cukup.`)}</p>` : ''}</div>`;
 }
 function vHome(){
   const d = day(), drilled = Object.values(d.drills).some(x => x.s > 0), w = wk(), efToday = w.ef && w.ef.days && w.ef.days.includes(dkey());
   const items = [
-    {done:d.checkin, a:'go', v:'checkin', t:L('Check-in & plan my day','Check-in & rencanakan hari'), r:'+5 · Mood, Home'},
-    {done:drilled, a:'go', v:'practice', t:L('Practice (10 questions)','Latihan (10 soal)'), r:L('feeds Energy','memberi Energi')},
-    {done:efToday, a:'go', v:'missions', t:L('Life skill of the week','Life skill minggu ini'), r:'+Home'},
-    {done:d.reviewDone, a:'go', v:'review', t:L('Evening review','Review malam'), r:'+3 · Home, Mood', dis:!d.checkin}
+    {done:d.checkin, a:'go', v:'checkin', t:L('Check-in & plan my day','Check-in & rencanakan hari'), r:LT('+5 · Mood, Home','+5 · Mood, Rumah','+5 · Planning','+5 · Perencanaan')},
+    {done:drilled, a:'go', v:'practice', t:L('Practice (10 questions)','Latihan (10 soal)'), r:LT('feeds Energy','memberi Energi','+Practice','+Latihan')},
+    {done:efToday, a:'go', v:'missions', t:L('Life skill of the week','Life skill minggu ini'), r:LT('+Home','+Rumah','+Planning','+Perencanaan')},
+    {done:d.reviewDone, a:'go', v:'review', t:L('Evening review','Review malam'), r:LT('+3 · Home, Mood','+3 · Rumah, Mood','+3 · Reflection','+3 · Refleksi'), dis:!d.checkin}
   ];
   const season = SEASONS[new Date().getMonth()];
   const pend = ME.pending.length;
   return `<div class="stack">${topbar()}
   ${storageOK ? '' : `<div class="notice">${L('This browser is not saving progress. Ask a parent to copy a backup code from the Parent area.','Browser ini tidak menyimpan progres. Minta orang tua menyalin kode cadangan di Area orang tua.')}</div>`}
   ${roomHTML({jump:S.params.jump})}
+  ${teen() ? teenStatus() : ''}
   <div class="card stack">${xpBlock()}${statBars()}</div>
-  ${coreDone() ? `<div class="storycard stack-sm"><h3>${L('All done for today','Semua selesai hari ini')}</h3><p class="small">${L(`${esc(ME.petName)} is asleep. Extra practice still counts for learning, but gives no coins today.`, `${esc(ME.petName)} sedang tidur. Latihan tambahan tetap berguna, tapi tidak memberi koin hari ini.`)}</p></div>` : ''}
+  ${teen() ? goalCard() : ''}
+  ${coreDone() ? `<div class="storycard stack-sm"><h3>${L('All done for today','Semua selesai hari ini')}</h3><p class="small">${LT(`${esc(ME.petName)} is asleep. Extra practice still counts for learning, but gives no coins today.`, `${esc(ME.petName)} sedang tidur. Latihan tambahan tetap berguna, tapi tidak memberi koin hari ini.`, 'Extra practice still counts in your stats, but gives no coins today.', 'Latihan tambahan tetap masuk statistik, tapi tidak memberi koin hari ini.')}</p></div>` : ''}
   <div class="stack-sm"><div class="label">${L('Today','Hari ini')}</div>${items.map(it => `<button class="todo ${it.done ? 'done' : ''}" data-a="${it.a}" data-v="${it.v}" ${it.dis ? 'disabled style="opacity:.55"' : ''}><span class="tick">${it.done ? ic('check', 'style="width:16px;height:16px"') : ''}</span><span class="t-title"><b>${it.t}</b></span><span class="reward">${it.r}</span></button>`).join('')}</div>
   ${d.plan.length ? `<div class="card stack-sm"><div class="row between"><div class="label">${L('My plan','Rencanaku')}</div><span class="tiny muted">${L('▶ times a task','▶ mengukur waktu tugas')}</span></div>${d.plan.map((p, i) => `<div class="row"><span class="grow ${p.done ? 'muted' : ''}" style="${p.done ? 'text-decoration:line-through' : ''}">${esc(p.t)}</span><span class="tiny muted num">${L('guess','tebak')} ${p.est}′${p.actual ? ' · ' + L('real','nyata') + ' ' + p.actual + '′' : ''}</span>${p.done ? '' : `<button class="iconbtn" data-a="taskTimer" data-v="${i}" aria-label="${L('Start timer','Mulai timer')}">${ic('play')}</button>`}</div>`).join('')}</div>` : ''}
   ${pend ? `<button class="card tap row" data-a="go" data-v="missions"><span class="tag warn">${pend}</span><span class="grow">${L('mission(s) waiting for a check','misi menunggu dicek')}</span></button>` : ''}
@@ -1356,12 +1447,12 @@ function vHome(){
 /* check-in */
 function vCheckin(){
   const d = day(), c = S.params.ci || (S.params.ci = {mood:d.mood || 0, plan:d.plan.length ? d.plan.map(p => Object.assign({}, p)) : [{t:'', slot:'pm', est:20},{t:'', slot:'pm', est:20},{t:'', slot:'ev', est:15}]});
-  const moods = ['😢','😕','😐','🙂','😄'];
-  const quick = lang() === 'id' ? ['PR matematika','Membaca 15 menit','Merapikan kamar','Latihan Teman Tumbuh','Membantu di rumah','Olahraga'] : ['Math homework','Read for 15 minutes','Tidy my room','Teman Tumbuh practice','Help at home','Exercise'];
+  const moods = teen() ? (lang() === 'id' ? ['Habis','Rendah','Biasa','Baik','Semangat'] : ['Drained','Low','Okay','Good','Energized']) : ['😢','😕','😐','🙂','😄'];
+  const quick = teen() ? (lang() === 'id' ? ['Mengerjakan tugas','Belajar untuk ulangan','Soal tahun lalu','Membaca 20 menit','Olahraga','Merapikan catatan'] : ['Assignment','Revise for a test','Past paper','Read for 20 minutes','Workout','Organise my notes']) : lang() === 'id' ? ['PR matematika','Membaca 15 menit','Merapikan kamar','Latihan Teman Tumbuh','Membantu di rumah','Olahraga'] : ['Math homework','Read for 15 minutes','Tidy my room','Teman Tumbuh practice','Help at home','Exercise'];
   const slots = [['am',L('Morning','Pagi')],['pm',L('Afternoon','Siang/Sore')],['ev',L('Evening','Malam')]];
   return `<div class="stack">${topbar(L('Check-in','Check-in'), 'home')}
-  <div class="card stack"><h3>${L('How are you feeling?','Bagaimana perasaanmu?')}</h3><div class="mood-row">${moods.map((m, i) => `<button class="mood ${c.mood === i + 1 ? 'on' : ''}" data-a="ciMood" data-v="${i + 1}" aria-label="mood ${i + 1}">${m}</button>`).join('')}</div>
-  <p class="tiny muted">${L('Every answer is okay. Your companion gets the same care either way.','Semua jawaban boleh. Companion-mu tetap dirawat apa pun jawabannya.')}</p></div>
+  <div class="card stack"><h3>${L('How are you feeling?','Bagaimana perasaanmu?')}</h3><div class="mood-row ${teen() ? 'words' : ''}">${moods.map((m, i) => `<button class="mood ${c.mood === i + 1 ? 'on' : ''}" data-a="ciMood" data-v="${i + 1}" aria-label="mood ${i + 1}">${teen() ? `<b>${i + 1}</b><span>${m}</span>` : m}</button>`).join('')}</div>
+  <p class="tiny muted">${LT('Every answer is okay. Your companion gets the same care either way.','Semua jawaban boleh. Companion-mu tetap dirawat apa pun jawabannya.','There is no right answer. It only helps you see your own patterns.','Tidak ada jawaban benar. Ini hanya membantumu melihat polamu sendiri.')}</p></div>
   <div class="card stack"><div><h3>${L('Plan Board: 3 tasks for today','Plan Board: 3 tugas hari ini')}</h3><p class="small muted">${L('Guess how long each takes. Tonight you will compare.','Tebak berapa lama masing-masing. Malam nanti kamu bandingkan.')}</p></div>
   <div class="row">${quick.map(q => `<button class="chip" data-a="ciQuick" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div>
   ${c.plan.map((p, i) => `<div class="plan-row"><input class="input" id="pt${i}" placeholder="${L('Task','Tugas')} ${i + 1}" value="${esc(p.t)}" maxlength="60">
@@ -1379,14 +1470,14 @@ function vPractice(){
   return `<div class="stack">${topbar(L('Practice','Latihan'))}
   ${coreDone() ? `<div class="notice">${L('Your companion is asleep. You can still practise, but coins are paused until tomorrow.','Companion sedang tidur. Kamu tetap bisa latihan, tapi koin berhenti sampai besok.')}</div>` : ''}
   <div class="stack-sm">${Object.entries(SUBJ).map(([k, s]) => { const r = d.drills[k]; return `<button class="card tap row" data-a="drill" data-v="${k}"><span class="subj"><span class="ic" style="background:color-mix(in srgb, ${s.color} 22%, transparent);color:${s.color}">${ic(s.icon)}</span></span>
-    <span class="grow"><b>${tx(s)}</b> <span class="muted small">· ${tx(s.game)}</span><br><span class="small muted">${ME.placed[k] ? levelLabel(k) : L('First time: a short warm-up finds your level','Pertama kali: pemanasan singkat mencari levelmu')}</span></span>
+    <span class="grow"><b>${tx(s)}</b> <span class="muted small">· ${tx(teen() ? s.tgame : s.game)}</span><br><span class="small muted">${ME.placed[k] ? levelLabel(k) : L('First time: a short warm-up finds your level','Pertama kali: pemanasan singkat mencari levelmu')}</span></span>
     ${r ? `<span class="tag good">${r.c}/${r.n}</span>` : ''}</button>`; }).join('')}</div>
   <button class="card tap row" data-a="${bossReady ? 'boss' : 'noop'}" ${bossReady ? '' : 'style="opacity:.6"'}><span class="subj"><span class="ic" style="background:color-mix(in srgb, var(--grape) 22%, transparent);color:var(--grape)">${ic('shield')}</span></span>
     <span class="grow"><b>${L('Boss Review','Boss Review')}</b><br><span class="small muted">${wk().boss ? L('Done this week. Great!','Sudah selesai minggu ini. Hebat!') : bossReady ? L(`${Math.min(10, ME.queue.length)} questions you missed before. +20 coins`, `${Math.min(10, ME.queue.length)} soal yang dulu salah. +20 koin`) : L(`Unlocks with 5 missed questions (now ${ME.queue.length}), or on Sunday`, `Terbuka dengan 5 soal salah (sekarang ${ME.queue.length}), atau hari Minggu`)}</span></span></button>
   <button class="card tap row" data-a="go" data-v="write"><span class="subj"><span class="ic" style="background:color-mix(in srgb, var(--berry) 22%, transparent);color:var(--berry)">${ic('pencil')}</span></span>
     <span class="grow"><b>${L('Postcard (writing)','Kartu pos (menulis)')}</b><br><span class="small muted">${w && w.status === 'done' ? L('Rated this week','Sudah dinilai minggu ini') : w && w.status === 'pending' ? L('Waiting for a rating','Menunggu dinilai') : L('Write in English; a parent or coach rates it. +5 coins','Tulis dalam bahasa Inggris; orang tua/coach menilai. +5 koin')}</span></span></button>
   <button class="card tap row" data-a="focusTimer"><span class="subj"><span class="ic" style="background:color-mix(in srgb, var(--home) 22%, transparent);color:var(--home)">${ic('timer')}</span></span>
-    <span class="grow"><b>${L('Focus Timer','Timer Fokus')}</b><br><span class="small muted">${L('Study for real while your companion reads next to you','Belajar sungguhan sementara companion membaca di sebelahmu')}</span></span></button>
+    <span class="grow"><b>${L('Focus Timer','Timer Fokus')}</b><br><span class="small muted">${LT('Study for real while your companion reads next to you','Belajar sungguhan sementara companion membaca di sebelahmu','A distraction-free sprint: 10–25 minutes','Sprint tanpa distraksi: 10–25 menit')}</span></span></button>
   </div>${tabbar()}`;
 }
 
@@ -1446,6 +1537,7 @@ function vMissions(){
   const efTitle = ef ? tx(EF_SKILLS[ef.skill]) : L('Choose this week\'s life skill','Pilih life skill minggu ini');
   const qd = q ? (q.own ? {t:{en:L('My own mission','Misi buatanku')}} : QUESTS[b][q.comp]) : null;
   return `<div class="stack">${topbar(L('Missions','Misi'))}
+  ${teen() ? goalCard() : ''}
   ${ME.pending.length ? `<div class="card stack-sm"><div class="label">${L('Waiting for a check','Menunggu dicek')}</div>${ME.pending.map(p => `<button class="row tap" style="background:none;border:0;padding:6px 0" data-a="openVal" data-v="${p.pid}"><span class="grow"><b>${esc(p.title)}</b><br><span class="tiny muted">${p.validator === 'coach' ? L('Coach','Coach') : L('Parent','Orang tua')} · ${p.created}</span></span><span class="tag warn">${L('Confirm','Konfirmasi')}</span></button>`).join('')}</div>` : ''}
   <button class="card tap stack-sm" data-a="${ef ? 'go' : 'choose'}" data-v="${ef ? 'ef' : 'ef'}"><div class="row between"><span class="label">${L('Life skill · Executive function','Life skill · Executive function')}</span>${ef ? statusTag(ef.status) : ''}</div><h3>${efTitle}</h3>
     ${ef ? `<p class="small">${esc(tx(EF[b][ef.skill]))}</p><div class="week">${weekDays().map((k, i) => `<i class="${ef.days.includes(k) ? 'on' : ''} ${k === dkey() ? 'today' : ''}">${DOW()[i]}</i>`).join('')}</div>` : `<p class="small muted">${L(`Pick from ${w.choices.n} options.`, `Pilih dari ${w.choices.n} pilihan.`)}</p>`}</button>
@@ -1547,8 +1639,8 @@ function vValReq(){
 function vRoom(){
   const owned = ME.decor.owned, pl = Object.values(ME.decor.placed);
   const season = SEASONS[new Date().getMonth()], skey = season.m + '-' + new Date().getFullYear();
-  const items = Object.entries(DECOR);
-  return `<div class="stack">${topbar(L('Room','Kamar'))}${roomHTML({noSpeech:true})}
+  const items = Object.entries(DECOR).filter(([, d]) => teen() || d.slot !== 'desk');
+  return `<div class="stack">${topbar(LT('Room','Kamar','My space','Ruangku'))}${roomHTML({noSpeech:true})}
   <p class="small muted">${L('Coins are only spent here. Tap an item you own to place or remove it.','Koin hanya dibelanjakan di sini. Ketuk barang milikmu untuk memasang atau melepasnya.')}</p>
   <div class="shop">${items.map(([id, d]) => { const own = owned.includes(id), placed = pl.includes(id); const locked = d.seasonal && ME.seasons[skey] !== 'done' && !own;
     return `<button class="item ${placed ? 'placed' : ''}" data-a="${own ? 'place' : locked ? 'noop' : 'buy'}" data-v="${id}" ${locked ? 'style="opacity:.55"' : ''}>${decorSVG(id)}<span>${tx(d)}</span><span class="tiny ${own ? '' : 'muted'}">${own ? (placed ? L('Placed','Terpasang') : L('Owned','Dimiliki')) : locked ? L('Season quest','Quest musim') : `<i class="coin" style="display:inline-block;vertical-align:-2px"></i> ${d.price}`}</span></button>`; }).join('')}</div></div>${tabbar()}`;
@@ -1576,7 +1668,7 @@ function planStats(){
 }
 function vGrowth(){
   const tab = S.params.gtab || 'progress';
-  const tabs = [['progress',L('Progress','Progres')],['journal',L('Journal','Jurnal')],['hall',L('Hall of Growth','Hall of Growth')],['story',L('Weekly story','Cerita mingguan')]];
+  const tabs = [['progress',L('Progress','Progres')],['journal',L('Journal','Jurnal')],['hall',LT('Hall of Growth','Hall of Growth','Milestones','Pencapaian')],['story',LT('Weekly story','Cerita mingguan','Week in review','Ringkasan minggu')]];
   let body = '';
   if (tab === 'progress'){
     const ps = planStats(), f = ME.fix, tot = f.rushed + f.unsure + f.misread;
@@ -1595,7 +1687,7 @@ function vGrowth(){
     <div class="card stack-sm"><span class="label">${L('Companions raised','Companion yang dibesarkan')}</span>${ME.hall.length ? `<div class="hall">${ME.hall.map(h => `<div class="card">${petSVG(h.pet, 4, 'happy')}<b>${esc(h.name)}</b><br><span class="tiny muted">${h.from} → ${h.to}</span></div>`).join('')}</div>` : `<p class="small muted">${L('When your companion becomes a Legend, it joins this hall.','Saat companion-mu menjadi Legenda, ia masuk ke hall ini.')}</p>`}</div>
     <div class="card stack-sm"><span class="label">${L('Story chapters','Bab cerita')}</span>${ME.stories.length ? ME.stories.map(s => `<p class="small">· ${esc(s)}</p>`).join('') : `<p class="small muted">${L('Complete weekly quests to unlock chapters.','Selesaikan quest mingguan untuk membuka bab.')}</p>`}</div>`;
   } else body = weeklyStory(false);
-  return `<div class="stack">${topbar(L('Growth','Tumbuh'))}<div class="row">${tabs.map(([k, l]) => `<button class="chip ${tab === k ? 'on' : ''}" data-a="gtab" data-v="${k}">${l}</button>`).join('')}</div>${body}</div>${tabbar()}`;
+  return `<div class="stack">${topbar(LT('Growth','Tumbuh','Stats','Statistik'))}<div class="row">${tabs.map(([k, l]) => `<button class="chip ${tab === k ? 'on' : ''}" data-a="gtab" data-v="${k}">${l}</button>`).join('')}</div>${body}</div>${tabbar()}`;
 }
 function weekSummary(k = weekKey()){
   const days = weekDays(); let n = 0, c = 0, sessions = 0, active = 0, plans = 0, plansDone = 0, reviews = 0;
@@ -1611,6 +1703,7 @@ function weeklyStory(forParent){
     <p class="small">${L(`${kid} was active on ${s.active} of 7 days, finished ${s.sessions} practice sessions (${s.n ? Math.round(s.c / s.n * 100) : 0}% first-try correct), completed ${s.plansDone} of ${s.plans} planned tasks and did ${s.reviews} evening reviews.`, `${kid} aktif ${s.active} dari 7 hari, menyelesaikan ${s.sessions} sesi latihan (${s.n ? Math.round(s.c / s.n * 100) : 0}% benar di percobaan pertama), menyelesaikan ${s.plansDone} dari ${s.plans} tugas yang direncanakan, dan ${s.reviews} kali review malam.`)}</p>
     ${efTxt ? `<p class="small">${L(`Life skill: ${efTxt}, practised ${s.ef.days.length} day(s).`, `Life skill: ${efTxt}, dilatih ${s.ef.days.length} hari.`)}</p>` : ''}
     <p class="tiny muted">${L('Reflections stay private unless your child chooses to share them.','Refleksi tetap privat kecuali anak memilih membagikannya.')}</p></div>`;
+  if (teen()) return `<div class="card stack-sm"><h3>${L('Week in review','Ringkasan minggu')}</h3><div class="grid2">${[[L('Active days','Hari aktif'), s.active + '/7'],[L('Practice sessions','Sesi latihan'), s.sessions],[L('First-try accuracy','Akurasi percobaan pertama'), s.n ? Math.round(s.c / s.n * 100) + '%' : '—'],[L('Tasks finished','Tugas selesai'), s.plansDone + '/' + s.plans]].map(([k, v]) => `<div class="card soft stack-sm"><span class="label">${k}</span><h2 class="num">${v}</h2></div>`).join('')}</div>${efTxt ? `<p class="small">${L(`Life skill: ${efTxt}, ${s.ef.days.length} day(s).`, `Life skill: ${efTxt}, ${s.ef.days.length} hari.`)}</p>` : ''}<p class="small muted">${L('Consistency beats intensity. Look at which day you skipped and why.','Konsisten lebih penting dari intens. Lihat hari mana yang terlewat dan kenapa.')}</p></div>`;
   return `<div class="storycard stack-sm"><h3>${L(`${nm}'s week`, `Minggu ${nm}`)}</h3>
     <p>${L(`${nm} ate ${s.c} problem-bowls cooked by you, and you kept the room tidy with ${s.plansDone} finished tasks.`, `${nm} makan ${s.c} mangkuk soal yang kamu masak, dan kamu merapikan kamar dengan ${s.plansDone} tugas selesai.`)}</p>
     ${efTxt ? `<p>${L(`You trained "${efTxt}" on ${s.ef.days.length} day(s).`, `Kamu melatih "${efTxt}" selama ${s.ef.days.length} hari.`)}</p>` : ''}
@@ -1694,10 +1787,10 @@ function vCoach(){
 
 /* ===== PIN, profiles, create ===== */
 function vPin(forWhat){
-  const setup = forWhat === 'coach' && !DB.coach.pin;
-  const title = forWhat === 'coach' ? (setup ? L('Create a coach PIN for this device','Buat PIN coach untuk perangkat ini') : L('Coach PIN','PIN coach')) : forWhat === 'parent' ? L('Parent PIN','PIN orang tua') : L(`Hi ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Enter your PIN`, `Hai ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Masukkan PIN-mu`);
+  const len = 4;
+  const title = forWhat === 'coach' ? L('Coach PIN','PIN coach') : forWhat === 'parent' ? L('Parent PIN','PIN orang tua') : L(`Hi ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Enter your PIN`, `Hai ${esc((DB.profiles.find(p => p.id === S.pinFor) || {}).name || '')}! Masukkan PIN-mu`);
   return `<div class="stack" style="padding-top:20px"><div class="topbar"><button class="iconbtn" data-a="pinCancel" aria-label="back">${ic('back')}</button><h2 class="grow">${title}</h2></div>
-  <div class="pindots">${[0, 1, 2, 3].map(i => `<i class="${S.pin.length > i ? 'f' : ''}"></i>`).join('')}</div>${S.pinErr ? `<p class="center" style="color:var(--bad)"><b>${L('Wrong PIN, try again','PIN salah, coba lagi')}</b></p>` : '<p class="center tiny muted">&nbsp;</p>'}
+  <div class="pindots">${Array.from({length:len}, (_, i) => i).map(i => `<i class="${S.pin.length > i ? 'f' : ''}"></i>`).join('')}</div>${S.pinErr ? `<p class="center" style="color:var(--bad)"><b>${L('Wrong PIN, try again','PIN salah, coba lagi')}</b></p>` : '<p class="center tiny muted">&nbsp;</p>'}
   <div class="pinpad">${[1,2,3,4,5,6,7,8,9].map(n => `<button data-a="pinKey" data-v="${n}">${n}</button>`).join('')}<button data-a="pinKey" data-v="del" aria-label="delete">⌫</button><button data-a="pinKey" data-v="0">0</button><span></span></div>
   ${forWhat === 'parent' ? `<p class="center tiny muted">${L('Forgot it? Restore from a backup code, or ask your coach.','Lupa? Pulihkan dari kode cadangan, atau tanya coach.')}</p>` : ''}</div>`;
 }
@@ -1707,7 +1800,7 @@ function vProfiles(){
   return `<div class="stack" style="padding-top:18px"><div class="row between"><div class="brand"><span class="brand-dot">${ic('sprout', 'style="width:16px;height:16px;color:#fff"')}</span>Teman Tumbuh</div>${langToggle()}</div>
   ${ps.length ? '' : `<div class="card stack" style="text-align:center;align-items:center"><div class="row" style="justify-content:center;gap:0">${['cat','dragon','rabbit'].map((p, i) => `<div style="width:${i === 1 ? 120 : 90}px">${petSVG(p, 2 + (i === 1 ? 1 : 0), 'happy')}</div>`).join('')}</div>
     <h1>${L('A companion that grows when you grow','Companion yang tumbuh saat kamu tumbuh')}</h1><p class="muted">${L('Practise Math, English and Science, plan your day, and take on real-life missions. Your companion reflects how you take care of your learning.','Latihan Matematika, Bahasa Inggris, dan Sains, rencanakan harimu, dan jalani misi kehidupan nyata. Companion-mu mencerminkan caramu merawat belajarmu.')}</p></div>`}
-  ${ps.map(p => `<button class="card tap row" data-a="pickProfile" data-v="${p.id}"><span style="width:64px;flex:none">${petSVG(p.pet, p.stage, 'happy')}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="small muted">${L('Grade','Kelas')} ${p.grade} · ${esc(p.petName)} · ${tx(STAGES[p.stage])}</span></span>${ic('back', 'style="transform:rotate(180deg);width:20px"')}</button>`).join('')}
+  ${ps.map(p => `<button class="card tap row" data-a="pickProfile" data-v="${p.id}"><span style="width:64px;flex:none">${petSVG(p.pet, p.stage, 'happy')}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="small muted">${L('Grade','Kelas')} ${p.grade} · ${p.grade >= 7 ? 'Lv ' + (p.stage + 1) + ' · ' + stageName(p.stage, p) : esc(p.petName) + ' · ' + stageName(p.stage, p)}</span></span>${ic('back', 'style="transform:rotate(180deg);width:20px"')}</button>`).join('')}
   <button class="btn block" data-a="newPlayer">${L('Add a player','Tambah pemain')}</button>
   <div class="row" style="justify-content:center"><button class="btn ghost sm" data-a="restore">${L('Restore from backup','Pulihkan dari cadangan')}</button><button class="btn ghost sm" data-a="openCoach_">${L('Coach tools','Alat coach')}</button></div>
   ${S.params.restoreOpen ? `<div class="card stack-sm"><textarea class="input" id="bkIn" placeholder="TTB1.…"></textarea><button class="btn" data-a="doRestore">${L('Restore','Pulihkan')}</button></div>` : ''}
@@ -1717,13 +1810,13 @@ function vProfiles(){
 function vCreate(){
   const c = S.create, st = c.step;
   const teenFirst = c.grade >= 7;
-  const petOrder = teenFirst ? ['robot','fox','spirit','cat','dog','rabbit','turtle','owl','dragon'] : ['cat','dog','rabbit','turtle','owl','dragon','robot','fox','spirit'];
+  const petOrder = teenFirst ? ['orb','robot','fox','spirit','owl','dragon'] : ['cat','dog','rabbit','turtle','owl','dragon','robot','fox','spirit'];
   let body = '';
   if (st === 1) body = `<label class="field"><span>${L('Your first name','Nama depanmu')}</span><input class="input" id="cName" value="${esc(c.name || '')}" maxlength="24" autocomplete="off"></label>
     <label class="field"><span>${L('Grade','Kelas')}</span><select class="input" id="cGrade">${[3,4,5,6,7,8,9,10,11,12].map(g => `<option value="${g}" ${c.grade === g ? 'selected' : ''}>${L('Grade','Kelas')} ${g}</option>`).join('')}</select></label>
     <label class="field"><span>${L('Instructions in','Instruksi dalam')}</span><select class="input" id="cLang"><option value="en" ${c.lang === 'en' ? 'selected' : ''}>English</option><option value="id" ${c.lang === 'id' ? 'selected' : ''}>Bahasa Indonesia</option></select></label>
     <p class="tiny muted">${L('Questions are in English. Instructions can be in Bahasa Indonesia.','Soal dalam bahasa Inggris. Instruksi bisa dalam Bahasa Indonesia.')}</p>`;
-  if (st === 2) body = `<p class="muted">${L('Choose your companion. It starts as an egg.','Pilih companion-mu. Ia dimulai dari telur.')}</p><div class="pets">${petOrder.map(p => `<button class="petpick ${c.pet === p ? 'on' : ''}" data-a="cPet" data-v="${p}">${petSVG(p, 2, 'happy')}<span>${tx(PETS[p])}</span></button>`).join('')}</div>
+  if (st === 2) body = `<p class="muted">${teenFirst ? L('Choose a co-pilot. It sits on your desk and tracks your progress with you. Your study space levels up as you do.','Pilih co-pilot. Ia ada di mejamu dan mencatat progresmu bersamamu. Ruang belajarmu naik level bersamamu.') : L('Choose your companion. It starts as an egg.','Pilih companion-mu. Ia dimulai dari telur.')}</p><div class="pets">${petOrder.map(p => `<button class="petpick ${c.pet === p ? 'on' : ''}" data-a="cPet" data-v="${p}">${petSVG(p, 2, 'happy', {teen:teenFirst})}<span>${tx(PETS[p])}</span></button>`).join('')}</div>
     <label class="field"><span>${L('Give it a name','Beri nama')}</span><input class="input" id="cPetName" value="${esc(c.petName || '')}" maxlength="18" autocomplete="off"></label>`;
   if (st === 3) body = `<div class="notice">${L('Ask a parent to help with this step.','Minta orang tua membantu langkah ini.')}</div>
     <label class="field"><span>${L('Child PIN (4 digits)','PIN anak (4 angka)')}</span><input class="input" id="cPin" inputmode="numeric" maxlength="4" autocomplete="off"></label>
@@ -1731,7 +1824,7 @@ function vCreate(){
     <label class="field"><span>${L('Parent WhatsApp number (optional)','Nomor WhatsApp orang tua (opsional)')}</span><input class="input" id="cPhone" inputmode="tel" placeholder="08…"></label>
     <p class="tiny muted">${L('The parent PIN confirms real-life missions and opens the Parent area. Everything stays on this device.','PIN orang tua untuk mengonfirmasi misi kehidupan dan membuka Area orang tua. Semua tetap di perangkat ini.')}</p>`;
   return `<div class="stack" style="padding-top:12px"><div class="topbar"><button class="iconbtn" data-a="cBack" aria-label="back">${ic('back')}</button><h2 class="grow">${L('New player','Pemain baru')}</h2><span class="tag">${st}/3</span></div>
-  <div class="card stack">${body}${c.err ? `<p style="color:var(--bad)"><b>${c.err}</b></p>` : ''}</div><button class="btn block" data-a="cNext">${st === 3 ? L('Hatch my companion','Tetaskan companion') : L('Next','Lanjut')}</button></div>`;
+  <div class="card stack">${body}${c.err ? `<p style="color:var(--bad)"><b>${c.err}</b></p>` : ''}</div><button class="btn block" data-a="cNext">${st === 3 ? (teenFirst ? L('Set up my space','Siapkan ruangku') : L('Hatch my companion','Tetaskan companion')) : L('Next','Lanjut')}</button></div>`;
 }
 
 /* ===== landing page for a parent/coach opening a WhatsApp link ===== */
@@ -1762,9 +1855,12 @@ function modalHTML(){
   const m = S.modal; let inner = '';
   if (m.type === 'evolve'){
     const st = STAGES[ME.stage];
+    if (teen()) inner = `<div class="stack center" style="align-items:center"><span class="label">${L('Level up','Naik level')}</span><h1>Lv ${ME.stage + 1} · ${stageName(ME.stage)}</h1><p class="muted">${L(`You got here with ${ME.xp} XP from practice and ${ME.pd} completed life mission(s). Your space unlocks a new look.`, `Kamu sampai di sini dengan ${ME.xp} XP dari latihan dan ${ME.pd} misi kehidupan. Ruangmu mendapat tampilan baru.`)}</p><button class="btn block" data-a="closeModal">${L('Continue','Lanjut')}</button></div>`; else
     inner = `<div class="stack center" style="align-items:center"><div style="width:180px" class="happy-jump">${petSVG(ME.pet, ME.stage, 'happy')}</div><h2>${ME.stage === 1 ? L(`${esc(ME.petName)} hatched!`, `${esc(ME.petName)} menetas!`) : L(`${esc(ME.petName)} grew into a ${tx(st)}!`, `${esc(ME.petName)} tumbuh menjadi ${tx(st)}!`)}</h2><p class="muted">${ME.stage === 1 ? L('Take care of your learning, and it takes care of growing.','Rawat belajarmu, dan ia akan terus tumbuh.') : L('Growth came from practice and from life missions in the real world.','Pertumbuhan datang dari latihan dan misi kehidupan di dunia nyata.')}</p><button class="btn block" data-a="closeModal">${L('Yay!','Hore!')}</button></div>`;
   } else if (m.type === 'care'){
     inner = `<div class="stack"><h2>${L('Thank you for sharing that','Terima kasih sudah bercerita')}</h2><p>${L('It sounds like something might be hard right now. You deserve support. Please talk to a parent, teacher, coach or counselor you trust today.','Sepertinya ada hal yang berat sekarang. Kamu layak mendapat dukungan. Tolong bicara dengan orang tua, guru, coach, atau konselor yang kamu percaya hari ini.')}</p><p class="small muted">${L('Your coach will be gently reminded to check in with you. They will not see what you wrote.','Coach-mu akan diingatkan untuk menyapamu. Mereka tidak akan melihat apa yang kamu tulis.')}</p><button class="btn block" data-a="closeModal">${L('Okay','Oke')}</button></div>`;
+  } else if (m.type === 'welcome' && teen()){
+    inner = `<div class="stack"><h2>${L('Your space is ready','Ruangmu sudah siap')}</h2><p>${L('Each day takes 15–30 minutes: check in and plan 3 tasks, do one practice set, train this week\'s life skill, then close the day by comparing your plan with reality.','Setiap hari butuh 15–30 menit: check-in dan rencanakan 3 tugas, satu set latihan, latih life skill minggu ini, lalu tutup hari dengan membandingkan rencana dan kenyataan.')}</p><p class="small muted">${L('Your reflections are private. Your stats are yours to read. Levels need both practice and real-life missions.','Refleksimu privat. Statistikmu milikmu. Naik level butuh latihan dan misi nyata.')}</p><button class="btn block" data-a="closeModal">${L('Start','Mulai')}</button></div>`;
   } else if (m.type === 'welcome'){
     inner = `<div class="stack center" style="align-items:center"><div style="width:160px">${petSVG(ME.pet, 0)}</div><h2>${L(`This is ${esc(ME.petName)}'s egg`, `Ini telur ${esc(ME.petName)}`)}</h2><p>${L('Every day: check in and plan, practise 10 questions, train your life skill, then review your evening. Your companion grows with you.','Setiap hari: check-in dan rencanakan, latihan 10 soal, latih life skill, lalu review malam. Companion-mu tumbuh bersamamu.')}</p><button class="btn block" data-a="closeModal">${L('Let\'s start','Ayo mulai')}</button></div>`;
   } else if (m.type === 'addCoach'){
@@ -1852,14 +1948,15 @@ const A = {
   pinKey(v){
     S.pinErr = false;
     if (v === 'del'){ S.pin = S.pin.slice(0, -1); return render(); }
-    if (S.pin.length >= 4) return; S.pin += v; render();
-    if (S.pin.length < 4) return;
+    const need = 4;
+    if (S.pin.length >= need) return; S.pin += v; render();
+    if (S.pin.length < need) return;
     setTimeout(() => {
       const pin = S.pin; S.pin = '';
       if (S.pinMode === 'kid'){ const p = DB.profiles.find(x => x.id === S.pinFor); if (p && p.pin === pin){ enterProfile(p); return render(); } }
       else if (S.pinMode === 'parent'){ if (ME && ME.parentPin === pin){ S.unlockedParent = true; S.params.ptab = 'check'; go('parent'); return; } }
       else if (S.pinMode === 'parentConfirm'){ if (ME && ME.parentPin === pin){ const p = ME.pending.find(x => x.pid === S.params.pid); if (p && p.kind === 'write'){ S.unlockedParent = true; S.params.ptab = 'check'; go('parent'); return; } if (p) resolvePending(p); go('missions'); return; } }
-      else if (S.pinMode === 'coach'){ if (!DB.coach.pin){ DB.coach.pin = pin; save(); } if (DB.coach.pin === pin){ S.unlockedCoach = true; go('coach'); return; } }
+      else if (S.pinMode === 'coach'){ if (coachPinOK(pin)){ S.unlockedCoach = true; go('coach'); return; } }
       S.pinErr = true; render();
     }, 150);
   },
@@ -1910,6 +2007,7 @@ const A = {
     if (isNaN(val)){ toast(L('Type a number','Ketik angka')); return; }
     graded(Math.abs(val - q.ans) <= (q.tol || 1e-6));
   },
+  toggleNeg(){ const el = document.getElementById('ans'); if (!el) return; let v = el.value.trim(); v = /^[-−]/.test(v) ? v.replace(/^[-−]\s*/, '') : '−' + v; el.value = v; S.drill.typed = v; el.focus(); },
   checkLine(){ const D = S.drill, q = D.q; const v = +(document.getElementById('lineIn') || {}).value; D.line = v; graded(Math.abs(v - q.target) <= q.tol); },
   tile(i){ const q = S.drill.q; q.picked.push(+i); render(); },
   unpick(j){ const q = S.drill.q; q.picked.splice(+j, 1); render(); },
@@ -1966,9 +2064,15 @@ const A = {
   place(id, quiet){
     const d = DECOR[id], pl = ME.decor.placed; const at = Object.keys(pl).find(k => pl[k] === id);
     if (at && quiet !== true){ delete pl[at]; save(); render(); return; }
-    const slots = d.slot === 'wall' ? ['wall1','wall2'] : d.slot === 'floor' ? ['floor1','floor2'] : [d.slot];
+    const slots = d.slot === 'wall' ? ['wall1','wall2'] : d.slot === 'floor' ? ['floor1','floor2'] : d.slot === 'desk' ? ['desk1','desk2'] : [d.slot];
     const free = slots.find(s => !pl[s]) || slots[0]; pl[free] = id; save(); render();
   },
+  /* goal (teen) */
+  goalSave(){ const t = readVal('gText').trim(), steps = [0, 1, 2].map(i => readVal('gS' + i).trim()).filter(Boolean); if (!t || !steps.length){ toast(L('Add a target and at least one step.','Isi target dan minimal satu langkah.')); return; } const old = ME.goal; ME.goal = {text:t, why:readVal('gWhy').trim(), by:readVal('gBy'), steps:steps.map((s, i) => ({t:s, done:!!(old && old.steps[i] && old.steps[i].t === s && old.steps[i].done), date:old && old.steps[i] ? old.steps[i].date : null})), status:'open', set:dkey()}; S.params.editGoal = false; S.form = null; save(); toast(L('Target saved','Target tersimpan')); render(); },
+  goalStep(i){ const s = ME.goal.steps[+i]; s.done = true; s.date = dkey(); give({xp:10, st:{bond:10}, label:L('Step done','Langkah selesai')}); render(); },
+  goalDone(){ const t = readVal('gRef').trim(); if (t.length < 5){ toast(L('Write a short look-back first.','Tulis refleksi singkat dulu.')); return; } addJournal(L('Target','Target'), ME.goal.text, t); ME.goal.status = 'done'; give({xp:40, st:{bond:30}, pd:1, label:L('Target closed','Target ditutup')}); render(); },
+  goalEdit(){ S.params.editGoal = true; render(); },
+  goalNew(){ ME.goal = null; S.params.editGoal = false; save(); render(); },
   /* growth */
   gtab(v){ S.params.gtab = v; render(); },
   shareJ(id){ const j = ME.journal.find(x => x.id === id); if (j){ j.shared = !j.shared; save(); render(); } },
@@ -2027,7 +2131,7 @@ function render(){
   else if (S.view === 'create') h = vCreate();
   else if (!ME) h = vProfiles();
   else if (S.view === 'parent' && !S.unlockedParent){ S.pinMode = 'parent'; h = vPin('parent'); }
-  else h = ({home:vHome, checkin:vCheckin, practice:vPractice, drill:vDrill, timer:vTimer, review:vReview, missions:vMissions, choose:vChoose, ef:vEF, quest:vQuest, enq:vEnq, season:vSeason, write:vWrite, coachm:vCoachM, valreq:vValReq, room:vRoom, growth:vGrowth, parent:vParent, newEgg:vNewEgg}[S.view] || vHome)();
+  else h = ({home:vHome, checkin:vCheckin, practice:vPractice, drill:vDrill, timer:vTimer, review:vReview, missions:vMissions, choose:vChoose, ef:vEF, quest:vQuest, enq:vEnq, season:vSeason, write:vWrite, coachm:vCoachM, valreq:vValReq, goal:vGoal, room:vRoom, growth:vGrowth, parent:vParent, newEgg:vNewEgg}[S.view] || vHome)();
   app.innerHTML = h + (S.modal ? modalHTML() : '') + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
   if (S.form && S.formView === S.view){ for (const id in S.form){ const el = document.getElementById(id); if (!el) continue; if ('c' in S.form[id]) el.checked = S.form[id].c; else if (!el.disabled || el.tagName === 'INPUT') el.value = S.form[id].v; } }
 }
@@ -2048,9 +2152,10 @@ function boot(){
     const [kind, ref, pid, name] = h.slice(2).split('.');
     if (kind && ref && pid){ S.route = 'validate'; S.val = {kind, ref, pid, name:name || 'your child'}; }
   } else if (h === 'coach'){ S.view = 'coach'; S.pinMode = 'coach'; }
-  if (!S.route && DB.activeId){ const p = DB.profiles.find(x => x.id === DB.activeId); if (p) enterProfile(p); }
+  if (!S.route && S.view !== 'coach' && DB.activeId){ const p = DB.profiles.find(x => x.id === DB.activeId); if (p) enterProfile(p); }
   render();
 }
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h === 'coach' || h.startsWith('v-')){ S.route = null; S.view = 'home'; boot(); } });
 boot();
 </script>
 <script>
