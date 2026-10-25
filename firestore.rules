@@ -15,6 +15,15 @@ service cloud.firestore {
     match /classes/{code} {
       allow read: if signedIn();
       allow write: if isAdmin();
+      // Weekly class challenge: players can only add to the counters.
+      match /weeks/{wk} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.keys().hasOnly(['questions', 'team_A', 'team_B', 'updated']);
+        allow update: if signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['questions', 'team_A', 'team_B', 'updated'])
+          && request.resource.data.get('questions', 0) >= resource.data.get('questions', 0);
+        allow delete: if isAdmin();
+      }
     }
 
     match /students/{sid} {

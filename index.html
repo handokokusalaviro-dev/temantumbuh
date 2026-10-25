@@ -284,6 +284,12 @@ table.tbl{width:100%; border-collapse:collapse; font-size:.86rem; font-variant-n
 
 .qpic{display:flex; justify-content:center; padding:8px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md)}
 .qpic svg{max-width:320px; width:100%; height:auto; max-height:180px}
+
+.ach{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+.skillmap{display:grid; grid-template-columns:repeat(2, 1fr); gap:10px}
+.crowns{display:flex; gap:4px}
+.crowns i{width:14px; height:14px; border-radius:4px; background:var(--surface2); border:1px solid var(--line)}
+.crowns i.on{background:var(--sun); border-color:var(--sun)}
 </style>
 </head>
 <body>
@@ -988,7 +994,7 @@ function genMath(key){ let q, g = 0; do { q = G[key](); } while (q.regen && g++ 
 const tierOf = lv => Math.min(3, 1 + Math.floor(((lv % 1) + 1e-6) * 3));
 /* ================= CORE: state, helpers, art ================= */
 const APP_URL = 'https://handokokusalaviro-dev.github.io/temantumbuh/';
-const APP_VERSION = 'beta 4 · 25 Oct 2026';
+const APP_VERSION = 'beta 6 · 25 Oct 2026';
 const KEY = 'temantumbuh.v1';
 const SALT = 'tumbuh26';
 const COACH_PIN_HASH = '3571941926';
@@ -1061,7 +1067,8 @@ function tickDay(){
 function markActive(){
   const t = dkey(); if (ME.lastActive === t) return;
   if (!ME.lastActive) ME.streak = 1;
-  else { const g = daysBetween(ME.lastActive, t); if (g === 1) ME.streak++; else if (g === 2 && ME.freezes.used < 2){ ME.freezes.used++; ME.streak++; } else ME.streak = 1; }
+  else { const g = daysBetween(ME.lastActive, t); if (g === 1) ME.streak++; else if (g === 2 && ME.freezes.used < 2){ ME.freezes.used++; ME.streak++; } else { if (ME.streak >= 3) ME.repair = {prev:ME.streak, date:t}; ME.streak = 1; } }
+  if (typeof life === 'function') life().streakMax = Math.max(life().streakMax || 0, ME.streak);
   ME.lastActive = t;
 }
 
@@ -1074,7 +1081,7 @@ function give(r){
   ME.pd += r.pd || 0;
   markActive(); save();
   if (r.label){ const bits = []; if (c) bits.push(`+${c} ${L('coins','koin')}`); if (r.xp) bits.push(`+${r.xp} XP`); toast(r.label + (bits.length ? ' · ' + bits.join(' · ') : '')); }
-  checkEvolve();
+  checkEvolve(); if (typeof achCheck === 'function' && ME.life) achCheck();
   return c;
 }
 function nextStage(){ return ME.stage < 4 ? STAGES[ME.stage + 1] : null; }
@@ -1252,10 +1259,10 @@ function updateTopic(q, ok){
 }
 function dueTopics(subj){ const today = dkey(); return Object.entries(ME.topics).filter(([k, t]) => k.startsWith(subj + ':') && t.mastered && t.next <= today).map(([k, t]) => Object.assign({key:k.split(':')[1]}, t)); }
 
-function startDrill(subj, mode){
+function startDrill(subj, mode, topic){
   mode = mode || 'normal';
-  const placement = mode === 'normal' && !ME.placed[subj];
-  const D = {challenge: mode === 'normal' && !placement && teen() && !!ME.challenge, subj, mode, placement, i:0, n:10, results:[], streakOK:0, streakNo:0, coins:0, fixOK:0, levelStart:ME.levels[subj], used:[], why:false, rewards: mode === 'boss' || !coreDone(), phase:'q', q:null, lastGen:null};
+  const placement = mode === 'normal' && !ME.placed[subj] && !topic;
+  const D = {topic:topic || null, combo:0, comboMax:0, challenge: mode === 'normal' && !placement && teen() && !!ME.challenge, subj, mode, placement, i:0, n:10, results:[], streakOK:0, streakNo:0, coins:0, fixOK:0, levelStart:ME.levels[subj], used:[], why:false, rewards: mode === 'boss' || !coreDone(), phase:'q', q:null, lastGen:null};
   if (mode === 'boss'){ D.items = ME.queue.slice(0, 10); D.subj = 'mix'; D.n = Math.max(5, D.items.length); while (D.items.length < D.n) D.items.push(null); }
   S.drill = D; S.view = 'drill'; nextQ();
 }
@@ -1266,7 +1273,7 @@ function curLevel(D, subj){ return D.placement ? placementLevel(D.i) + (subj ===
 
 function makeMath(D, forceLv){
   let lv = forceLv || curLevel(D, 'math');
-  if (!D.placement && !forceLv && D.i === 5 && !D.why){
+  if (!D.placement && !forceLv && D.i === 5 && !D.why && !D.topic){
     const W = P(WHY[bandOf(lv)]); const ord = SH(W.opts.map((_, i) => i));
     return {kind:'mcq', why:true, subj:'math', topic:'reasoning', lv, q:W.q, opts:ord.map(i => W.opts[i]), a:ord.indexOf(W.a), explain:'Reasoning means explaining why, not only what. ' + W.opts[W.a]};
   }
@@ -1278,6 +1285,7 @@ function makeMath(D, forceLv){
     else if (r < .3 && stretchOK(D) && tier === 3 && stage < 12){ stage++; tier = 1; }
     else if (r < .4 && stage > 3){ stage--; tier = 3; }
   }
+  if (!key && D.topic){ const c = []; for (const s of [stage - 1, stage, stage + 1]){ const pool = POOLS2[clamp(s, 3, 12)]; if (!pool) continue; for (const e of pool){ const [k, t] = e.split(':'); if (topicOfGen(k) === D.topic && +t <= tier + (s < stage ? 3 : 0)) c.push(k); } } if (c.length) key = P(c); }
   if (!key){ let g = 0; do { key = pickGen(stage, tier); } while (key === D.lastGen && g++ < 6); }
   lv = stage + (tier - 1) / 3;
   D.lastGen = key;
@@ -1314,7 +1322,7 @@ function nextQ(){
   let q;
   if (D.mode === 'boss') q = fromRef(D.items[D.i]);
   else if (D.subj === 'math') q = makeMath(D);
-  else q = makeBank(D, D.subj);
+  else q = makeBank(D, D.subj, null, D.topic);
   if (q.why) D.why = true;
   D.q = q; D.phase = 'q'; D.sel = null; D.reason = null; D.twin = false; if (ME.classCode && D.i % 3 === 0) syncSoon();
   render(); setTimeout(() => { if (q.kind === 'listen') speak(q.say); const el = document.getElementById('ans'); if (el) el.focus(); }, 60);
@@ -1337,12 +1345,12 @@ function graded(ok){
     D.results[D.i] = ok ? 'fix' : 'no'; D.phase = 'twinfb'; D.lastOK = ok; save(); render(); return;
   }
   if (ok){
-    D.results[D.i] = 'ok'; if (D.rewards) D.coins += q.why ? 3 : 1;
+    D.results[D.i] = 'ok'; if (D.rewards) D.coins += q.why ? 3 : 1; D.combo++; D.comboMax = Math.max(D.comboMax, D.combo);
     D.streakOK++; D.streakNo = 0; if (!D.placement && D.mode !== 'boss' && D.streakOK >= 4){ setLevel(subj, .5); D.streakOK = 0; D.levelMsg = 'up'; }
     if (D.mode === 'boss' && q.ref) ME.queue = ME.queue.filter(r => r !== q.ref && !((r.gen && r.gen === q.ref.gen) || (r.id && r.id === q.ref.id)));
     D.phase = (q.kind === 'read') ? 'evidence' : 'fb';
   } else {
-    D.results[D.i] = 'no'; D.streakOK = 0; D.streakNo++;
+    D.results[D.i] = 'no'; D.streakOK = 0; D.streakNo++; D.combo = 0;
     if (!D.placement && D.mode !== 'boss' && D.streakNo >= 2){ setLevel(subj, -.5); D.streakNo = 0; D.levelMsg = 'down'; }
     queuePush(q); D.phase = 'fix';
   }
@@ -1361,12 +1369,13 @@ function finishDrill(){
     const g = ME.grade; let lv = g; if (at(clamp(g + 1, 3, 12)) >= .67 && at(g) >= .75) lv = clamp(g + 1, 3, 12); else if (at(g) < .5) lv = clamp(g - 1, 3, 12);
     ME.levels[D.subj] = D.subj === 'math' && ME.grade > 5 ? lv + 1 / 3 : lv; ME.placed[D.subj] = true; D.placedTo = lv;
   }
+  if (c >= Math.ceil(D.n * .9) && D.rewards) D.coins += 5;
   const key = D.mode === 'boss' ? 'boss' : D.subj;
   const rec = d.drills[key] || (d.drills[key] = {s:0, n:0, c:0}); rec.s++; rec.n += D.n; rec.c += c;
   if (D.mode === 'boss'){ wk().boss = true; D.got = give({coins:D.coins + 20, xp:20, st:{energy:40}}); }
   else if (D.rewards) D.got = give({coins:D.coins, xp:10 + (D.why ? 5 : 0), st:{energy:30 + (D.why ? 5 : 0)}});
   else { D.got = 0; give({xp:0, st:{energy:10}}); }
-  D.correct = c; D.fixes = f; D.phase = 'done'; save(); render();
+  D.correct = c; D.fixes = f; D.phase = 'done'; onSetDone(D, c); save(); render();
   logEvent('drill', {subj:D.mode === 'boss' ? 'boss' : D.subj, n:D.n, c, fix:f, lv:D.mode === 'boss' ? null : ME.levels[D.subj], placement:D.placement, challenge:!!D.challenge}); syncSoon();
 }
 
@@ -1439,7 +1448,7 @@ function poeBody(D, q, help){
 function afterBody(D, q){
   const ex = esc(q.explain || '');
   if (D.phase === 'evidence') return `<div class="feedback ok"><b>${L('Correct! Bonus: tap the sentence that proves it.','Benar! Bonus: ketuk kalimat yang membuktikannya.')}</b>${D.evPick != null ? `<p>${D.evPick === q.ev ? L('Yes, that is the evidence. +1 coin','Ya, itu buktinya. +1 koin') : L('Not that one. The proof is highlighted.','Bukan itu. Buktinya disorot.')}</p><button class="btn block" data-a="next">${L('Next','Lanjut')}</button>` : `<button class="btn ghost sm" data-a="next">${L('Skip bonus','Lewati bonus')}</button>`}</div>`;
-  if (D.phase === 'fb') return `<div class="feedback ok"><b>${teen() ? L('Correct.','Benar.') : P(lang() === 'id' ? ['Mantap!','Tepat!','Kerja bagus!'] : ['Nice work!','Exactly right!','You got it!'])}</b>${ex ? `<p class="small">${ex}</p>` : ''}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
+  if (D.phase === 'fb') return `<div class="feedback ok">${D.combo >= 3 ? `<span class="tag good">Combo ×${D.combo}</span>` : ''}<b>${teen() ? L('Correct.','Benar.') : P(lang() === 'id' ? ['Mantap!','Tepat!','Kerja bagus!'] : ['Nice work!','Exactly right!','You got it!'])}</b>${ex ? `<p class="small">${ex}</p>` : ''}<button class="btn block" data-a="next">${L('Next','Lanjut')}</button></div>`;
   if (D.phase === 'fix') return `<div class="feedback no"><b>${L('Not this time. What happened?','Belum tepat. Apa yang terjadi?')}</b>
     <div class="row">${[['rushed',L('I rushed','Terburu-buru')],['unsure',L('I didn\'t understand','Aku belum paham')],['misread',L('I misread it','Salah baca soal')]].map(([k, t]) => `<button class="chip" data-a="reason" data-v="${k}">${t}</button>`).join('')}</div></div>`;
   if (D.phase === 'fixexp'){
@@ -1468,7 +1477,7 @@ function vDrillDone(){
   return `<div class="stack"><div class="topbar"><h2 class="grow">${L('Session complete','Sesi selesai')}</h2></div>
   <div class="card center stack" style="align-items:center">${teen() ? '' : `<div style="width:150px">${petSVG(ME.pet, ME.stage, 'happy')}</div>`}
   <h1 class="num">${D.correct}/${n}</h1><p class="muted">${L('first-try correct','benar di percobaan pertama')}${D.fixes ? ` · ${D.fixes} ${L('fixed with Fix-It','diperbaiki lewat Fix-It')}` : ''}</p>
-  ${lvl ? `<span class="tag info">${lvl}</span>` : ''}
+  ${lvl ? `<span class="tag info">${lvl}</span>` : ''}${D.correct >= Math.ceil(D.n * .9) ? `<span class="tag good">${L('Sharp set! +5 bonus coins','Set tajam! +5 koin bonus')}</span>` : ''}${D.comboMax >= 5 ? `<span class="tag good">${L('Best combo','Combo terbaik')} ×${D.comboMax}</span>` : ''}${D.topic ? `<span class="tag">${esc(topicName(D.topic))}</span>` : ''}
   <p>${D.rewards || D.mode === 'boss' ? L(`+${D.got} coins · Energy up`, `+${D.got} koin · Energi naik`) : L('Practice mode: your companion is asleep, so no coins now. Your progress still counts.','Mode latihan: companion sedang tidur, jadi tidak ada koin. Progresmu tetap tercatat.')}</p></div>
   <button class="btn block" data-a="go" data-v="home">${L('Back home','Kembali ke rumah')}</button>
   <button class="btn ghost block" data-a="go" data-v="practice">${L('Practice something else','Latihan yang lain')}</button></div>`;
@@ -1498,7 +1507,7 @@ function topbar(title, back){
   if (back) return `<div class="topbar"><button class="iconbtn" data-a="go" data-v="${back}" aria-label="${L('Back','Kembali')}">${ic('back')}</button><h2 class="grow">${title}</h2><span class="pill"><i class="coin"></i>${ME.coins}</span></div>`;
   return `<div class="topbar"><div class="brand grow"><span class="brand-dot">${ic('sprout', 'style="width:16px;height:16px;color:#fff"')}</span>${teen() ? esc(ME.name) : esc(ME.petName)}</div>
   <span class="pill" title="${L('Day streak','Hari beruntun')}">${ic('star', 'style="width:14px;height:14px"')} ${ME.streak}</span><span class="pill"><i class="coin"></i>${ME.coins}</span>
-  <button class="iconbtn" data-a="parentGate" aria-label="${L('Parent area','Area orang tua')}">${ic('lock')}</button><button class="iconbtn" data-a="switchUser" aria-label="${L('Switch player','Ganti pemain')}">${ic('users')}</button></div>`;
+  <button class="btn ghost sm" data-a="parentGate" aria-label="${L('Parent area','Area orang tua')}" style="min-height:40px;padding:6px 10px">${ic('lock', 'style="width:16px;height:16px"')}<span class="tiny">${L('Parent','Orang tua')}</span></button><button class="iconbtn" data-a="switchUser" aria-label="${L('Switch player','Ganti pemain')}">${ic('users')}</button></div>`;
 }
 function tabbar(){
   const t = [['home','home',LT('Home','Rumah','Today','Hari ini')],['practice','calc',L('Practice','Latihan')],['missions','target',L('Missions','Misi')],['room','sofa',LT('Room','Kamar','Space','Ruang')],['growth','sprout',LT('Growth','Tumbuh','Stats','Statistik')]];
@@ -1573,9 +1582,15 @@ function vHome(){
   ${roomHTML({jump:S.params.jump})}
   ${teen() ? teenStatus() : ''}
   <div class="card stack">${xpBlock()}${statBars()}</div>
-  ${teen() ? goalCard() : ''}
+
   ${coreDone() ? `<div class="storycard stack-sm"><h3>${L('All done for today','Semua selesai hari ini')}</h3><p class="small">${LT(`${esc(ME.petName)} is asleep. Extra practice still counts for learning, but gives no coins today.`, `${esc(ME.petName)} sedang tidur. Latihan tambahan tetap berguna, tapi tidak memberi koin hari ini.`, 'Extra practice still counts in your stats, but gives no coins today.', 'Latihan tambahan tetap masuk statistik, tapi tidak memberi koin hari ini.')}</p></div>` : ''}
   <div class="stack-sm"><div class="label">${L('Today','Hari ini')}</div>${items.map(it => `<button class="todo ${it.done ? 'done' : ''}" data-a="${it.a}" data-v="${it.v}" ${it.dis ? 'disabled style="opacity:.55"' : ''}><span class="tick">${it.done ? ic('check', 'style="width:16px;height:16px"') : ''}</span><span class="t-title"><b>${it.t}</b></span><span class="reward">${it.r}</span></button>`).join('')}</div>
+  ${goalRing()}
+  ${ME.repair && ME.repair.date === dkey() ? `<div class="notice"><b>${L(`Your ${ME.repair.prev}-day streak broke.`, `Streak ${ME.repair.prev} harimu terputus.`)}</b> ${L('Finish 2 practice sets today to repair it.','Selesaikan 2 set latihan hari ini untuk memulihkannya.')}</div>` : ''}
+  ${questsCard()}
+  ${classCard()}
+  ${!ME.classCode && !ME.hideJoin ? `<div class="card stack-sm"><div class="row between"><b>${L('Got a class code from your coach?','Punya kode kelas dari coach?')}</b><button class="btn ghost sm" data-a="hideJoin" aria-label="hide">×</button></div><p class="small muted">${L('A parent can enter it in Parent → Settings → Class.','Orang tua bisa memasukkannya di Orang tua → Pengaturan → Kelas.')}</p><button class="btn soft sm" data-a="parentGate">${L('Open the Parent area','Buka Area orang tua')}</button></div>` : ''}
+  ${teen() ? goalCard() : ''}
   ${d.plan.length ? `<div class="card stack-sm"><div class="row between"><div class="label">${L('My plan','Rencanaku')}</div><span class="tiny muted">${L('▶ times a task','▶ mengukur waktu tugas')}</span></div>${d.plan.map((p, i) => `<div class="row"><span class="grow ${p.done ? 'muted' : ''}" style="${p.done ? 'text-decoration:line-through' : ''}">${esc(p.t)}</span><span class="tiny muted num">${L('guess','tebak')} ${p.est}′${p.actual ? ' · ' + L('real','nyata') + ' ' + p.actual + '′' : ''}</span>${p.done ? '' : `<button class="iconbtn" data-a="taskTimer" data-v="${i}" aria-label="${L('Start timer','Mulai timer')}">${ic('play')}</button>`}</div>`).join('')}</div>` : ''}
   ${pend ? `<button class="card tap row" data-a="go" data-v="missions"><span class="tag warn">${pend}</span><span class="grow">${L('mission(s) waiting for a check','misi menunggu dicek')}</span></button>` : ''}
   <button class="card tap soft row" data-a="go" data-v="season"><span class="grow"><span class="label">${L('This month','Bulan ini')}</span><br><b>${tx(season)}</b></span>${ic('star', 'style="width:22px;height:22px"')}</button>
@@ -1607,6 +1622,8 @@ function vPractice(){
   const w = wk().write;
   return `<div class="stack">${topbar(L('Practice','Latihan'))}
   ${coreDone() ? `<div class="notice">${L('Your companion is asleep. You can still practise, but coins are paused until tomorrow.','Companion sedang tidur. Kamu tetap bisa latihan, tapi koin berhenti sampai besok.')}</div>` : ''}
+  <div class="card stack-sm"><div class="row between"><b>${L('Daily goal','Target harian')}</b><div class="seg">${[[1, L('Easy','Santai')], [2, L('Regular','Rutin')], [3, L('Serious','Serius')]].map(([n, l]) => `<button class="${goalSets() === n ? 'on' : ''}" data-a="setGoal" data-v="${n}">${l}</button>`).join('')}</div></div><p class="tiny muted">${L(`${goalSets()} set(s) a day. Pick what you can keep doing.`, `${goalSets()} set per hari. Pilih yang bisa kamu jaga.`)}</p></div>
+  <button class="card tap row" data-a="go" data-v="skillmap"><span class="subj"><span class="ic" style="background:color-mix(in srgb, var(--sun) 22%, transparent);color:var(--sun)">${ic('map')}</span></span><span class="grow"><b>${L('Skill map','Peta skill')}</b><br><span class="small muted">${L('See every topic and its crowns; practise one topic','Lihat setiap topik dan mahkotanya; latih satu topik')}</span></span></button>
   ${teen() ? `<div class="card stack-sm"><div class="row between"><b>${L('Difficulty','Tingkat kesulitan')}</b><div class="seg"><button class="${ME.challenge ? '' : 'on'}" data-a="setChallenge" data-v="0">${L('Standard','Standar')}</button><button class="${ME.challenge ? 'on' : ''}" data-a="setChallenge" data-v="1">Challenge</button></div></div><p class="tiny muted">${L('Challenge starts Math one level higher. Your choice; your level still adapts.','Challenge memulai Math satu level lebih tinggi. Kamu yang memilih; levelmu tetap menyesuaikan.')}</p></div>` : ''}
   <div class="stack-sm">${Object.entries(SUBJ).map(([k, s]) => { const r = d.drills[k]; return `<button class="card tap row" data-a="drill" data-v="${k}"><span class="subj"><span class="ic" style="background:color-mix(in srgb, ${s.color} 22%, transparent);color:${s.color}">${ic(s.icon)}</span></span>
     <span class="grow"><b>${tx(s)}</b> <span class="muted small">· ${tx(teen() ? s.tgame : s.game)}</span><br><span class="small muted">${ME.placed[k] ? levelLabel(k) : L('First time: a short warm-up finds your level','Pertama kali: pemanasan singkat mencari levelmu')}</span></span>
@@ -1807,7 +1824,7 @@ function planStats(){
 }
 function vGrowth(){
   const tab = S.params.gtab || 'progress';
-  const tabs = [['progress',L('Progress','Progres')],['journal',L('Journal','Jurnal')],['hall',LT('Hall of Growth','Hall of Growth','Milestones','Pencapaian')],['story',LT('Weekly story','Cerita mingguan','Week in review','Ringkasan minggu')]];
+  const tabs = [['progress',L('Progress','Progres')],['badges',L('Badges','Lencana')],['journal',L('Journal','Jurnal')],['hall',LT('Hall of Growth','Hall of Growth','Milestones','Pencapaian')],['story',LT('Weekly story','Cerita mingguan','Week in review','Ringkasan minggu')]];
   let body = '';
   if (tab === 'progress'){
     const ps = planStats(), f = ME.fix, tot = f.rushed + f.unsure + f.misread;
@@ -1819,6 +1836,8 @@ function vGrowth(){
     <div class="card stack-sm"><span class="label">Fix-It</span><h2 class="num">${f.twinN ? Math.round(f.twinOK / f.twinN * 100) + '%' : '—'}</h2><span class="tiny muted">${L('twin questions fixed','soal kembar diperbaiki')}</span></div></div>
     ${tot ? `<div class="card stack-sm"><span class="label">${L('Why mistakes happen','Kenapa salah terjadi')}</span>${[['rushed',L('Rushed','Terburu-buru'),'var(--sun)'],['unsure',L('Didn\'t understand','Belum paham'),'var(--grape)'],['misread',L('Misread','Salah baca'),'var(--sky)']].map(([k, l, c]) => `<div class="row small"><span style="width:120px">${l}</span><div class="bar grow"><i style="width:${Math.round(f[k] / tot * 100)}%;background:${c}"></i></div><span class="num" style="width:36px;text-align:right">${Math.round(f[k] / tot * 100)}%</span></div>`).join('')}
     <p class="tiny muted">${f.rushed >= f.unsure && f.rushed >= f.misread ? L('Most mistakes come from rushing. Try reading every question twice.','Kebanyakan salah karena terburu-buru. Coba baca setiap soal dua kali.') : f.unsure >= f.misread ? L('Most mistakes are about understanding. The worked examples in Fix-It are your friend.','Kebanyakan salah soal pemahaman. Contoh pengerjaan di Fix-It akan membantumu.') : L('Most mistakes come from misreading. Find the key words first.','Kebanyakan salah karena salah baca. Cari kata kunci dulu.')}</p></div>` : ''}`;
+  } else if (tab === 'badges'){
+    body = achGrid() + `<div class="card stack-sm"><span class="label">${L('Personal bests','Rekor pribadi')}</span><div class="minis"><div><span class="label">${L('Best set','Set terbaik')}</span><b class="num">${life().best}/10</b></div><div><span class="label">Combo</span><b class="num">×${life().comboMax}</b></div><div><span class="label">Streak</span><b class="num">${life().streakMax}</b></div><div><span class="label">${L('Sets','Set')}</span><b class="num">${life().sets}</b></div></div><p class="tiny muted">${L('Your only rival is yesterday\'s you.','Saingan satu-satunya adalah dirimu kemarin.')}</p></div>`;
   } else if (tab === 'journal'){
     const unsent = ME.classCode ? ME.journal.filter(j => j.synced === false).length : 0;
     body = (unsent ? `<div class="card stack-sm"><b>${L(`${unsent} reflection(s) from before you joined the class are only on this device.`, `${unsent} refleksi dari sebelum kamu bergabung ke kelas hanya ada di perangkat ini.`)}</b><p class="small muted">${L('Your choice. You can keep them private or send them to your coach.','Pilihanmu. Kamu bisa menyimpannya privat atau mengirimnya ke coach.')}</p><button class="btn soft sm" data-a="shareOld">${L('Send older reflections to my coach','Kirim refleksi lama ke coach')}</button></div>` : '') + (ME.journal.length ? ME.journal.slice(0, 40).map(j => `<div class="card stack-sm"><div class="row between"><span class="tiny muted">${j.date} · ${esc(j.type)}</span><button class="chip ${j.shared ? 'on' : ''}" data-a="shareJ" data-v="${j.id}">${j.shared ? L('Shared with parent','Dibagikan ke ortu') : L('Private','Privat')}</button></div>${j.prompt ? `<span class="small muted">${esc(j.prompt)}</span>` : ''}<p>${esc(j.text)}</p></div>`).join('') : `<div class="card"><p class="muted">${L('Your reflections will collect here. Years from now, you can read what you thought today.','Refleksimu akan terkumpul di sini. Bertahun-tahun lagi, kamu bisa membaca apa yang kamu pikirkan hari ini.')}</p></div>`);
@@ -1826,7 +1845,7 @@ function vGrowth(){
     body = `${ME.stage === 4 ? `<div class="storycard stack-sm"><h3>${L(`${esc(ME.petName)} is a Legend!`, `${esc(ME.petName)} sudah menjadi Legenda!`)}</h3><p class="small">${L('A Legend becomes a mentor and stays in your room. A new egg arrives, and your mentor helps you raise it.','Legenda menjadi mentor dan tetap tinggal di kamarmu. Telur baru datang, dan mentor membantumu merawatnya.')}</p><button class="btn" data-a="becomeMentor">${L('Become a mentor','Jadikan mentor')}</button></div>` : ''}
     <div class="card stack-sm"><span class="label">${L('Companions raised','Companion yang dibesarkan')}</span>${ME.hall.length ? `<div class="hall">${ME.hall.map(h => `<div class="card">${petSVG(h.pet, 4, 'happy')}<b>${esc(h.name)}</b><br><span class="tiny muted">${h.from} → ${h.to}</span></div>`).join('')}</div>` : `<p class="small muted">${L('When your companion becomes a Legend, it joins this hall.','Saat companion-mu menjadi Legenda, ia masuk ke hall ini.')}</p>`}</div>
     <div class="card stack-sm"><span class="label">${L('Story chapters','Bab cerita')}</span>${ME.stories.length ? ME.stories.map(s => `<p class="small">· ${esc(s)}</p>`).join('') : `<p class="small muted">${L('Complete weekly quests to unlock chapters.','Selesaikan quest mingguan untuk membuka bab.')}</p>`}</div>`;
-  } else body = weeklyStory(false);
+  } else body = weeklyStory(false) + `<a class="btn soft block" href="${waParent(parentShareText('week'))}" target="_blank" rel="noopener">${ic('wa')} ${L('Show my week to Mum/Dad','Tunjukkan mingguku ke Mama/Papa')}</a>`;
   return `<div class="stack">${topbar(LT('Growth','Tumbuh','Stats','Statistik'))}<div class="row">${tabs.map(([k, l]) => `<button class="chip ${tab === k ? 'on' : ''}" data-a="gtab" data-v="${k}">${l}</button>`).join('')}</div>${body}</div>${tabbar()}`;
 }
 function weekSummary(k = weekKey()){
@@ -2003,6 +2022,9 @@ function modalHTML(){
     const st = STAGES[ME.stage];
     if (teen()) inner = `<div class="stack center" style="align-items:center"><span class="label">${L('Level up','Naik level')}</span><h1>Lv ${ME.stage + 1} · ${stageName(ME.stage)}</h1><p class="muted">${L(`You got here with ${ME.xp} XP from practice and ${ME.pd} completed life mission(s). Your space unlocks a new look.`, `Kamu sampai di sini dengan ${ME.xp} XP dari latihan dan ${ME.pd} misi kehidupan. Ruangmu mendapat tampilan baru.`)}</p><button class="btn block" data-a="closeModal">${L('Continue','Lanjut')}</button></div>`; else
     inner = `<div class="stack center" style="align-items:center"><div style="width:180px" class="happy-jump">${petSVG(ME.pet, ME.stage, 'happy')}</div><h2>${ME.stage === 1 ? L(`${esc(ME.petName)} hatched!`, `${esc(ME.petName)} menetas!`) : L(`${esc(ME.petName)} grew into a ${tx(st)}!`, `${esc(ME.petName)} tumbuh menjadi ${tx(st)}!`)}</h2><p class="muted">${ME.stage === 1 ? L('Take care of your learning, and it takes care of growing.','Rawat belajarmu, dan ia akan terus tumbuh.') : L('Growth came from practice and from life missions in the real world.','Pertumbuhan datang dari latihan dan misi kehidupan di dunia nyata.')}</p><button class="btn block" data-a="closeModal">${L('Yay!','Hore!')}</button></div>`;
+  } else if (m.type === 'badge'){
+    const a = ACH.find(x => x.id === m.id), t = TIER[m.tier - 1];
+    inner = `<div class="stack center" style="align-items:center"><span class="label">${L('New badge','Lencana baru')}</span><div style="transform:scale(1.8);margin:18px">${badgeSVG(m.tier)}</div><h2>${lang() === 'id' ? a.id_ : a.en} · ${lang() === 'id' ? t[1] : t[0]}</h2><p class="muted">${a.t[m.tier - 1]} ${lang() === 'id' ? a.d[1] : a.d[0]}</p><a class="btn soft block" href="${waParent(parentShareText('badge', m))}" target="_blank" rel="noopener" data-a="closeModal">${ic('wa')} ${L('Show Mum/Dad','Tunjukkan ke Mama/Papa')}</a><button class="btn block" data-a="closeModal">${L('Continue','Lanjut')}</button></div>`;
   } else if (m.type === 'care'){
     inner = `<div class="stack"><h2>${L('Thank you for sharing that','Terima kasih sudah bercerita')}</h2><p>${L('It sounds like something might be hard right now. You deserve support. Please talk to a parent, teacher, coach or counselor you trust today.','Sepertinya ada hal yang berat sekarang. Kamu layak mendapat dukungan. Tolong bicara dengan orang tua, guru, coach, atau konselor yang kamu percaya hari ini.')}</p><p class="small muted">${L('Your coach will be gently reminded to check in with you. They will not see what you wrote.','Coach-mu akan diingatkan untuk menyapamu. Mereka tidak akan melihat apa yang kamu tulis.')}</p><button class="btn block" data-a="closeModal">${L('Okay','Oke')}</button></div>`;
   } else if (m.type === 'welcome' && teen()){
@@ -2052,7 +2074,7 @@ function studentDoc(){
     pending:ME.pending.map(p => ({pid:p.pid, kind:p.kind, title:p.title, created:p.created, validator:p.validator})),
     goal:ME.goal || null, today:(() => { const d = day(); return {checkin:!!d.checkin, mood:d.mood || null, plan:d.plan.map(p => ({t:p.t, est:p.est, done:!!p.done, actual:p.actual || null})), review:!!d.reviewDone, drills:d.drills}; })(),
     history:Array.from({length:28}, (_, i) => addDays(dkey(), -i)).filter(k => ME.days[k]).map(k => { const d = ME.days[k]; let n = 0, c = 0; for (const s in d.drills){ n += d.drills[s].n; c += d.drills[s].c; } return {date:k, n, c, sessions:Object.values(d.drills).reduce((a, r) => a + r.s, 0), checkin:!!d.checkin, mood:d.mood || null, plan:d.plan.length, done:d.plan.filter(p => p.done).length, review:!!d.reviewDone}; }),
-    joined:ME.joined || dkey(), oldShared:!!ME.oldShared,
+    joined:ME.joined || dkey(), oldShared:!!ME.oldShared, ach:ME.ach || {}, life:life(), questsToday:todaysQuests().map(q => ({t:q.id_, done:questProg(q) >= q.n})), learned:weekLearned(), nextChallenge:nextChallenge(), dailyGoal:goalSets(), team:myTeam(),
     parentName:ME.parentName || '', parentPhone:ME.phone || '', activity:activityLabel(), visible:!document.hidden, lastSeen:TS(), version:APP_VERSION};
 }
 async function syncNow(){
@@ -2159,8 +2181,10 @@ function vAdminLive(){
   ${shown.length ? `<div class="card scroll-x"><table class="tbl"><thead><tr><th>${L('Player','Pemain')}</th><th>${L('Status','Status')}</th><th>${L('Doing now / last','Sedang / terakhir')}</th><th>Lv</th><th>${L('Streak','Beruntun')}</th><th>Math</th><th>Eng</th><th>Sci</th><th>${L('Plans','Rencana')}</th><th>${L('Waiting','Menunggu')}</th><th></th></tr></thead><tbody>
   ${shown.map(s => { const r = s.report || {acc:{}}; const flag = r.safety || r.lowMood; return `<tr><td><button class="btn ghost sm" data-a="admOpen" data-v="${esc(s.id)}" style="min-height:0;padding:4px 8px"><b>${esc(s.name)}</b></button><br><span class="tiny muted">G${s.grade} · ${esc(s.classCode || '')}</span></td>
     <td><span class="row" style="gap:6px;flex-wrap:nowrap"><i style="width:10px;height:10px;border-radius:50%;background:${DOT[s._seen.k]};display:inline-block"></i>${esc(s._seen.label)}</span></td><td class="small">${esc(s.activity || '—')}</td><td>${(s.stage || 0) + 1}</td><td>${s.streak || 0}</td><td>${a(r.acc && r.acc.math)}</td><td>${a(r.acc && r.acc.eng)}</td><td>${a(r.acc && r.acc.sci)}</td><td>${a(r.plan)}</td><td>${s.pending && s.pending.length ? `<span class="tag warn">${s.pending.length}</span>` : ''}</td><td>${flag ? `<span class="tag warn">${L('Check in','Sapa')}</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : `<div class="card"><p class="muted">${list.length ? L('No players match this filter.','Tidak ada pemain untuk filter ini.') : L('No players yet. Create a class code below and give it to students.','Belum ada pemain. Buat kode kelas di bawah lalu berikan ke siswa.')}</p></div>`}
+  <div class="card stack-sm"><h3>${L('Weekly updates for parents','Kabar mingguan untuk orang tua')}</h3><p class="small muted">${L('One tap per parent opens WhatsApp with the summary, badges, topics learned and next challenge.','Satu ketukan per orang tua membuka WhatsApp berisi ringkasan, lencana, topik yang dikuasai, dan tantangan berikutnya.')}</p>${list.filter(s => s.parentPhone).map(s => `<div class="row between small"><span>${esc(s.name)} · ${esc(s.parentName || '')}</span><a class="btn ghost sm" href="https://wa.me/${(s.parentPhone || '').replace(/[^0-9]/g, '').replace(/^0/, '62')}?text=${encodeURIComponent(weeklyDigest(s))}" target="_blank" rel="noopener">${ic('wa')} ${L('Send','Kirim')}</a></div>`).join('') || `<p class="small muted">${L('No parent numbers yet.','Belum ada nomor orang tua.')}</p>`}</div>
   <div class="card stack-sm"><h3>${L('Message everyone in a class','Pesan ke semua di kelas')}</h3><div class="row"><select class="input" id="bcClass" style="flex:1">${ADM.classes.map(c => `<option value="${esc(c.code)}">${esc(c.name || c.code)} (${esc(c.code)})</option>`).join('')}</select></div><textarea class="input" id="bcText" maxlength="500" placeholder="${L('e.g. Great week, everyone! Boss Review is open on Sunday.','mis. Minggu yang hebat! Boss Review terbuka hari Minggu.')}"></textarea><button class="btn soft" data-a="admBroadcast" ${ADM.classes.length ? '' : 'disabled'}>${L('Send to class','Kirim ke kelas')}</button></div>
   <div class="card stack-sm"><h3>${L('Class codes','Kode kelas')}</h3>${ADM.classes.map(c => `<div class="row between"><span><b class="num">${esc(c.code)}</b> · ${esc(c.name || '')}</span><span class="tiny muted">${ADM.students.filter(s => s.classCode === c.code).length} ${L('players','pemain')}</span></div>`).join('') || `<p class="small muted">${L('No classes yet.','Belum ada kelas.')}</p>`}
+    ${ADM.classes.length ? `<div class="row"><select class="input" id="tgtClass" style="flex:1">${ADM.classes.map(c => `<option value="${esc(c.code)}">${esc(c.name || c.code)} · ${L('target','target')} ${c.weeklyTarget || 300}</option>`).join('')}</select><input class="input" id="tgtN" inputmode="numeric" placeholder="300" style="width:90px"><button class="btn sm ghost" data-a="admTarget">${L('Set weekly target','Atur target mingguan')}</button></div>` : ''}
     <div class="row"><input class="input grow" id="newClass" maxlength="40" placeholder="${L('Class name, e.g. Pilot Nov 2026','Nama kelas, mis. Pilot Nov 2026')}"><button class="btn sm" data-a="admNewClass">${L('Create code','Buat kode')}</button></div>
     <p class="tiny muted">${L('Students enter this code in Parent area → Settings → Join a class (or when creating a player).','Siswa memasukkan kode ini di Area orang tua → Pengaturan → Gabung kelas (atau saat membuat pemain).')}</p></div>
   ${ADM.err ? `<p class="small" style="color:var(--bad)">${esc(ADM.err)}</p>` : ''}`;
@@ -2172,7 +2196,7 @@ function vAdminStudent(){
   const phone = (s.parentPhone || '').replace(/[^0-9]/g, '').replace(/^0/, '62');
   const tmpl = [
     [L('Inactive reminder','Pengingat tidak aktif'), `Halo ${s.parentName || 'Bapak/Ibu'}, ini coach Teman Tumbuh. ${s.name} belum membuka Teman Tumbuh sejak ${seen.label}. Boleh dibantu diingatkan 10–15 menit hari ini? Terima kasih.`],
-    [L('Weekly update','Kabar mingguan'), `Halo ${s.parentName || 'Bapak/Ibu'}, kabar minggu ini untuk ${s.name}: aktif ${r.active || 0}/7 hari, ${r.sessions || 0} sesi latihan, akurasi Math ${a(r.acc.math)}, English ${a(r.acc.eng)}, Science ${a(r.acc.sci)}. Terima kasih atas dukungannya.`],
+    [L('Weekly update','Kabar mingguan'), weeklyDigest(s)],
     [L('Celebrate','Apresiasi'), `Halo ${s.parentName || 'Bapak/Ibu'}, saya ingin berbagi kabar baik: ${s.name} konsisten minggu ini (${s.streak || 0} hari beruntun). Mohon sampaikan apresiasi dari kami ya.`]
   ];
   return `<div class="stack"><div class="row"><button class="btn ghost sm" data-a="admBack">← ${L('All players','Semua pemain')}</button></div>
@@ -2196,6 +2220,8 @@ function vAdminStudent(){
   <div class="card stack-sm"><h3>${L('Recent activity','Aktivitas terbaru')}</h3>${det.events.length ? `<div class="scroll-x"><table class="tbl"><tbody>${det.events.map(e => `<tr><td class="tiny muted">${e.at && e.at.toDate ? e.at.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : esc(e.date || '')}</td><td>${esc(e.type)}</td><td class="small">${esc(evtText(e))}</td></tr>`).join('')}</tbody></table></div>` : `<p class="small muted">—</p>`}</div>
   <div class="card stack-sm"><h3>${L('Messages sent','Pesan terkirim')}</h3>${det.inbox.length ? det.inbox.map(m => `<div class="row between small"><span class="grow">${m.type === 'mission' ? L('Mission: ','Misi: ') + esc(m.mission && m.mission.t) : m.type === 'confirm' ? '✓ ' + L('confirmed a mission','mengonfirmasi misi') : esc(m.text)}</span><span class="tiny muted">${m.read || m.done ? L('seen','dilihat') : L('not yet','belum')}</span></div>`).join('') : `<p class="small muted">—</p>`}</div></div>`;
 }
+function weeklyDigest(s){ const r = s.report || {acc:{}}, a = v => v == null ? '—' : v + '%'; const badges = Object.entries(s.ach || {}).map(([k, t]) => { const x = ACH.find(y => y.id === k); return x ? `${x.id_} (${TIER[t - 1][1]})` : ''; }).filter(Boolean); const learned = (s.learned || []).map(t => TOPIC_NAMES[t] ? TOPIC_NAMES[t][1] : t);
+  return `Halo ${s.parentName || 'Bapak/Ibu'}, ini kabar mingguan ${s.name} dari Teman Tumbuh:\n• Aktif ${r.active || 0}/7 hari, ${r.sessions || 0} sesi latihan, streak ${s.streak || 0} hari\n• Akurasi: Math ${a(r.acc.math)}, English ${a(r.acc.eng)}, Science ${a(r.acc.sci)}\n${learned.length ? '• Topik yang dikuasai minggu ini: ' + learned.join(', ') + '\n' : ''}${badges.length ? '• Lencana: ' + badges.join(', ') + '\n' : ''}${r.ef ? '• Life skill: ' + (EF_SKILLS[r.ef.skill] || {}).id + ' (' + r.ef.days + ' hari)\n' : ''}• Tantangan berikutnya: ${s.nextChallenge || 'menjaga konsistensi'}\nTerima kasih atas dukungannya di rumah.`; }
 function evtText(e){ const d = e.data || {}; if (e.type === 'drill') return `${d.subj} ${d.c}/${d.n}${d.lv ? ' · level ' + d.lv : ''}${d.fix ? ' · Fix-It ' + d.fix : ''}`; if (e.type === 'mission') return `${d.kind}: ${d.title || ''}`; if (e.type === 'checkin') return `mood ${d.mood} · ${d.tasks} tasks`; if (e.type === 'review') return `${d.done}/${d.tasks} done`; return JSON.stringify(d).slice(0, 80); }
 function admOpenDetail(id){
   ADM.detailUnsub.forEach(u => u()); ADM.detailUnsub = []; ADM.detail = {journal:[], events:[], inbox:[]};
@@ -2214,7 +2240,159 @@ SA.admSendMission = async () => { const t = readVal('amT').trim(); const steps =
   try { await admInbox(ADM.sel, {type:'mission', mission:{id:rid(6), t, d:'', v:readVal('amV'), agr:/honest|jujur/i.test(t), steps}}); S._clear = true; toast(L('Mission sent','Misi terkirim')); render(); } catch (e) { toast(String(e.code || e.message)); } };
 SA.admConfirm = async pid => { try { await admInbox(ADM.sel, {type:'confirm', pid}); toast(L('Confirmation sent. It applies when the player\'s app is open.','Konfirmasi terkirim. Berlaku saat app pemain terbuka.')); } catch (e) { toast(String(e.code || e.message)); } };
 SA.admBroadcast = async () => { const t = readVal('bcText').trim(), c = readVal('bcClass'); if (!t || !c) return; const targets = ADM.students.filter(s => s.classCode === c); try { await Promise.all(targets.map(s => admInbox(s.id, {type:'message', text:t}))); S._clear = true; toast(L(`Sent to ${targets.length} players`, `Terkirim ke ${targets.length} pemain`)); render(); } catch (e) { toast(String(e.code || e.message)); } };
+SA.admTarget = async () => { const c = readVal('tgtClass'), n = parseInt(readVal('tgtN'), 10); if (!c || !(n > 0)) return; try { await SYNC.db.collection('classes').doc(c).update({weeklyTarget:n}); S._clear = true; toast(L('Target saved','Target tersimpan')); } catch (e) { toast(String(e.code || e.message)); } };
 SA.admNewClass = async () => { const name = readVal('newClass').trim(); if (!name){ toast(L('Type a class name.','Tulis nama kelas.')); return; } const code = Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join(''); try { await SYNC.db.collection('classes').doc(code).set({name, created:TS(), by:ADM.user.email}); S._clear = true; toast(L(`Class code ${code} created`, `Kode kelas ${code} dibuat`)); render(); } catch (e) { toast(String(e.code || e.message)); } };
+/* ================= CHALLENGE LAYER: daily goal, quests, badges, skill map, class challenge ================= */
+/* Design notes: self-referenced competition (personal bests) + cooperative class goal (G3–6) + team vs team (G7–12).
+   No individual public ranking. Streak repair softens broken streaks. Target first-try accuracy ≈ 85%. */
+const TOPIC_NAMES = {
+  'add-sub':['Adding & subtracting','Penjumlahan & pengurangan'], 'times-tables':['Times tables','Perkalian dasar'], 'division':['Division','Pembagian'], 'place-value':['Place value','Nilai tempat'],
+  'fractions':['Fractions','Pecahan'], 'time':['Time','Waktu'], 'money':['Money','Uang'], 'number-line':['Number line','Garis bilangan'], 'data':['Data','Data'], 'shapes':['Shapes','Bangun'],
+  'multiplication':['Multiplication','Perkalian'], 'rounding':['Rounding','Pembulatan'], 'decimals':['Decimals','Desimal'], 'perimeter-area':['Perimeter & area','Keliling & luas'],
+  'negative-numbers':['Negative numbers','Bilangan negatif'], 'multiples':['Multiples','Kelipatan'], 'factors-multiples':['Factors & multiples','Faktor & kelipatan'], 'angles':['Angles','Sudut'],
+  'chance':['Chance','Peluang sederhana'], 'multi-step':['Multi-step problems','Soal bertahap'], 'percentages':['Percentages','Persen'], 'squares-primes':['Squares & primes','Kuadrat & prima'],
+  'units':['Units','Satuan'], 'averages':['Averages','Rata-rata'], 'estimation':['Estimation','Estimasi'], 'error-analysis':['Finding mistakes','Menemukan kesalahan'],
+  'order-of-operations':['Order of operations','Urutan operasi'], 'integers':['Integers','Bilangan bulat'], 'ratio':['Ratio','Rasio'], 'area-volume':['Area & volume','Luas & volume'],
+  'coordinates':['Coordinates','Koordinat'], 'probability':['Probability','Peluang'], 'reasoning':['Reasoning','Penalaran'], 'powers-roots':['Powers & roots','Pangkat & akar'],
+  'fdp':['Fractions, decimals, %','Pecahan, desimal, %'], 'expressions':['Expressions','Bentuk aljabar'], 'equations':['Equations','Persamaan'], 'sequences':['Sequences','Barisan'],
+  'indices':['Indices','Eksponen'], 'circles':['Circles','Lingkaran'], 'standard-form':['Standard form','Notasi ilmiah'], 'inequalities':['Inequalities','Pertidaksamaan'],
+  'factorising':['Factorising','Pemfaktoran'], 'graphs':['Graphs','Grafik'], 'pythagoras':['Pythagoras','Pythagoras'], 'similarity':['Similarity','Kesebangunan'], 'scatter':['Scatter graphs','Diagram pencar'],
+  'rates':['Rates & speed','Laju & kecepatan'], 'bounds':['Limits of accuracy','Batas ketelitian'], 'quadratics':['Quadratics','Kuadrat'], 'simultaneous':['Simultaneous equations','SPLDV'],
+  'functions':['Functions','Fungsi'], 'trigonometry':['Trigonometry','Trigonometri'], 'surds':['Surds','Bentuk akar'], 'vectors':['Vectors','Vektor'], 'sets':['Sets','Himpunan'],
+  'exponential':['Exponential growth','Pertumbuhan eksponensial'], 'algebraic-fractions':['Algebraic fractions','Pecahan aljabar'], 'proportion':['Proportion','Proporsi'],
+  'differentiation':['Differentiation','Turunan'], 'circle-theorems':['Circle theorems','Teorema lingkaran'], 'statistics':['Statistics','Statistika'], 'integration':['Integration','Integral'],
+  'binomial':['Binomial','Binomial'], 'coordinate-geometry':['Coordinate geometry','Geometri koordinat'], 'radians':['Radians','Radian'], 'series':['Series','Deret']
+};
+const topicName = t => { const n = TOPIC_NAMES[t]; return n ? (lang() === 'id' ? n[1] : n[0]) : String(t || '').replace(/-/g, ' ').replace(/^./, c => c.toUpperCase()); };
+
+/* lifetime counters */
+function life(){ if (!ME.life) ME.life = {sets:0, correct:0, fixes:0, perfect:0, reviews:0, focus:0, boss:0, quests:0, best:0, comboMax:0, streakMax:ME.streak || 0}; return ME.life; }
+function dq(){ const d = day(); if (!d.q) d.q = {sets:0, correct:0, fixes:0, perfect:0, combo:0, review:0, ef:0, focus:0, boss:0, plan:0, claimed:[], chest:false}; return d.q; }
+
+/* ---------- daily quests ---------- */
+const QUEST_POOL = [
+  {id:'sets2', m:'sets', n:2, en:'Finish 2 practice sets', id_:'Selesaikan 2 set latihan'},
+  {id:'correct15', m:'correct', n:15, en:'Get 15 answers right on the first try', id_:'Benar 15 soal di percobaan pertama'},
+  {id:'fix2', m:'fixes', n:2, en:'Fix 2 mistakes with a twin question', id_:'Perbaiki 2 kesalahan lewat soal kembar'},
+  {id:'combo5', m:'combo', n:5, en:'Get a 5-answer combo', id_:'Dapatkan combo 5 jawaban benar'},
+  {id:'perfect', m:'perfect', n:1, en:'Score 9 or 10 out of 10 in a set', id_:'Dapat 9 atau 10 dari 10 dalam satu set'},
+  {id:'review', m:'review', n:1, en:'Close the day with an evening review', id_:'Tutup hari dengan review malam'},
+  {id:'ef', m:'ef', n:1, en:'Practise this week\'s life skill', id_:'Latih life skill minggu ini'},
+  {id:'focus10', m:'focus', n:10, en:'Focus for 10 minutes with the timer', id_:'Fokus 10 menit dengan timer'},
+  {id:'plan', m:'plan', n:1, en:'Finish every task in today\'s plan', id_:'Selesaikan semua tugas di rencana hari ini'},
+  {id:'sets3', m:'sets', n:3, en:'Finish 3 practice sets', id_:'Selesaikan 3 set latihan'}
+];
+function todaysQuests(){
+  const seed = hashStr(ME.id + dkey()); const pool = QUEST_POOL.filter(q => !(q.id === 'sets3' && ME.grade <= 4));
+  const picks = []; let k = seed;
+  while (picks.length < 3){ const q = pool[k % pool.length]; if (!picks.includes(q)) picks.push(q); k = Math.imul(k, 1103515245) + 12345 >>> 0; }
+  return picks;
+}
+function questProg(q){ const c = dq(); return Math.min(q.n, c[q.m] || 0); }
+function questBump(m, by = 1){ if (!ME) return; const c = dq(); if (m === 'combo') c.combo = Math.max(c.combo || 0, by); else if (m === 'plan') c.plan = by; else c[m] = (c[m] || 0) + by; save(); }
+function questsCard(compact){
+  const qs = todaysQuests(), c = dq(); const done = qs.filter(q => questProg(q) >= q.n).length;
+  return `<div class="card stack-sm"><div class="row between"><span class="label">${L('Daily quests','Quest harian')}</span><span class="tag ${done === 3 ? 'good' : 'info'} num">${done}/3</span></div>
+  ${qs.map(q => { const p = questProg(q), ok = p >= q.n, claimed = c.claimed.includes(q.id); return `<div class="row"><span class="tick" style="width:22px;height:22px;border-radius:50%;border:2px solid ${ok ? 'var(--leaf)' : 'var(--line)'};background:${ok ? 'var(--leaf)' : 'none'};display:grid;place-items:center;flex:none;color:var(--on-leaf)">${ok ? ic('check', 'style="width:12px;height:12px"') : ''}</span><div class="grow stack-sm" style="gap:3px"><span class="small"><b>${lang() === 'id' ? q.id_ : q.en}</b></span><div class="bar"><i style="width:${p / q.n * 100}%;background:var(--leaf)"></i></div></div><span class="tiny muted num">${p}/${q.n}</span>${ok && !claimed ? `<button class="btn sm" data-a="claimQuest" data-v="${q.id}">+5</button>` : ''}</div>`; }).join('')}
+  ${done === 3 && !c.chest ? `<button class="btn block soft" data-a="openChest">${L('Open the daily chest (+15 coins)','Buka peti harian (+15 koin)')}</button>` : c.chest ? `<p class="tiny muted">${L('Chest opened. New quests tomorrow.','Peti sudah dibuka. Quest baru besok.')}</p>` : ''}</div>`;
+}
+
+/* ---------- daily goal ---------- */
+const goalSets = () => ME.dailyGoal || (ME.grade <= 4 ? 1 : 2);
+function goalRing(){
+  const n = dq().sets, g = goalSets(), pct = Math.min(1, n / g), C = 2 * Math.PI * 22;
+  return `<button class="card tap row" data-a="go" data-v="practice"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--surface2)" stroke-width="7"/><circle cx="28" cy="28" r="22" fill="none" stroke="var(--leaf)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" transform="rotate(-90 28 28)"/><text x="28" y="33" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">${Math.min(n, g)}/${g}</text></svg>
+  <span class="grow"><b>${n >= g ? L('Daily goal reached','Target harian tercapai') : L('Daily goal','Target harian')}</b><br><span class="small muted">${L(`${g} practice set${g > 1 ? 's' : ''} a day`, `${g} set latihan per hari`)} · ${L('best set','set terbaik')} ${life().best}/10</span></span>${ME.repair && ME.repair.date === dkey() ? `<span class="tag warn">${L('Repair streak','Pulihkan streak')}</span>` : ''}</button>`;
+}
+
+/* ---------- achievements ---------- */
+const ACH = [
+  {id:'sets', m:() => life().sets, t:[5, 25, 100], en:'Practiser', id_:'Rajin latihan', d:['practice sets','set latihan']},
+  {id:'fixer', m:() => life().fixes, t:[5, 25, 100], en:'Fixer', id_:'Pembenah', d:['mistakes fixed','kesalahan diperbaiki']},
+  {id:'streak', m:() => life().streakMax, t:[3, 14, 50], en:'Consistent', id_:'Konsisten', d:['days in a row','hari beruntun']},
+  {id:'master', m:() => Object.values(ME.topics).filter(t => t.mastered).length, t:[3, 10, 30], en:'Topic master', id_:'Penguasa topik', d:['topics mastered','topik dikuasai']},
+  {id:'perfect', m:() => life().perfect, t:[1, 10, 40], en:'Sharp', id_:'Tajam', d:['sets with 9–10/10','set dengan 9–10/10']},
+  {id:'reflect', m:() => life().reviews, t:[5, 20, 60], en:'Reflector', id_:'Reflektif', d:['evening reviews','review malam']},
+  {id:'life', m:() => ME.pd, t:[1, 5, 15], en:'Life missions', id_:'Misi kehidupan', d:['missions confirmed','misi terkonfirmasi']},
+  {id:'focus', m:() => life().focus, t:[30, 150, 600], en:'Deep focus', id_:'Fokus dalam', d:['minutes focused','menit fokus']},
+  {id:'quests', m:() => life().quests, t:[5, 30, 100], en:'Questor', id_:'Penjelajah quest', d:['daily quests done','quest harian selesai']}
+];
+const TIER = [['Bronze','Perunggu','#C07A45'],['Silver','Perak','#9AA6B2'],['Gold','Emas','#E3B23C']];
+function achCheck(){
+  if (!ME.ach) ME.ach = {};
+  const got = [];
+  for (const a of ACH){ const v = a.m(); let tier = 0; a.t.forEach((t, i) => { if (v >= t) tier = i + 1; }); if (tier > (ME.ach[a.id] || 0)){ ME.ach[a.id] = tier; got.push({a, tier}); } }
+  if (got.length){ save(); const g = got[got.length - 1]; if (!S.modal) S.modal = {type:'badge', id:g.a.id, tier:g.tier}; if (typeof logEvent === 'function') logEvent('badge', {id:g.a.id, tier:g.tier}); }
+}
+function badgeSVG(tier){ const c = tier ? TIER[tier - 1][2] : 'var(--line)'; return `<svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M24 4l16 8v12c0 10-7 17-16 20C15 41 8 34 8 24V12z" fill="${c}" fill-opacity="${tier ? .9 : .35}" stroke="var(--ink)" stroke-width="1.5"/>${tier ? `<path d="M24 14l3 6.4 7 .8-5.2 4.8 1.4 6.9L24 29.4l-6.2 3.5 1.4-6.9-5.2-4.8 7-.8z" fill="#fff"/>` : ''}</svg>`; }
+function achGrid(){
+  if (!ME.ach) ME.ach = {};
+  return `<div class="ach">${ACH.map(a => { const tier = ME.ach[a.id] || 0, v = a.m(), next = a.t[tier]; return `<div class="card stack-sm center" style="align-items:center;padding:10px">${badgeSVG(tier)}<b class="small">${lang() === 'id' ? a.id_ : a.en}</b><span class="tiny muted">${tier ? (lang() === 'id' ? TIER[tier - 1][1] : TIER[tier - 1][0]) : L('Locked','Terkunci')}</span>${next ? `<div class="bar" style="width:100%"><i style="width:${Math.min(100, v / next * 100)}%;background:var(--leaf)"></i></div><span class="tiny muted num">${v}/${next} ${lang() === 'id' ? a.d[1] : a.d[0]}</span>` : `<span class="tiny muted">${L('Maxed','Maksimal')}</span>`}</div>`; }).join('')}</div>`;
+}
+function parentShareText(kind, extra){
+  const nm = ME.name;
+  if (kind === 'badge'){ const a = ACH.find(x => x.id === extra.id), t = TIER[extra.tier - 1]; return `${nm} baru mendapatkan lencana *${a.id_} (${t[1]})* di Teman Tumbuh: ${a.t[extra.tier - 1]} ${a.d[1]}! 🎉`; }
+  const s = weekSummary(), learned = weekLearned();
+  return `Kabar minggu ini dari ${nm} di Teman Tumbuh:\n• Aktif ${s.active}/7 hari, ${s.sessions} sesi latihan\n• Akurasi percobaan pertama ${s.n ? Math.round(s.c / s.n * 100) : 0}%\n${learned.length ? '• Topik yang dikuasai: ' + learned.map(t => TOPIC_NAMES[t] ? TOPIC_NAMES[t][1] : t).join(', ') + '\n' : ''}${s.ef ? '• Life skill: ' + EF_SKILLS[s.ef.skill].id + ' (' + s.ef.days.length + ' hari)\n' : ''}• Tantangan minggu depan: ${nextChallenge()}`;
+}
+function weekLearned(){ const days = weekDays(); return Object.entries(ME.topics).filter(([, t]) => t.mastered && days.includes(t.mastered)).map(([k]) => k.split(':')[1]); }
+function nextChallenge(){ const f = ME.fix, tot = f.rushed + f.unsure + f.misread; if (tot >= 3 && f.rushed >= f.unsure && f.rushed >= f.misread) return 'mengurangi kesalahan karena terburu-buru'; const weak = Object.entries(ME.topics).filter(([, t]) => t.a >= 4 && t.c / t.a < .6).sort((a, b) => a[1].c / a[1].a - b[1].c / b[1].a)[0]; return weak ? 'memperkuat topik ' + (TOPIC_NAMES[weak[0].split(':')[1]] || [weak[0]])[1] : 'menjaga konsistensi setiap hari'; }
+function waParent(text){ const ph = (ME.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '62'); return `https://wa.me/${ph}?text=${encodeURIComponent(text)}`; }
+
+/* ---------- skill map ---------- */
+const TOPIC_CACHE = {};
+function topicOfGen(k){ if (!(k in TOPIC_CACHE)){ try { TOPIC_CACHE[k] = G[k]().topic; } catch (e) { TOPIC_CACHE[k] = null; } } return TOPIC_CACHE[k]; }
+function mapTopics(subj){
+  const lv = Math.floor(ME.levels[subj]);
+  if (subj === 'math'){ const set = []; for (const s of [lv - 1, lv]){ if (!POOLS2[clamp(s, 3, 12)]) continue; for (const e of POOLS2[clamp(s, 3, 12)]){ const t = topicOfGen(e.split(':')[0]); if (t && !set.includes(t)) set.push(t); } } return set; }
+  const bank = bankFor(subj, lv); return [...new Set(bank.map(x => x.topic))];
+}
+function crowns(subj, topic){ const t = ME.topics[subj + ':' + topic]; if (!t || !t.a) return 0; const acc = t.c / t.a; if (t.mastered && (t.rs || 0) >= 2) return 5; if (t.mastered) return 4; if (t.a >= 5 && acc >= .8) return 3; if (t.a >= 3 && acc >= .6) return 2; return 1; }
+function vSkillMap(){
+  const subj = S.params.mapSubj || 'math', tops = mapTopics(subj);
+  return `<div class="stack">${topbar(L('Skill map','Peta skill'), 'practice')}<div class="row">${Object.keys(SUBJ).map(k => `<button class="chip ${subj === k ? 'on' : ''}" data-a="mapSubj" data-v="${k}">${tx(SUBJ[k])}</button>`).join('')}</div>
+  <p class="small muted">${L('Each topic has 5 crowns: tried · getting there · strong · mastered · mastered and remembered weeks later. Tap a topic to practise just that.','Setiap topik punya 5 mahkota: dicoba · mulai bisa · kuat · dikuasai · dikuasai dan masih ingat berminggu-minggu kemudian. Ketuk topik untuk melatih topik itu saja.')}</p>
+  <div class="skillmap">${tops.map(t => { const c = crowns(subj, t); return `<button class="card tap stack-sm" data-a="topicDrill" data-v="${subj}|${t}" style="padding:12px"><b class="small">${esc(topicName(t))}</b><span class="crowns">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= c ? 'on' : ''}"></i>`).join('')}</span></button>`; }).join('')}</div></div>`;
+}
+
+/* ---------- class challenge (cooperative; team vs team for G7+) ---------- */
+const TEAMS = ['Nova','Orbit'];
+const myTeam = () => (hashStr(ME.id) % 2) ? 'B' : 'A';
+const CLASS = {wk:null, data:null, unsub:null, target:300};
+function listenClass(){
+  if (!SYNC.ok || !ME || !ME.classCode) return; const key = ME.classCode + '/' + weekKey(); if (CLASS.wk === key) return;
+  if (CLASS.unsub) CLASS.unsub(); CLASS.wk = key;
+  const ref = SYNC.db.collection('classes').doc(ME.classCode);
+  CLASS.unsub = ref.collection('weeks').doc(weekKey()).onSnapshot(s => { CLASS.data = s.exists ? s.data() : {questions:0, team_A:0, team_B:0}; if (!S._typing) render(); }, e => console.warn('class', e));
+  ref.get().then(s => { if (s.exists && s.data().weeklyTarget) CLASS.target = s.data().weeklyTarget; }).catch(() => {});
+}
+async function classAdd(n){
+  if (!ME || !ME.classCode || !SYNC.ok || !n) return;
+  try { const inc = firebase.firestore.FieldValue.increment; await SYNC.db.collection('classes').doc(ME.classCode).collection('weeks').doc(weekKey()).set({questions:inc(n), ['team_' + myTeam()]:inc(n), updated:TS()}, {merge:true}); } catch (e) { console.warn('classAdd', e); }
+}
+function classCard(){
+  if (!ME || !ME.classCode) return '';
+  listenClass(); const d = CLASS.data || {questions:0, team_A:0, team_B:0}, tgt = CLASS.target;
+  const pct = Math.min(100, (d.questions || 0) / tgt * 100);
+  if (!teen()) return `<div class="card stack-sm"><div class="row between"><span class="label">${L('Class challenge','Tantangan kelas')}</span><span class="tiny muted">${esc(ME.className || '')}</span></div><b>${L(`Together: ${d.questions || 0} of ${tgt} questions this week`, `Bersama: ${d.questions || 0} dari ${tgt} soal minggu ini`)}</b><div class="bar xpbar"><i style="width:${pct}%;background:var(--grape)"></i></div><p class="tiny muted">${L('Every question you answer helps the whole class.','Setiap soal yang kamu jawab membantu seluruh kelas.')}</p></div>`;
+  const a = d.team_A || 0, b = d.team_B || 0, me = myTeam();
+  return `<div class="card stack-sm"><div class="row between"><span class="label">${L('Team challenge','Tantangan tim')} · ${esc(ME.className || '')}</span><span class="tag">${L('Your team','Timmu')}: ${TEAMS[me === 'A' ? 0 : 1]}</span></div>
+  ${[['A', a], ['B', b]].map(([t, v]) => `<div class="row small"><b style="width:52px">${TEAMS[t === 'A' ? 0 : 1]}</b><div class="bar grow"><i style="width:${Math.min(100, v / Math.max(1, tgt / 2) * 100)}%;background:${t === me ? 'var(--leaf)' : 'var(--ink2)'}"></i></div><span class="num" style="width:40px;text-align:right">${v}</span></div>`).join('')}
+  <p class="tiny muted">${L(`Class total ${d.questions || 0}/${tgt}. Teams are random and change nothing else; it is about effort together.`, `Total kelas ${d.questions || 0}/${tgt}. Tim dibagi acak dan tidak memengaruhi hal lain; yang dihitung usaha bersama.`)}</p></div>`;
+}
+
+/* ---------- hooks called from the drill and missions ---------- */
+function onSetDone(D, c){
+  const L_ = life(), q = dq();
+  L_.sets++; L_.correct += c; L_.fixes += D.fixOK || 0; L_.best = Math.max(L_.best, Math.round(c / D.n * 10)); L_.comboMax = Math.max(L_.comboMax, D.comboMax || 0);
+  q.sets++; q.correct += c; q.fixes += D.fixOK || 0; q.combo = Math.max(q.combo || 0, D.comboMax || 0);
+  if (c / D.n >= .9){ L_.perfect++; q.perfect++; }
+  if (D.mode === 'boss'){ L_.boss++; q.boss++; }
+  /* 85% rule: very easy sets move up faster, hard sets ease off */
+  if (!D.placement && D.mode !== 'boss' && D.subj !== 'mix'){ const acc = c / D.n; if (acc >= .95) setLevel(D.subj, .5); else if (acc < .6) setLevel(D.subj, -.5); }
+  if (ME.repair && ME.repair.date === dkey() && q.sets >= 2){ ME.streak = ME.repair.prev + 1; ME.repair = null; toast(L('Streak repaired!','Streak dipulihkan!')); }
+  classAdd(D.n); save(); achCheck();
+}
 /* ================= ACTIONS ================= */
 const STORY = {
   SA:{en:p => `${p} found a still lake and noticed its reflection changing with its feelings.`, id:p => `${p} menemukan danau yang tenang dan melihat bayangannya berubah mengikuti perasaannya.`},
@@ -2262,8 +2440,8 @@ function stopTick(){ clearInterval(tick); try { wakeLock && wakeLock.release(); 
 function finishTimer(){
   const T = S.timer; T.running = false; stopTick();
   const d = day(), min = Math.max(1, Math.ceil(T.elapsed / 60));
-  if (T.mode === 'focus'){ d.focus = (d.focus || 0) + min; S.timer = null; give({xp:5, st:{home:5}, label:L(`Focused for ${min} min`, `Fokus ${min} menit`)}); go('practice'); }
-  else { const p = d.plan[T.i]; if (p){ p.actual = min; p.done = true; } S.timer = null; save(); toast(L(`Done! You guessed ${p ? p.est : '?'} min, it took ${min} min.`, `Selesai! Tebakanmu ${p ? p.est : '?'} menit, nyatanya ${min} menit.`)); go('home'); }
+  if (T.mode === 'focus'){ d.focus = (d.focus || 0) + min; questBump('focus', min); life().focus += min; achCheck(); S.timer = null; give({xp:5, st:{home:5}, label:L(`Focused for ${min} min`, `Fokus ${min} menit`)}); go('practice'); }
+  else { const p = d.plan[T.i]; if (p){ p.actual = min; p.done = true; } if (d.plan.length && d.plan.every(x => x.done)) questBump('plan', 1); S.timer = null; save(); toast(L(`Done! You guessed ${p ? p.est : '?'} min, it took ${min} min.`, `Selesai! Tebakanmu ${p ? p.est : '?'} menit, nyatanya ${min} menit.`)); go('home'); }
 }
 
 const A = {
@@ -2337,7 +2515,7 @@ const A = {
     d.plan.forEach((p, i) => { const el = document.getElementById('rd' + i); if (el) p.done = el.checked; const a = parseInt(readVal('ra' + i), 10); if (a > 0) p.actual = a; p.why = readVal('rw' + i) || null; });
     const t = readVal('rtext'); const mq = META_Q[(new Date().getDate()) % META_Q.length];
     if (t.trim()) addJournal(L('Evening review','Review malam'), tx(mq), t);
-    d.reviewDone = true; logEvent('review', {tasks:d.plan.length, done:d.plan.filter(p => p.done).length, text:!!t.trim()}); give({coins:3, xp:15, st:{home:20, mood:10}, label:L('Review saved','Review tersimpan')});
+    d.reviewDone = true; questBump('review'); life().reviews++; if (d.plan.length && d.plan.every(p => p.done)) questBump('plan', 1); achCheck(); logEvent('review', {tasks:d.plan.length, done:d.plan.filter(p => p.done).length, text:!!t.trim()}); give({coins:3, xp:15, st:{home:20, mood:10}, label:L('Review saved','Review tersimpan')});
     render();
   },
   /* practice */
@@ -2355,6 +2533,12 @@ const A = {
     if (isNaN(val)){ toast(L('Type a number','Ketik angka')); return; }
     graded(Math.abs(val - q.ans) <= (q.tol || 1e-6));
   },
+  claimQuest(id){ const c = dq(); if (c.claimed.includes(id)) return; c.claimed.push(id); life().quests++; give({coins:5, xp:10, label:L('Quest complete','Quest selesai')}); achCheck(); render(); },
+  openChest(){ const c = dq(); if (c.chest) return; c.chest = true; give({coins:15, xp:20, label:L('Daily chest opened','Peti harian dibuka')}); render(); },
+  setGoal(v){ ME.dailyGoal = +v; save(); render(); },
+  mapSubj(v){ S.params.mapSubj = v; render(); },
+  topicDrill(v){ const [s, t] = v.split('|'); startDrill(s, 'normal', t); },
+  hideJoin(){ ME.hideJoin = true; save(); render(); },
   setChallenge(v){ ME.challenge = v === '1'; save(); render(); },
   toggleNeg(){ const el = document.getElementById('ans'); if (!el) return; let v = el.value.trim(); v = /^[-−]/.test(v) ? v.replace(/^[-−]\s*/, '') : '−' + v; el.value = v; S.drill.typed = v; el.focus(); },
   checkLine(){ const D = S.drill, q = D.q; const v = +(document.getElementById('lineIn') || {}).value; D.line = v; graded(Math.abs(v - q.target) <= q.tol); },
@@ -2373,7 +2557,7 @@ const A = {
   pickEF(s){ const w = wk(); w.ef = {skill:s, days:[], notes:{}, status:'open'}; save(); go('ef'); },
   pickQ(c){ const w = wk(); w.quest = {comp:c, step:0, status:'open'}; save(); go('quest'); },
   pickOwn(){ const t = readVal('ownq').trim(); if (t.length < 10){ toast(L('Write a little more about your mission.','Tulis sedikit lebih banyak tentang misimu.')); return; } const w = wk(); w.quest = {own:true, ownText:t, step:1, status:'open'}; save(); go('quest'); },
-  efTick(){ const w = wk(), ef = w.ef, t = dkey(); if (ef.days.includes(t)) return; ef.days.push(t); const n = readVal('efnote').trim(); if (n){ ef.notes[t] = n; safetyCheck(n); } give({coins:2, xp:5, st:{home:10}, label:L('Life skill practised','Life skill dilatih')}); render(); },
+  efTick(){ const w = wk(), ef = w.ef, t = dkey(); if (ef.days.includes(t)) return; ef.days.push(t); questBump('ef'); const n = readVal('efnote').trim(); if (n){ ef.notes[t] = n; safetyCheck(n); } give({coins:2, xp:5, st:{home:10}, label:L('Life skill practised','Life skill dilatih')}); render(); },
   efFinish(){ const w = wk(), b = pdBand(), ef = w.ef; if (b === 'C' || b === 'D'){ selfResolve('ef'); render(); return; } ef.status = 'pending'; requestCheck('ef', `${b}-${ef.skill}`, tx(EF_SKILLS[ef.skill]), 'parent'); },
   dPick(v){ wk().quest.dpick = +v; save(); S.form = null; render(); },
   qStep(v){ wk().quest.step = +v; save(); render(); },
@@ -2481,7 +2665,7 @@ function render(){
   else if (S.view === 'create') h = vCreate();
   else if (!ME) h = vProfiles();
   else if (S.view === 'parent' && !S.unlockedParent){ S.pinMode = 'parent'; h = vPin('parent'); }
-  else h = ({home:vHome, checkin:vCheckin, practice:vPractice, drill:vDrill, timer:vTimer, review:vReview, missions:vMissions, choose:vChoose, ef:vEF, quest:vQuest, enq:vEnq, season:vSeason, write:vWrite, coachm:vCoachM, valreq:vValReq, goal:vGoal, room:vRoom, growth:vGrowth, parent:vParent, newEgg:vNewEgg}[S.view] || vHome)();
+  else h = ({home:vHome, checkin:vCheckin, practice:vPractice, drill:vDrill, timer:vTimer, review:vReview, missions:vMissions, choose:vChoose, ef:vEF, quest:vQuest, enq:vEnq, season:vSeason, write:vWrite, coachm:vCoachM, valreq:vValReq, goal:vGoal, skillmap:vSkillMap, room:vRoom, growth:vGrowth, parent:vParent, newEgg:vNewEgg}[S.view] || vHome)();
   app.innerHTML = h + (S.modal ? modalHTML() : '') + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
   const keep = S._clear ? null : S._click ? (S.form && S.formView === S.view ? S.form : null) : live; S._clear = false;
   if (keep){ for (const id in keep){ const el = document.getElementById(id); if (!el) continue; if ('c' in keep[id]) el.checked = keep[id].c; else el.value = keep[id].v; } }
