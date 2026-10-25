@@ -691,6 +691,256 @@ const WHY = {
     {q:'The discriminant b² − 4ac is negative. What does the graph of y = ax² + bx + c look like?',opts:['It never crosses the x-axis','It crosses the x-axis twice','It is a straight line'],a:0}
   ]
 };
+/* ================= ENGLISH & SCIENCE: more items, generators, difficulty tiers ================= */
+/* t: 1 = entry, 2 = core, 3 = stretch. Existing items default to tier 2 unless listed here. */
+const TIER_OF = {
+  eA1:1, eA2:1, eA3:1, eA4:1, eA6:1, eA7:1, eA8:1, eA9:1, eA16:1, eA13:2, eA10:2, eA11:2, eA12:2, eA14:2, eA15:3, eA17:3, eA18:2, eA5:2,
+  eB1:1, eB2:1, eB6:1, eB7:1, eB8:2, eB10:1, eB15:1, eB3:2, eB4:2, eB5:2, eB9:2, eB11:2, eB14:2, eB16:2, eB12:3, eB13:3, eB17:3,
+  eC3:1, eC4:1, eC6:1, eC14:1, eC1:2, eC2:2, eC5:2, eC11:2, eC12:2, eC13:2, eC15:2, eC7:3, eC8:3, eC9:3, eC10:3, eC16:3,
+  eD1:1, eD5:1, eD6:1, eD14:1, eD3:2, eD4:2, eD7:2, eD8:2, eD15:2, eD2:3, eD9:3, eD10:3, eD11:3, eD12:3, eD13:3,
+  sA3:1, sA4:1, sA5:1, sA8:1, sA9:1, sA11:1, sA12:1, sA1:1, sA6:2, sA7:2, sA2:3, sA10:3,
+  sB3:1, sB4:1, sB5:1, sB10:1, sB12:1, sB1:2, sB6:2, sB7:2, sB8:2, sB9:2, sB2:3, sB11:3,
+  sC1:1, sC3:1, sC4:1, sC5:1, sC6:1, sC8:2, sC9:2, sC10:2, sC11:2, sC12:2, sC7:2, sC2:3, sC13:3,
+  sD5:1, sD6:1, sD8:1, sD10:1, sD1:2, sD2:2, sD3:2, sD4:2, sD11:2, sD9:3, sD7:3, sD12:3
+};
+
+/* ---------- extra hand-written items ---------- */
+const ESL_MORE = {
+  A:[
+    {id:'eA19',t:1,topic:'vocab-food',type:'vocab',q:'Which one is green?',opts:['🍏','🍎','🍌'],a:0,explain:'This apple is green.'},
+    {id:'eA20',t:1,topic:'vocab-transport',type:'vocab',q:'Which one is a bus?',opts:['🚌','🚲','🚗'],a:0,explain:'A bus carries many people.'},
+    {id:'eA21',t:2,topic:'have-has',type:'mcq',q:'My sister ___ two cats.',opts:['has','have','is'],a:0,explain:'He / she / it + has.'},
+    {id:'eA22',t:2,topic:'past-be',type:'mcq',q:'We ___ at home yesterday.',opts:['were','was','are'],a:0,explain:'We / you / they + were in the past.'},
+    {id:'eA23',t:2,topic:'present-continuous',type:'order',words:['They','are','playing','football'],explain:'They + are + verb-ing.'},
+    {id:'eA24',t:2,topic:'reading-detail',type:'read',passage:['It is Monday.','Rina has a Maths test.','She studies after lunch.','Then she plays with her cat.'],q:'What does Rina do after lunch?',opts:['She studies','She plays','She sleeps'],a:0,ev:2,explain:'"She studies after lunch."'},
+    {id:'eA25',t:3,topic:'reading-inference',type:'read',passage:['Ben looks out of the window.','Dark clouds cover the sky.','He takes his umbrella.'],q:'Why does Ben take his umbrella?',opts:['It may rain','It is hot','He is going swimming'],a:0,ev:1,explain:'Dark clouds often mean rain.'},
+    {id:'eA26',t:3,topic:'questions',type:'mcq',q:'Which question is correct?',opts:['Where do you live?','Where you live?','Where does you live?'],a:0,explain:'Question word + do + you + verb.'},
+    {id:'eA27',t:3,topic:'listening-sequence',type:'listen',say:'First wash your hands, then eat your lunch.',q:'What do you do first?',opts:['Wash my hands','Eat my lunch','Play outside'],a:0,explain:'"First wash your hands."'},
+    {id:'eA28',t:1,topic:'listening-detail',type:'listen',say:'I like bananas.',q:'What do I like?',opts:['bananas','apples','milk'],a:0,explain:'You heard "bananas".'},
+    {id:'eA29',t:3,topic:'connectives',type:'mcq',q:'I am hungry, ___ I eat a sandwich.',opts:['so','but','because'],a:0,explain:'"So" shows the result.'},
+    {id:'eA30',t:2,topic:'prepositions',type:'mcq',q:'We have lunch ___ 12 o\'clock.',opts:['at','in','on'],a:0,explain:'Clock times use "at".'},
+    {id:'eA31',t:3,topic:'reading-inference',type:'read',passage:['Sam opened his lunch box.','It was empty.','His little dog was licking its mouth under the table.'],q:'What probably happened to Sam\'s lunch?',opts:['The dog ate it','Sam forgot it','His mum took it'],a:0,ev:2,explain:'The dog licking its mouth is the clue.'},
+    {id:'eA32',t:3,topic:'reading-sequence',type:'read',passage:['First, Mia put soil in a pot.','Next, she planted a seed.','Then she watered it every day.','After a week, a small green shoot appeared.'],q:'What did Mia do just before watering?',opts:['She planted a seed','She bought a pot','She saw a shoot'],a:0,ev:1,explain:'"Next, she planted a seed. Then she watered it."'},
+    {id:'eA33',t:2,topic:'past-simple',type:'mcq',q:'Last week we ___ to the zoo.',opts:['went','go','goes'],a:0,explain:'"Last week" = past. Go → went.'},
+    {id:'eA34',t:1,topic:'vocab-feelings',type:'vocab',q:'Which face is sad?',opts:['😢','😀','😡'],a:0,explain:'Tears show sadness.'},
+    {id:'eA35',t:3,topic:'adverbs-frequency',type:'order',words:['I','always','brush','my','teeth','at','night'],explain:'Frequency words go before the main verb.'},
+    {id:'eA36',t:2,topic:'can-cant',type:'mcq',q:'A fish ___ swim, but it ___ fly.',opts:['can / can\'t','can\'t / can','can / can'],a:0,explain:'Fish swim; they don\'t fly.'}
+  ],
+  B:[
+    {id:'eB18',t:1,topic:'there-is-are',type:'mcq',q:'There ___ some milk in the fridge.',opts:['is','are','am'],a:0,explain:'Milk is uncountable, so "is".'},
+    {id:'eB19',t:2,topic:'much-many',type:'mcq',q:'How ___ apples do you want?',opts:['many','much','more'],a:0,explain:'Apples can be counted: many.'},
+    {id:'eB20',t:2,topic:'since-for',type:'mcq',q:'I have lived here ___ 2019.',opts:['since','for','from'],a:0,explain:'"Since" + a point in time.'},
+    {id:'eB21',t:3,topic:'zero-conditional',type:'mcq',q:'If you heat ice, it ___.',opts:['melts','melted','will melted'],a:0,explain:'Facts that are always true: If + present, present.'},
+    {id:'eB22',t:2,topic:'reading-detail',type:'read',passage:['Komodo dragons live on a few islands in Indonesia.','They are the largest lizards in the world.','They can grow up to three metres long.','Komodo dragons eat deer and pigs.','Today, they are protected in Komodo National Park.'],q:'Why is Komodo National Park important?',opts:['It protects Komodo dragons','It has the biggest deer','It is the largest island'],a:0,ev:4,explain:'The park protects the dragons.'},
+    {id:'eB23',t:3,topic:'reading-inference',type:'read',passage:['Lia\'s hands were shaking as she walked to the front of the class.','She had practised her speech all week.','When she finished, everyone clapped.'],q:'How did Lia probably feel before her speech?',opts:['Nervous','Bored','Angry'],a:0,ev:0,explain:'Shaking hands show nerves.'},
+    {id:'eB24',t:2,topic:'present-perfect',type:'order',words:['Have','you','ever','seen','a','volcano?'],explain:'Have + you + ever + past participle.'},
+    {id:'eB25',t:3,topic:'fact-opinion',type:'mcq',q:'Which sentence is a fact?',opts:['Mount Bromo is a volcano in East Java.','Mount Bromo is the most beautiful place.','Everyone should visit Bromo.'],a:0,explain:'A fact can be checked; the others are opinions.'},
+    {id:'eB26',t:1,topic:'listening-directions',type:'listen',say:'Turn left at the mosque, and the bakery is next to the bank.',q:'Where is the bakery?',opts:['next to the bank','opposite the mosque','behind the school'],a:0,explain:'"Next to the bank."'},
+    {id:'eB27',t:3,topic:'vocab-context',type:'mcq',q:'"The path was so narrow that only one person could walk on it." Narrow means…',opts:['not wide','very long','dangerous'],a:0,explain:'Only one person fits, so it is not wide.'},
+    {id:'eB28',t:2,topic:'prepositions',type:'mcq',q:'She is good ___ drawing.',opts:['at','in','on'],a:0,explain:'Good at + activity.'},
+    {id:'eB29',t:3,topic:'listening-inference',type:'listen',say:'The concert was supposed to start at seven, but it started an hour late.',q:'When did the concert start?',opts:['at eight','at seven','at six'],a:0,explain:'Seven plus one hour late is eight.'},
+    {id:'eB30',t:3,topic:'reading-inference',type:'read',passage:['Mr Hadi checked the sky, then looked at his empty rice field.','"Another week without rain," he sighed.','He walked slowly back to his house.'],q:'What is Mr Hadi\'s main problem?',opts:['His field needs water','He is lost','He has no house'],a:0,ev:1,explain:'No rain for weeks is the problem for a rice field.'},
+    {id:'eB31',t:2,topic:'past-continuous',type:'mcq',q:'I ___ TV when the lights went out.',opts:['was watching','watched','am watching'],a:0,explain:'A longer action interrupted by a short one: was + -ing.'},
+    {id:'eB32',t:3,topic:'main-idea',type:'read',passage:['Bees carry pollen from flower to flower.','This helps plants make fruit and seeds.','Many fruits we eat, like mangoes and melons, need bees.','Without bees, farmers would grow much less food.'],q:'What is the main idea?',opts:['Bees are important for growing food','Mangoes are sweet','Farmers like flowers'],a:0,ev:3,explain:'Every sentence builds toward why bees matter for food.'},
+    {id:'eB33',t:1,topic:'vocab-weather',type:'mcq',q:'When it is very windy and rainy, it is…',opts:['stormy','sunny','foggy'],a:0,explain:'Strong wind and rain = a storm.'},
+    {id:'eB34',t:2,topic:'going-to',type:'order',words:['We','are','going','to','visit','Bali','next','month'],explain:'Plans: be going to + verb.'},
+    {id:'eB35',t:3,topic:'connectives',type:'mcq',q:'___ it was raining, we played outside.',opts:['Although','Because','So'],a:0,explain:'"Although" joins two ideas that contrast.'}
+  ],
+  C:[
+    {id:'eC17',t:3,topic:'agreement',type:'mcq',q:'Neither Ali nor his friends ___ late.',opts:['were','was','is'],a:0,explain:'With "neither…nor", the verb agrees with the nearer subject (friends → were).'},
+    {id:'eC18',t:2,topic:'relative-pronouns',type:'mcq',q:'The book ___ I borrowed was very interesting.',opts:['that','who','where'],a:0,explain:'"That/which" for things.'},
+    {id:'eC19',t:3,topic:'modals',type:'mcq',q:'You ___ wear a uniform; it is optional.',opts:['don\'t have to','mustn\'t','have to'],a:0,explain:'"Don\'t have to" = not necessary. "Mustn\'t" = not allowed.'},
+    {id:'eC20',t:2,topic:'passive',type:'mcq',q:'English ___ in many countries.',opts:['is spoken','speaks','is speaking'],a:0,explain:'Present passive: is + past participle.'},
+    {id:'eC21',t:3,topic:'claim-evidence',type:'read',passage:['Every school should have a garden.','Students who grow vegetables learn science by doing.','In one school, students ate more vegetables after a garden project.','Gardens also make school grounds cooler.'],q:'Which sentence is the writer\'s main claim?',opts:['Every school should have a garden','Gardens make school grounds cooler','Students ate more vegetables'],a:0,ev:0,explain:'The other sentences support the first one.'},
+    {id:'eC22',t:2,topic:'reading-detail',type:'read',passage:['The museum opens at 9 a.m. from Tuesday to Sunday.','It is closed on Mondays.','Students pay half price with a student card.','Guided tours start every hour.'],q:'When can you NOT visit the museum?',opts:['On Monday','On Sunday','At 10 a.m.'],a:0,ev:1,explain:'"It is closed on Mondays."'},
+    {id:'eC23',t:3,topic:'tone',type:'read',passage:['"Oh great, another hour of waiting," said Dimas, rolling his eyes.','The bus was late again.'],q:'How does Dimas really feel?',opts:['Annoyed','Happy','Excited'],a:0,ev:0,explain:'"Rolling his eyes" shows he means the opposite of "great" (sarcasm).'},
+    {id:'eC24',t:1,topic:'vocab-opposites',type:'mcq',q:'Which word is the opposite of "ancient"?',opts:['modern','old','huge'],a:0,explain:'Ancient = very old; modern = new.'},
+    {id:'eC25',t:2,topic:'passive',type:'order',words:['The','homework','must','be','finished','by','Friday'],explain:'Modal + be + past participle.'},
+    {id:'eC26',t:3,topic:'listening-inference',type:'listen',say:'Although the forecast said sunny, I would still bring a jacket, because evenings in Lembang get cold.',q:'Why should you bring a jacket?',opts:['Evenings get cold','The forecast says rain','It is fashionable'],a:0,explain:'"Because evenings in Lembang get cold."'},
+    {id:'eC27',t:3,topic:'past-perfect',type:'mcq',q:'By the time we arrived, the film ___.',opts:['had started','has started','starts'],a:0,explain:'Earlier past action: had + past participle.'},
+    {id:'eC28',t:1,topic:'prepositions',type:'mcq',q:'I\'m interested ___ science.',opts:['in','on','at'],a:0,explain:'Interested in.'},
+    {id:'eC29',t:3,topic:'claim-evidence',type:'read',passage:['School should start at 8:30, not 7:00.','Teenagers\' body clocks make them sleepy early in the morning.','Research in the US found that later start times improved attendance.','Some parents worry about traffic.'],q:'Which sentence gives research evidence?',opts:['The one about attendance','The one about traffic','The first sentence'],a:0,ev:2,explain:'It reports what a study found.'},
+    {id:'eC30',t:2,topic:'used-to',type:'mcq',q:'When I was small, I ___ be afraid of the dark.',opts:['used to','use to','was used'],a:0,explain:'Past habit or state: used to + verb.'},
+    {id:'eC31',t:3,topic:'writer-viewpoint',type:'read',passage:['Plastic bags are cheap and useful, some people say.','But they take hundreds of years to break down.','Every year, tonnes of them end up in Indonesian rivers.','It is time we brought our own bags.'],q:'What is the writer\'s view?',opts:['People should stop using plastic bags','Plastic bags are useful','Rivers are clean'],a:0,ev:3,explain:'The last sentence shows the writer\'s position.'},
+    {id:'eC32',t:1,topic:'gerund-infinitive',type:'mcq',q:'I enjoy ___ books.',opts:['reading','to read','read'],a:0,explain:'Enjoy + -ing.'},
+    {id:'eC33',t:2,topic:'reported-speech',type:'mcq',q:'"I am busy," said Tia. → Tia said she ___ busy.',opts:['was','is','be'],a:0,explain:'Reported speech: am → was.'},
+    {id:'eC34',t:3,topic:'vocab-context',type:'mcq',q:'"After the long hike, the water tasted delicious; we were parched." Parched means…',opts:['very thirsty','very cold','very lost'],a:0,explain:'After a long hike, water tastes great when you are very thirsty.'}
+  ],
+  D:[
+    {id:'eD16',t:2,topic:'despite',type:'mcq',q:'Despite ___ tired, she finished the race.',opts:['being','she was','to be'],a:0,explain:'Despite + noun or -ing.'},
+    {id:'eD17',t:3,topic:'inversion',type:'mcq',q:'Had I known, I ___ earlier.',opts:['would have come','would come','had come'],a:0,explain:'Inverted third conditional: Had I + p.p., would have + p.p.'},
+    {id:'eD18',t:2,topic:'comparatives',type:'mcq',q:'The more you practise, ___.',opts:['the better you get','better you get','the best you get'],a:0,explain:'The + comparative, the + comparative.'},
+    {id:'eD19',t:3,topic:'evaluate-argument',type:'read',passage:['Online learning is better than classroom learning.','Students can learn at their own pace.','However, in one survey, many students said they felt lonely and less motivated online.','Online courses are often cheaper.'],q:'Which sentence weakens the writer\'s claim?',opts:['The survey about loneliness','Learning at their own pace','Courses are cheaper'],a:0,ev:2,explain:'Evidence against the claim weakens it.'},
+    {id:'eD20',t:2,topic:'vocab-academic',type:'mcq',q:'"Smartphones are ubiquitous." Ubiquitous means…',opts:['found everywhere','very rare','dangerous'],a:0,explain:'Ubiquitous = present everywhere.'},
+    {id:'eD21',t:1,topic:'register',type:'mcq',q:'Which closing is best for a formal email?',opts:['Yours sincerely','See ya','Love'],a:0,explain:'Formal emails use formal closings.'},
+    {id:'eD22',t:3,topic:'reading-purpose',type:'read',passage:['Jakarta sinks by up to 25 centimetres a year in some areas.','Much of the city pumps water from underground.','When water is removed, the ground above compresses.','This is why experts call for piped water across the city.'],q:'What is the purpose of the last sentence?',opts:['To give a solution','To give a statistic','To describe a cause'],a:0,ev:3,explain:'It proposes what should be done.'},
+    {id:'eD23',t:3,topic:'inversion',type:'order',words:['Not','only','did','she','win,','but','she','also','broke','the','record'],explain:'Not only + auxiliary + subject + verb.'},
+    {id:'eD24',t:2,topic:'listening-detail',type:'listen',say:'Please submit your assignment online by midnight on Sunday; late work will lose ten percent of its marks.',q:'What happens to late work?',opts:['It loses 10% of its marks','It is not accepted','Nothing happens'],a:0,explain:'"Late work will lose ten percent."'},
+    {id:'eD25',t:2,topic:'hedging',type:'mcq',q:'Which sentence is the most cautious (academic)?',opts:['The results suggest that sleep may affect memory.','Sleep controls memory.','Sleep is everything for memory.'],a:0,explain:'"Suggest" and "may" show careful claims.'},
+    {id:'eD26',t:3,topic:'reported-speech',type:'mcq',q:'"Where do you live?" he asked. → He asked…',opts:['where I lived.','where did I live.','where do I live.'],a:0,explain:'Reported questions use statement word order and shift the tense.'},
+    {id:'eD27',t:3,topic:'evaluate-argument',type:'read',passage:['Social media is harmful to all teenagers.','One friend of mine stopped sleeping well after joining TikTok.','Therefore, it should be banned for under-18s.'],q:'What is the main weakness of this argument?',opts:['It generalises from one example','It uses statistics','It is too short to read'],a:0,ev:1,explain:'One case cannot prove a claim about all teenagers (hasty generalisation).'},
+    {id:'eD28',t:2,topic:'linking-academic',type:'mcq',q:'Prices rose sharply; ___, demand fell.',opts:['consequently','although','despite'],a:0,explain:'"Consequently" introduces a result.'},
+    {id:'eD29',t:3,topic:'nominalisation',type:'mcq',q:'Which is the most academic version?',opts:['The reduction in waste was significant.','They reduced the waste a lot.','Waste got way less.'],a:0,explain:'Academic writing often turns verbs into nouns (reduce → reduction).'},
+    {id:'eD30',t:2,topic:'wish',type:'mcq',q:'I wish I ___ more time to study yesterday.',opts:['had had','have','would have'],a:0,explain:'Regret about the past: wish + past perfect.'},
+    {id:'eD31',t:1,topic:'collocations',type:'mcq',q:'Which collocation is correct?',opts:['make a decision','do a decision','take a decision of'],a:0,explain:'We "make" a decision.'},
+    {id:'eD32',t:3,topic:'reading-purpose',type:'read',passage:['Imagine a city where every roof grows vegetables.','Singapore is already testing this idea.','Rooftop farms cut transport costs and cool buildings.','Could Jakarta be next?'],q:'Why does the writer end with a question?',opts:['To make readers think about applying the idea','To show the writer is unsure of facts','To introduce a statistic'],a:0,ev:3,explain:'A rhetorical question invites the reader to consider it.'},
+    {id:'eD33',t:2,topic:'relative-clauses',type:'mcq',q:'My uncle, ___ lives in Medan, is a doctor.',opts:['who','which','that'],a:0,explain:'Non-defining clause for a person: who (not "that").'}
+  ]
+};
+const SCI_MORE = {
+  A:[
+    {id:'sA13',t:1,topic:'animals',type:'mcq',q:'Which animal has six legs?',qi:'Hewan mana yang berkaki enam?',opts:['ant','spider','cat'],a:0,explain:'Insects such as ants have six legs; spiders have eight.'},
+    {id:'sA14',t:2,topic:'materials',type:'mcq',q:'Which material would make the best raincoat?',qi:'Bahan apa yang paling baik untuk jas hujan?',opts:['plastic','paper','cotton'],a:0,explain:'Plastic is waterproof.'},
+    {id:'sA15',t:3,topic:'forces',type:'poe',q:'You give a toy car the same push on a carpet and on a smooth floor. Where does it go further?',qi:'Mobil mainan didorong sama kuat di karpet dan di lantai licin. Di mana ia melaju lebih jauh?',predict:['Smooth floor','Carpet','Same distance'],observe:'On the smooth floor it rolls about twice as far as on the carpet.',eq:'Why?',opts:['There is less friction on the smooth floor','The carpet is heavier','The floor pushes the car'],a:0,explain:'Friction slows moving things; rough surfaces have more friction.'},
+    {id:'sA16',t:2,topic:'plants',type:'mcq',q:'Where does a plant take in water?',qi:'Dari mana tanaman menyerap air?',opts:['roots','flowers','leaves'],a:0,explain:'Roots take in water from the soil.'},
+    {id:'sA17',t:3,topic:'earth-space',type:'mcq',q:'Why do we see the Sun rise in the east?',qi:'Kenapa Matahari terlihat terbit di timur?',opts:['The Earth spins and turns us toward the Sun','The Sun moves around the Earth','Clouds move east'],a:0,explain:'Earth spins from west to east, so the Sun appears in the east first.'},
+    {id:'sA19',t:2,topic:'sound',type:'mcq',q:'How can you make a drum louder?',qi:'Bagaimana membuat bunyi drum lebih keras?',opts:['Hit it harder','Hit it more softly','Cover it with a cloth'],a:0,explain:'Bigger vibrations make louder sounds.'},
+    {id:'sA20',t:3,topic:'light',type:'mcq',q:'A shadow is made when…',qi:'Bayangan terbentuk ketika…',opts:['light is blocked by an object','light bounces off water','the Sun is cold'],a:0,explain:'Light travels in straight lines; an object blocks it.'},
+    {id:'sA21',t:1,topic:'human-body',type:'mcq',q:'Which part of the body helps us breathe?',qi:'Bagian tubuh mana yang membantu kita bernapas?',opts:['lungs','stomach','bones'],a:0,explain:'The lungs take in air.'},
+    {id:'sA22',t:3,topic:'states-of-matter',type:'poe',q:'Ice cubes sit on a plate in the sun and on a plate in the shade. Which melts first?',qi:'Es batu di piring di bawah matahari dan di tempat teduh. Mana yang mencair duluan?',predict:['In the sun','In the shade','Same time'],observe:'The ice in the sun is water after 10 minutes. The ice in the shade is still half solid.',eq:'Why?',opts:['More heat makes ice melt faster','Shade adds cold water','Ice likes the sun'],a:0,explain:'Heating gives energy for solid ice to become liquid.'},
+    {id:'sA23',t:1,topic:'senses',type:'mcq',q:'Which sense do you use to smell flowers?',qi:'Indra apa yang dipakai untuk mencium bunga?',opts:['nose','ears','tongue'],a:0,explain:'The nose senses smells.'},
+    {id:'sA24',t:2,topic:'plants',type:'poe',q:'One bean plant gets water, another gets none for a week. Predict.',qi:'Satu tanaman kacang disiram, satu tidak selama seminggu. Prediksi.',predict:['The unwatered plant wilts','Both grow the same','The unwatered plant grows taller'],observe:'The plant without water droops and its leaves turn brown.',eq:'What does this show?',opts:['Plants need water to stay healthy','Plants hate water','Brown leaves are normal'],a:0,explain:'Water keeps plant cells firm and is needed to make food.'},
+    {id:'sA25',t:3,topic:'fair-test',type:'mcq',q:'Rani wants to know which ball bounces highest. What should she keep the same?',qi:'Rani ingin tahu bola mana yang memantul paling tinggi. Apa yang harus tetap sama?',opts:['The height she drops them from','The colour of the balls','The number of friends watching'],a:0,explain:'If the drop height changes, the test is not fair.'},
+    {id:'sA26',t:2,topic:'habitats',type:'mcq',q:'Why do camels live well in the desert?',qi:'Kenapa unta bisa hidup baik di gurun?',opts:['They can go a long time without water','They like cold weather','They can swim fast'],a:0,explain:'Camels are adapted to hot, dry places.'},
+    {id:'sA27',t:3,topic:'materials',type:'mcq',q:'Why are pots made of metal but their handles of plastic?',qi:'Kenapa panci dari logam tapi pegangannya dari plastik?',opts:['Metal lets heat through; plastic does not','Plastic is shinier','Metal is lighter'],a:0,explain:'Metal conducts heat to cook; plastic insulates your hand.'},
+    {id:'sA28',t:1,topic:'weather',type:'mcq',q:'Which tool measures temperature?',qi:'Alat apa yang mengukur suhu?',opts:['thermometer','ruler','scale'],a:0,explain:'A thermometer measures how hot or cold.'},
+    {id:'sA29',t:3,topic:'forces',type:'mcq',q:'Why does a ball thrown up always come back down?',qi:'Kenapa bola yang dilempar ke atas selalu jatuh lagi?',opts:['Gravity pulls it toward the Earth','The air pushes it down','It gets tired'],a:0,explain:'Gravity pulls everything toward Earth.'}
+  ],
+  B:[
+    {id:'sB13',t:1,topic:'health',type:'mcq',q:'Which habit keeps teeth healthy?',qi:'Kebiasaan mana yang menjaga gigi tetap sehat?',opts:['Brushing twice a day','Eating sweets at night','Drinking lots of soda'],a:0,explain:'Brushing removes the sugar and bacteria that cause decay.'},
+    {id:'sB14',t:2,topic:'human-body',type:'mcq',q:'What is the job of the skeleton?',qi:'Apa fungsi kerangka?',opts:['Support and protect the body','Digest food','Pump blood'],a:0,explain:'Bones hold us up and protect organs.'},
+    {id:'sB15',t:3,topic:'light-shadows',type:'poe',q:'A torch shines on a wall. You move a toy closer to the torch. What happens to its shadow?',qi:'Senter menyinari dinding. Mainan didekatkan ke senter. Apa yang terjadi pada bayangannya?',predict:['It gets bigger','It gets smaller','It stays the same'],observe:'The shadow on the wall grows much bigger.',eq:'Why?',opts:['Closer to the light, the toy blocks more of the light','The torch gets brighter','The wall moves'],a:0,explain:'Near the source, the object blocks a wider cone of light.'},
+    {id:'sB16',t:2,topic:'evaporation',type:'mcq',q:'Which is an example of evaporation?',qi:'Mana contoh penguapan?',opts:['A puddle drying in the sun','Ice forming in a freezer','Dew on grass in the morning'],a:0,explain:'Liquid water turning into water vapour is evaporation.'},
+    {id:'sB17',t:3,topic:'earth-space',type:'mcq',q:'Why do some countries have four seasons?',qi:'Kenapa beberapa negara punya empat musim?',opts:['The Earth\'s axis is tilted as it orbits the Sun','The Earth gets closer and further from the Sun each day','The Moon blocks the Sun'],a:0,explain:'The tilt changes how directly sunlight hits each half of Earth during the year.'},
+    {id:'sB18',t:1,topic:'plants',type:'mcq',q:'Which gas do plants take in to make food?',qi:'Gas apa yang diserap tanaman untuk membuat makanan?',opts:['carbon dioxide','oxygen','helium'],a:0,explain:'Plants use carbon dioxide in photosynthesis.'},
+    {id:'sB19',t:3,topic:'fair-test',type:'mcq',q:'You test which paper towel soaks up the most water. What must stay the same?',qi:'Kamu menguji tisu mana yang paling banyak menyerap air. Apa yang harus tetap sama?',opts:['The amount of water and the size of each towel','The colour of the towels','Who does the test'],a:0,explain:'In a fair test, only the thing you test changes.'},
+    {id:'sB20',t:2,topic:'food-chains',type:'mcq',q:'A food chain always starts with…',qi:'Rantai makanan selalu dimulai dari…',opts:['a plant (producer)','a lion','a mushroom'],a:0,explain:'Producers make their own food using sunlight.'},
+    {id:'sB21',t:3,topic:'dissolving',type:'poe',q:'Sugar is stirred into hot water and into cold water. Where does it dissolve faster?',qi:'Gula diaduk di air panas dan air dingin. Di mana gula lebih cepat larut?',predict:['Hot water','Cold water','Same speed'],observe:'In hot water the sugar disappears in about 20 seconds; in cold water it takes over a minute.',eq:'Why?',opts:['Water particles move faster when hot','Hot water has less sugar','Cold water is heavier'],a:0,explain:'Faster particles break up the sugar crystals sooner.'},
+    {id:'sB22',t:2,topic:'electricity',type:'mcq',q:'Which change makes a bulb in a circuit dimmer?',qi:'Perubahan mana yang membuat lampu dalam rangkaian lebih redup?',opts:['Adding another bulb in series','Adding another battery','Using shorter wires'],a:0,explain:'More bulbs in series share the energy from the battery.'},
+    {id:'sB23',t:3,topic:'food-chains',type:'mcq',q:'In grass → grasshopper → frog → snake, what happens if all frogs disappear?',qi:'Dalam rumput → belalang → katak → ular, apa yang terjadi jika semua katak hilang?',opts:['Grasshoppers increase and snakes decrease','Grass increases and snakes increase','Nothing changes'],a:0,explain:'Fewer predators for grasshoppers; less food for snakes.'},
+    {id:'sB24',t:2,topic:'sound',type:'mcq',q:'Why do we see lightning before we hear thunder?',qi:'Kenapa kilat terlihat sebelum guntur terdengar?',opts:['Light travels faster than sound','Thunder happens later','Our eyes are closer to the sky'],a:0,explain:'Light is about a million times faster than sound in air.'},
+    {id:'sB25',t:3,topic:'data',type:'mcq',q:'A plant grew 2 cm, 4 cm, 6 cm in weeks 1–3. Predict week 4.',qi:'Tanaman tumbuh 2 cm, 4 cm, 6 cm di minggu 1–3. Prediksi minggu 4.',opts:['about 8 cm','about 6 cm','about 12 cm'],a:0,explain:'It grows about 2 cm each week, if conditions stay the same.'},
+    {id:'sB26',t:1,topic:'earth-space',type:'mcq',q:'What causes day and night?',qi:'Apa penyebab siang dan malam?',opts:['The Earth spinning','The Sun switching off','The Moon covering the Sun'],a:0,explain:'Earth spins once every 24 hours.'},
+    {id:'sB27',t:2,topic:'reversible-changes',type:'mcq',q:'Which change can be reversed?',qi:'Perubahan mana yang bisa dikembalikan?',opts:['Chocolate melting','Cooking an egg','Burning paper'],a:0,explain:'Melted chocolate can be cooled back to solid.'},
+    {id:'sB28',t:3,topic:'electricity',type:'poe',q:'A circuit has a battery, a bulb and a gap. You bridge the gap with a coin. Predict.',qi:'Rangkaian berisi baterai, lampu, dan celah. Celah disambung dengan koin. Prediksi.',predict:['The bulb lights','Nothing happens','The battery melts'],observe:'The bulb lights up when the coin touches both wires.',eq:'Why?',opts:['The metal coin completes the circuit','Coins make electricity','The bulb was already on'],a:0,explain:'Metals are conductors, so the circuit is now complete.'}
+  ],
+  C:[
+    {id:'sC14',t:1,topic:'changes',type:'mcq',q:'Which is a physical change?',qi:'Mana perubahan fisika?',opts:['Melting butter','Burning wood','Iron rusting'],a:0,explain:'Melting can be reversed; no new substance forms.'},
+    {id:'sC15',t:3,topic:'energy',type:'mcq',q:'At the same room temperature, why does a metal spoon feel colder than a wooden spoon?',qi:'Pada suhu ruang yang sama, kenapa sendok logam terasa lebih dingin dari sendok kayu?',opts:['Metal conducts heat away from your hand faster','Metal is at a lower temperature','Wood produces heat'],a:0,explain:'Both are the same temperature; metal is a better conductor.'},
+    {id:'sC16',t:2,topic:'respiration',type:'mcq',q:'In respiration, cells release energy from…',qi:'Dalam respirasi, sel melepaskan energi dari…',opts:['glucose','carbon dioxide','water'],a:0,explain:'Glucose + oxygen → carbon dioxide + water (+ energy).'},
+    {id:'sC17',t:3,topic:'particles',type:'poe',q:'A balloon is put in the freezer for 30 minutes. Predict its size.',qi:'Balon dimasukkan ke freezer selama 30 menit. Prediksi ukurannya.',predict:['Smaller','Bigger','The same'],observe:'The balloon looks wrinkled and smaller. It grows back at room temperature.',eq:'Why?',opts:['Cold gas particles move slower and hit the walls less','Air leaks out in the cold','Rubber grows in heat'],a:0,explain:'Gas pressure depends on particle speed.'},
+    {id:'sC18',t:2,topic:'reactions',type:'mcq',q:'Which shows a chemical reaction?',qi:'Mana yang menunjukkan reaksi kimia?',opts:['Fizzing when vinegar meets baking soda','Sugar dissolving in tea','Ice melting'],a:0,explain:'Gas bubbles show a new substance forming.'},
+    {id:'sC19',t:3,topic:'photosynthesis',type:'mcq',q:'A plant sits in a sealed jar in bright light. Which gas increases during the day?',qi:'Tanaman di toples tertutup di bawah cahaya terang. Gas apa yang bertambah di siang hari?',opts:['oxygen','carbon dioxide','nitrogen'],a:0,explain:'Photosynthesis (faster than respiration in bright light) releases oxygen.'},
+    {id:'sC20',t:2,topic:'cells',type:'mcq',q:'What do red blood cells do?',qi:'Apa fungsi sel darah merah?',opts:['Carry oxygen','Fight infection','Make hormones'],a:0,explain:'Haemoglobin carries oxygen.'},
+    {id:'sC21',t:1,topic:'forces',type:'mcq',q:'Which force slows a falling parachute?',qi:'Gaya apa yang memperlambat parasut?',opts:['air resistance','magnetism','gravity'],a:0,explain:'Air pushes against the large canopy.'},
+    {id:'sC22',t:3,topic:'variables',type:'mcq',q:'You test how temperature affects how long sugar takes to dissolve. The independent variable is…',qi:'Kamu menguji pengaruh suhu terhadap waktu larut gula. Variabel bebasnya adalah…',opts:['temperature','dissolving time','the cup'],a:0,explain:'The independent variable is what you change.'},
+    {id:'sC23',t:3,topic:'data-analysis',type:'mcq',q:'As exercise time increased, heart rate increased in every student tested. What can you conclude?',qi:'Saat waktu olahraga bertambah, detak jantung semua siswa naik. Apa kesimpulannya?',opts:['There is a positive correlation between exercise time and heart rate','Exercise is bad for the heart','Heart rate causes exercise'],a:0,explain:'Both increase together; this sample shows a positive correlation.'},
+    {id:'sC24',t:2,topic:'acids-alkalis',type:'mcq',q:'Universal indicator turns purple. The solution is…',qi:'Indikator universal berubah ungu. Larutannya…',opts:['strongly alkaline','strongly acidic','neutral'],a:0,explain:'Purple means about pH 12–14.'},
+    {id:'sC25',t:3,topic:'ecosystems',type:'mcq',q:'Why are there usually fewer predators than prey in an ecosystem?',qi:'Kenapa jumlah predator biasanya lebih sedikit dari mangsa?',opts:['Energy is lost at each step of the food chain','Predators live longer','Prey are smaller'],a:0,explain:'Only about 10% of energy passes on, so higher levels support fewer animals.'},
+    {id:'sC26',t:1,topic:'periodic-table',type:'mcq',q:'Elements in the same group of the periodic table have similar…',qi:'Unsur dalam satu golongan tabel periodik punya sifat…',opts:['chemical properties','masses','colours'],a:0,explain:'Same number of outer electrons → similar reactions.'},
+    {id:'sC27',t:2,topic:'pressure',type:'mcq',q:'Why do knives cut better when they are sharp?',qi:'Kenapa pisau tajam memotong lebih baik?',opts:['The force acts on a smaller area, so pressure is higher','Sharp knives are heavier','Sharp knives are colder'],a:0,explain:'Pressure = force ÷ area.'},
+    {id:'sC28',t:3,topic:'variables',type:'poe',q:'Two identical cups of tea: one is covered with a lid. Which cools faster?',qi:'Dua cangkir teh identik: satu ditutup. Mana yang lebih cepat dingin?',predict:['The uncovered cup','The covered cup','Same rate'],observe:'After 15 minutes the uncovered cup is about 8 °C cooler.',eq:'Why?',opts:['The lid reduces evaporation and convection losses','Lids make heat','Uncovered tea has less water'],a:0,explain:'Evaporation and moving air carry energy away from open cups.'}
+  ],
+  D:[
+    {id:'sD13',t:2,topic:'rates',type:'mcq',q:'What does a catalyst do?',qi:'Apa fungsi katalis?',opts:['Speeds up a reaction without being used up','Gets used up in the reaction','Always slows the reaction'],a:0,explain:'It provides a lower-energy pathway.'},
+    {id:'sD14',t:3,topic:'disease',type:'mcq',q:'Why do antibiotics not work against viruses?',qi:'Kenapa antibiotik tidak bekerja melawan virus?',opts:['Viruses lack the cell structures antibiotics target','Viruses are too large','Antibiotics only work on plants'],a:0,explain:'Antibiotics target bacterial cell walls and processes; viruses have none.'},
+    {id:'sD15',t:2,topic:'waves',type:'mcq',q:'Which wave needs a medium to travel?',qi:'Gelombang mana yang butuh medium untuk merambat?',opts:['sound','light','radio'],a:0,explain:'Sound is a vibration of particles.'},
+    {id:'sD16',t:3,topic:'thermal',type:'poe',q:'Water is heated at a steady rate until it boils. Predict the temperature–time graph.',qi:'Air dipanaskan dengan laju tetap sampai mendidih. Prediksi grafik suhu–waktu.',predict:['Rises, then stays flat','Keeps rising forever','Stays flat from the start'],observe:'The temperature rises to about 100 °C, then stays level while the water boils.',eq:'Why does it stay flat?',opts:['Energy is used to change state, not to raise temperature','The heater turns off','Water cannot be heated'],a:0,explain:'Latent heat breaks bonds between particles.'},
+    {id:'sD17',t:2,topic:'bonding',type:'mcq',q:'Which bond forms between sodium and chlorine?',qi:'Ikatan apa yang terbentuk antara natrium dan klorin?',opts:['ionic','covalent','metallic'],a:0,explain:'A metal gives electrons to a non-metal.'},
+    {id:'sD18',t:3,topic:'evolution',type:'mcq',q:'Which order describes natural selection?',qi:'Urutan mana yang menggambarkan seleksi alam?',opts:['variation → competition → better-adapted survive → genes passed on','genes passed on → variation → extinction → competition','competition → animals choose to change → offspring'],a:0,explain:'Individuals do not choose to change; advantageous variations become more common.'},
+    {id:'sD19',t:2,topic:'transport',type:'mcq',q:'Transpiration is…',qi:'Transpirasi adalah…',opts:['loss of water vapour from leaves','uptake of minerals by roots','photosynthesis at night'],a:0,explain:'Water evaporates from leaves, pulling water up the stem.'},
+    {id:'sD20',t:1,topic:'units',type:'mcq',q:'The unit of power is the…',qi:'Satuan daya adalah…',opts:['watt','joule','newton'],a:0,explain:'1 W = 1 J per second.'},
+    {id:'sD21',t:3,topic:'energy',type:'mcq',q:'Why is a device\'s efficiency always below 100%?',qi:'Kenapa efisiensi alat selalu di bawah 100%?',opts:['Some energy is transferred as wasted heat','Energy is destroyed','Devices create energy'],a:0,explain:'Energy is conserved, but some goes to useless stores.'},
+    {id:'sD22',t:3,topic:'experimental-design',type:'mcq',q:'A student claims a fertiliser increases plant growth, but tested only one plant. The best improvement is…',qi:'Siswa mengklaim pupuk menambah pertumbuhan, tapi hanya menguji satu tanaman. Perbaikan terbaik adalah…',opts:['Use many plants with and without fertiliser','Use a bigger pot','Measure once a month'],a:0,explain:'Repeats and a control group make results reliable.'},
+    {id:'sD23',t:2,topic:'enzymes',type:'mcq',q:'Why does enzyme activity drop sharply above about 40 °C in humans?',qi:'Kenapa aktivitas enzim turun tajam di atas sekitar 40 °C pada manusia?',opts:['The active site changes shape (denatures)','Enzymes fall asleep','Substrates disappear'],a:0,explain:'Heat breaks bonds that hold the enzyme\'s shape.'},
+    {id:'sD24',t:3,topic:'electricity',type:'mcq',q:'Two identical bulbs are in parallel. One breaks. The other…',qi:'Dua lampu identik dirangkai paralel. Satu putus. Yang lain…',opts:['stays lit at the same brightness','goes out','gets dimmer'],a:0,explain:'Each parallel branch connects directly to the supply.'},
+    {id:'sD25',t:2,topic:'homeostasis',type:'mcq',q:'After a sugary meal, which hormone lowers blood glucose?',qi:'Setelah makan manis, hormon apa yang menurunkan gula darah?',opts:['insulin','adrenaline','glucagon'],a:0,explain:'Insulin helps cells take in glucose.'},
+    {id:'sD26',t:1,topic:'atomic-structure',type:'mcq',q:'Isotopes of an element have different numbers of…',qi:'Isotop suatu unsur berbeda jumlah…',opts:['neutrons','protons','electrons in a neutral atom'],a:0,explain:'Same protons, different neutrons.'},
+    {id:'sD27',t:3,topic:'rates',type:'poe',q:'Marble chips react with acid. You use powder instead of chips (same mass). Predict the rate.',qi:'Kepingan marmer bereaksi dengan asam. Diganti serbuk (massa sama). Prediksi lajunya.',predict:['Faster','Slower','The same'],observe:'The powder fizzes much more vigorously and finishes sooner.',eq:'Why?',opts:['Larger surface area means more collisions per second','Powder is a different chemical','Powder is hotter'],a:0,explain:'Collision theory: more exposed particles collide more often.'}
+  ]
+};
+
+/* ---------- generators (infinite variety) ---------- */
+const pick3 = (correct, wrongs) => { const w = [...new Set(wrongs)].filter(x => x !== correct).slice(0, 2); return {opts:[correct, ...w], a:0}; };
+const sortOf = (pairs, buckets, n) => { let items, g = 0; do { items = SH(pairs).slice(0, n); } while (new Set(items.map(x => x[1])).size < Math.min(buckets.length, 2 + (n >= 6 ? 1 : 0)) && g++ < 30); return {type:'sort', buckets, items}; };
+const NOUNS = [['cat','cats'],['box','boxes'],['baby','babies'],['child','children'],['bus','buses'],['tooth','teeth'],['leaf','leaves'],['mouse','mice'],['dish','dishes'],['toy','toys'],['city','cities'],['foot','feet'],['man','men'],['watch','watches']];
+const VERBS3 = [['play','plays'],['watch','watches'],['go','goes'],['study','studies'],['fly','flies'],['wash','washes'],['eat','eats'],['have','has'],['do','does'],['swim','swims']];
+const IRREG = [['go','went','gone'],['eat','ate','eaten'],['see','saw','seen'],['buy','bought','bought'],['take','took','taken'],['write','wrote','written'],['swim','swam','swum'],['drink','drank','drunk'],['make','made','made'],['find','found','found'],['give','gave','given'],['speak','spoke','spoken'],['begin','began','begun'],['break','broke','broken']];
+const ADJ = [['big','bigger','biggest'],['happy','happier','happiest'],['good','better','best'],['bad','worse','worst'],['fast','faster','fastest'],['interesting','more interesting','most interesting'],['beautiful','more beautiful','most beautiful'],['hot','hotter','hottest'],['easy','easier','easiest'],['expensive','more expensive','most expensive']];
+const WORDF = [['decide','decision'],['happy','happiness'],['develop','development'],['improve','improvement'],['kind','kindness'],['explain','explanation'],['free','freedom'],['able','ability'],['grow','growth'],['protect','protection'],['responsible','responsibility'],['curious','curiosity']];
+const SUBJ3 = [['My brother','He'],['Our teacher','She'],['The dog','It']];
+const ESL_GEN = {
+  A:[
+    {id:'gA_plural', t:1, topic:'plurals', fn(){ const [s, p] = P(NOUNS); const w = [s + 's', s + 'es', p + 's']; return Object.assign({type:'mcq', q:`One ${s}, two ___`, explain:`The plural of "${s}" is "${p}".`}, pick3(p, w)); }},
+    {id:'gA_article', t:1, topic:'articles', fn(){ const n = P(['apple','egg','orange','umbrella','elephant','banana','book','cat','ice cream','hour']); const an = /^[aeiou]/.test(n) || n === 'hour'; return Object.assign({type:'mcq', q:`I have ___ ${n}.`, explain:an ? `"An" before a vowel sound: an ${n}.` : `"A" before a consonant sound: a ${n}.`}, pick3(an ? 'an' : 'a', [an ? 'a' : 'an', 'the two'])); }},
+    {id:'gA_3rd', t:2, topic:'present-simple', fn(){ const [b, s] = P(VERBS3), [sub] = P(SUBJ3); const w = [b, b + 's', b + 'ing'].filter(x => x !== s); return Object.assign({type:'mcq', q:`${sub} ___ every day. (${b})`, explain:`He / she / it + ${s}.`}, pick3(s, w)); }},
+    {id:'gA_this', t:1, topic:'demonstratives', fn(){ const many = Math.random() < .5, [s, p] = P(NOUNS.filter(x => x[0] !== 'mouse')); return Object.assign({type:'mcq', q:`___ ${many ? p : s} ${many ? 'are' : 'is'} mine. (near me)`, explain:many ? '"These" for more than one thing near you.' : '"This" for one thing near you.'}, pick3(many ? 'These' : 'This', [many ? 'This' : 'These', 'Those'])); }}
+  ],
+  B:[
+    {id:'gB_past', t:2, topic:'past-irregular', fn(){ const [b, p, pp] = P(IRREG); const w = [b + 'ed', pp !== p ? pp : b + 's', b]; return Object.assign({type:'mcq', q:`Yesterday I ___ (${b}).`, explain:`"${b}" is irregular: the past is "${p}".`}, pick3(p, w)); }},
+    {id:'gB_comp', t:2, topic:'comparatives', fn(){ const [a, c, s] = P(ADJ); const w = [a + 'er', 'more ' + a, s].filter(x => x !== c); return Object.assign({type:'mcq', q:`This one is ___ than that one. (${a})`, explain:`Comparing two: ${c} than.`}, pick3(c, w)); }},
+    {id:'gB_sup', t:3, topic:'superlatives', fn(){ const [a, c, s] = P(ADJ); const w = [c, 'most ' + a, a + 'est'].filter(x => x !== s); return Object.assign({type:'mcq', q:`It is the ___ in the class. (${a})`, explain:`The top of a group: the ${s}.`}, pick3(s, w)); }},
+    {id:'gB_much', t:2, topic:'much-many', fn(){ const c = Math.random() < .5; const n = c ? P(['books','friends','eggs','pencils','chairs']) : P(['water','rice','money','time','homework']); return Object.assign({type:'mcq', q:`How ___ ${n} do you have?`, explain:c ? `${n} can be counted: many.` : `${n} cannot be counted: much.`}, pick3(c ? 'many' : 'much', [c ? 'much' : 'many', 'lot'])); }}
+  ],
+  C:[
+    {id:'gC_pp', t:2, topic:'present-perfect', fn(){ const [b, p, pp] = P(IRREG); const w = [p !== pp ? p : b + 'ed', b, b + 'ing']; return Object.assign({type:'mcq', q:`I have already ___ it. (${b})`, explain:`Have + past participle: ${pp}.`}, pick3(pp, w)); }},
+    {id:'gC_pass', t:3, topic:'passive', fn(){ const [b, p, pp, thing] = P([['write','wrote','written','The letter'],['send','sent','sent','The parcel'],['clean','cleaned','cleaned','The classroom'],['build','built','built','The bridge'],['take','took','taken','The photo'],['make','made','made','The cake'],['paint','painted','painted','The wall'],['check','checked','checked','The homework']]), past = Math.random() < .5; const ans = (past ? 'was ' : 'is ') + pp; return Object.assign({type:'mcq', q:`${thing} ___ ${past ? 'yesterday' : 'every week'}. (${b}, passive)`, explain:`Passive: ${past ? 'was' : 'is'} + past participle (${pp}).`}, pick3(ans, [(past ? 'was ' : 'is ') + (p !== pp ? p : b + 'ing'), past ? p : b + 's', (past ? 'is ' : 'was ') + pp])); }},
+    {id:'gC_cond1', t:1, topic:'first-conditional', fn(){ const [c, v, rest] = P([['study','pass','the test'],['leave now','catch','the bus'],['eat breakfast','have','more energy'],['practise','get','better'],['ask','find','the answer']]); return Object.assign({type:'mcq', q:`If you ${c}, you ___ ${rest}.`, explain:'Real future possibility: If + present, will + verb.'}, pick3('will ' + v, ['would ' + v, v + 'ing', 'will ' + v + 's'])); }},
+    {id:'gC_wordf', t:3, topic:'word-formation', fn(){ const [w, n] = P(WORDF); const wr = [w + 'ness', w + 'ment', w + 'tion'].filter(x => x !== n); return Object.assign({type:'mcq', q:`Make a noun from "${w}": We talked about the ___.`, explain:`The noun of "${w}" is "${n}".`}, pick3(n, wr)); }}
+  ],
+  D:[
+    {id:'gD_wordf', t:2, topic:'word-formation', fn(){ const [w, n] = P(WORDF); const wr = [w + 'ness', w + 'ment', w + 'ity', w + 'tion'].filter(x => x !== n); return Object.assign({type:'mcq', q:`Which is the noun form of "${w}"?`, explain:`"${n}".`}, pick3(n, wr)); }},
+    {id:'gD_cond2', t:2, topic:'second-conditional', fn(){ const [b, p, rest] = P([['go','went','to Japan'],['buy','bought','a new laptop'],['take','took','a long holiday'],['write','wrote','a book'],['give','gave','more to charity'],['make','made','a short film']]); return Object.assign({type:'mcq', q:`If I had more money, I ___ ${rest}.`, explain:'Imaginary present: If + past, would + verb.'}, pick3('would ' + b, ['will ' + b, p, 'would have ' + b])); }},
+    {id:'gD_cond3', t:3, topic:'third-conditional', fn(){ const [b, p, pp] = P(IRREG.filter(x => ['take','see','find','speak','begin','give'].includes(x[0]))); return Object.assign({type:'mcq', q:`If she had known, she ___ it. (${b})`, explain:'Imaginary past: would have + past participle.'}, pick3('would have ' + pp, ['would ' + b, 'had ' + pp, 'will have ' + pp])); }},
+    {id:'gD_report', t:2, topic:'reported-speech', fn(){ const [sub, rep, a, b, rest] = P([['I','she','am','was','tired'],['I','he','can','could','swim'],['I','she','will','would','call you'],['We','they','are','were','ready'],['I','he','have','had','a plan'],['We','they','must','had to','leave']]); return Object.assign({type:'mcq', q:`"${sub} ${a} ${rest}," ${rep} said. → ${rep[0].toUpperCase() + rep.slice(1)} said ${rep} ___ ${rest}.`, explain:`Reported speech moves the verb back: ${a} → ${b}.`}, pick3(b, [a, 'has been', 'is being'])); }},
+  ]
+};
+const LIVING = [['cat',0],['rock',1],['tree',0],['bicycle',1],['mushroom',0],['cloud',1],['fish',0],['chair',1],['grass',0],['spoon',1],['bird',0],['phone',1]];
+const MAGNET = [['iron nail',0],['plastic ruler',1],['steel paper clip',0],['wooden pencil',1],['glass marble',1],['steel scissors',0],['rubber eraser',1],['iron key',0]];
+const STATES = [['juice',1],['ice',0],['steam',2],['stone',0],['milk',1],['air',2],['book',0],['oil',1],['oxygen',2]];
+const ANIMALS = [['cow','mammal'],['eagle','bird'],['shark','fish'],['bat','mammal'],['penguin','bird'],['tuna','fish'],['whale','mammal'],['parrot','bird'],['goldfish','fish'],['monkey','mammal']];
+const CONDUCT = [['copper wire',0],['plastic straw',1],['aluminium foil',0],['rubber band',1],['steel spoon',0],['wooden stick',1],['glass',1],['graphite pencil lead',0]];
+const VERT = [['frog',0],['worm',1],['snake',0],['spider',1],['chicken',0],['jellyfish',1],['lizard',0],['snail',1]];
+const DISSOLVE = [['salt',0],['sand',1],['sugar',0],['flour',1],['coffee powder',0],['pebbles',1],['instant drink powder',0],['chalk dust',1]];
+const ECM = [['oxygen (O₂)',0],['water (H₂O)',1],['air',2],['iron (Fe)',0],['carbon dioxide (CO₂)',1],['sea water',2],['sodium chloride (NaCl)',1],['gold (Au)',0],['orange juice',2]];
+const SCI_GEN = {
+  A:[
+    {id:'gsA_live', t:1, topic:'living-things', fn(){ return Object.assign({q:'Sort them: living or non-living?', qi:'Kelompokkan: hidup atau tak hidup?', explain:'Living things grow, need food and water, and reproduce.'}, sortOf(LIVING, ['Living','Non-living'], 6)); }},
+    {id:'gsA_mag', t:2, topic:'magnets', fn(){ return Object.assign({q:'Will a magnet pull it?', qi:'Apakah magnet akan menariknya?', explain:'Magnets attract iron and steel only.'}, sortOf(MAGNET, ['Magnetic','Not magnetic'], 5)); }},
+    {id:'gsA_state', t:2, topic:'states-of-matter', fn(){ return Object.assign({q:'Solid, liquid or gas?', qi:'Padat, cair, atau gas?', explain:'Solids keep their shape, liquids flow, gases spread out to fill a space.'}, sortOf(STATES, ['Solid','Liquid','Gas'], 6)); }}
+  ],
+  B:[
+    {id:'gsB_anim', t:2, topic:'classification', fn(){ const pairs = SH(ANIMALS).slice(0, 6).map(([a, g]) => [a, ['mammal','bird','fish'].indexOf(g)]); return {type:'sort', q:'Which group does each animal belong to?', qi:'Termasuk kelompok apa setiap hewan?', buckets:['Mammal','Bird','Fish'], items:pairs, explain:'Mammals have fur/hair and feed milk; birds have feathers; fish have gills and fins.'}; }},
+    {id:'gsB_cond', t:2, topic:'electricity', fn(){ return Object.assign({q:'Conductor or insulator of electricity?', qi:'Konduktor atau isolator listrik?', explain:'Metals and graphite conduct; plastic, rubber, wood and glass insulate.'}, sortOf(CONDUCT, ['Conductor','Insulator'], 5)); }},
+    {id:'gsB_vert', t:3, topic:'classification', fn(){ return Object.assign({q:'Vertebrate (has a backbone) or invertebrate?', qi:'Vertebrata (bertulang belakang) atau invertebrata?', explain:'Vertebrates have a backbone; worms, spiders, snails and jellyfish do not.'}, sortOf(VERT, ['Vertebrate','Invertebrate'], 5)); }},
+    {id:'gsB_diss', t:1, topic:'mixtures', fn(){ return Object.assign({q:'Does it dissolve in water?', qi:'Apakah larut dalam air?', explain:'Soluble substances disappear into the water; insoluble ones settle or float.'}, sortOf(DISSOLVE, ['Dissolves','Does not dissolve'], 5)); }}
+  ],
+  C:[
+    {id:'gsC_speed', t:1, topic:'speed', fn(){ const v = P([20, 30, 40, 50, 60, 80]), t = P([2, 3, 4, 1.5]); return {type:'input', ans:v, unit:'km/h', q:`A motorbike travels ${v * t} km in ${t} hours. What is its average speed?`, qi:`Motor menempuh ${v * t} km dalam ${t} jam. Berapa kecepatan rata-ratanya?`, explain:`speed = distance ÷ time = ${v * t} ÷ ${t} = ${v} km/h.`}; }},
+    {id:'gsC_density', t:2, topic:'density', fn(){ const d = P([0.5, 0.8, 1.2, 2, 2.5, 7.9]), V = P([10, 20, 50, 100]); return {type:'input', ans:d, tol:0.01, unit:'g/cm³', q:`A block has a mass of ${Math.round(d * V * 10) / 10} g and a volume of ${V} cm³. What is its density?`, qi:`Balok bermassa ${Math.round(d * V * 10) / 10} g dan bervolume ${V} cm³. Berapa massa jenisnya?`, explain:`density = mass ÷ volume = ${d} g/cm³. ${d < 1 ? 'It would float in water.' : 'It would sink in water.'}`}; }},
+    {id:'gsC_ohm', t:2, topic:'electricity', fn(){ const I = P([0.5, 1, 2, 3, 4]), R = P([2, 3, 4, 5, 6, 10]); return {type:'input', ans:I * R, unit:'V', q:`A current of ${I} A flows through a ${R} Ω resistor. What is the voltage across it?`, qi:`Arus ${I} A mengalir melalui hambatan ${R} Ω. Berapa tegangannya?`, explain:`V = I × R = ${I} × ${R} = ${I * R} V.`}; }},
+    {id:'gsC_weight', t:2, topic:'forces', fn(){ const m = P([2, 5, 10, 40, 55, 60]); return {type:'input', ans:m * 10, unit:'N', q:`What is the weight of a ${m} kg object on Earth? (g = 10 N/kg)`, qi:`Berapa berat benda ${m} kg di Bumi? (g = 10 N/kg)`, explain:`W = m × g = ${m} × 10 = ${m * 10} N.`}; }},
+    {id:'gsC_ecm', t:3, topic:'elements-compounds', fn(){ return Object.assign({q:'Element, compound or mixture?', qi:'Unsur, senyawa, atau campuran?', explain:'Elements: one type of atom. Compounds: elements chemically bonded. Mixtures: substances mixed but not bonded.'}, sortOf(ECM, ['Element','Compound','Mixture'], 6)); }}
+  ],
+  D:[
+    {id:'gsD_mom', t:1, topic:'momentum', fn(){ const m = P([2, 5, 50, 70, 1000]), v = P([2, 3, 4, 10, 20]); return {type:'input', ans:m * v, unit:'kg m/s', q:`An object of mass ${m} kg moves at ${v} m/s. What is its momentum?`, qi:`Benda bermassa ${m} kg bergerak ${v} m/s. Berapa momentumnya?`, explain:`p = m × v = ${m * v} kg m/s.`}; }},
+    {id:'gsD_wave', t:1, topic:'waves', fn(){ const f = P([5, 10, 50, 200, 340]), l = P([0.5, 1, 2, 4]); return {type:'input', ans:f * l, unit:'m/s', q:`A wave has frequency ${f} Hz and wavelength ${l} m. What is its speed?`, qi:`Gelombang berfrekuensi ${f} Hz dan panjang gelombang ${l} m. Berapa cepat rambatnya?`, explain:`v = f × λ = ${f * l} m/s.`}; }},
+    {id:'gsD_mole', t:2, topic:'moles', fn(){ const s = P([['water',18],['carbon dioxide',44],['sodium chloride',58.5],['calcium carbonate',100],['oxygen gas',32]]), n = P([0.5, 1, 2, 3]); return {type:'input', ans:n, tol:0.001, unit:'mol', q:`How many moles are in ${s[1] * n} g of ${s[0]}? (Mr = ${s[1]})`, qi:`Berapa mol dalam ${s[1] * n} g ${s[0]}? (Mr = ${s[1]})`, explain:`moles = mass ÷ Mr = ${s[1] * n} ÷ ${s[1]} = ${n}.`}; }},
+    {id:'gsD_ke', t:2, topic:'energy', fn(){ const m = P([2, 4, 10, 50, 60]), v = P([2, 3, 4, 5, 10]); return {type:'input', ans:m * v * v / 2, unit:'J', q:`Find the kinetic energy of a ${m} kg object moving at ${v} m/s.`, qi:`Hitung energi kinetik benda ${m} kg yang bergerak ${v} m/s.`, explain:`KE = ½mv² = ½ × ${m} × ${v}² = ${m * v * v / 2} J.`}; }},
+    {id:'gsD_power', t:2, topic:'energy', fn(){ const P_ = P([20, 60, 100, 500, 1000, 2000]), t = P([5, 10, 30, 60]); return {type:'input', ans:P_, unit:'W', q:`A device transfers ${P_ * t} J of energy in ${t} s. What is its power?`, qi:`Sebuah alat memindahkan ${P_ * t} J energi dalam ${t} s. Berapa dayanya?`, explain:`P = E ÷ t = ${P_ * t} ÷ ${t} = ${P_} W.`}; }},
+    {id:'gsD_half', t:3, topic:'radioactivity', fn(){ const h = P([2, 3, 5, 8]), k = P([2, 3, 4]), m0 = P([16, 32, 64, 80, 160]); return {type:'input', ans:m0 / 2 ** k, tol:0.01, unit:'g', q:`A sample has a half-life of ${h} days. It starts at ${m0} g. How much is left after ${h * k} days?`, qi:`Waktu paruh ${h} hari, awalnya ${m0} g. Berapa sisanya setelah ${h * k} hari?`, explain:`${k} half-lives: ${m0} ÷ 2^${k} = ${m0 / 2 ** k} g.`}; }},
+    {id:'gsD_punnett', t:3, topic:'genetics', fn(){ const v = P([['Bb × Bb','bb','25%'],['Bb × bb','bb','50%'],['BB × bb','Bb','100%'],['Bb × Bb','BB','25%'],['Bb × Bb','Bb','50%']]); return Object.assign({type:'mcq', q:`Parents: ${v[0]}. What is the chance of an offspring with genotype ${v[1]}?`, qi:`Induk: ${v[0]}. Berapa peluang keturunan bergenotipe ${v[1]}?`, explain:`Draw a Punnett square of the four combinations and count ${v[1]}.`}, pick3(v[2], ['25%','50%','75%','100%','0%'])); }}
+  ]
+};
+/* the drill engine calls this to see everything available in a band */
+function bankAll(subj, band){
+  const base = (subj === 'eng' ? ESL : SCI)[band].map(x => Object.assign({t:TIER_OF[x.id] || 2}, x));
+  const more = (subj === 'eng' ? ESL_MORE : SCI_MORE)[band];
+  const gens = (subj === 'eng' ? ESL_GEN : SCI_GEN)[band].map(g => ({id:g.id, t:g.t, topic:g.topic, gen:g.fn}));
+  return base.concat(more, gens);
+}
+function materialize(entry){ if (!entry.gen) return entry; const it = entry.gen(); return Object.assign({id:entry.id, t:entry.t, topic:entry.topic, fromGen:true}, it); }
+function findBankEntry(subj, id){ for (const b of ['A','B','C','D']){ const e = bankAll(subj, b).find(x => x.id === id); if (e) return e; } return null; }
 /* ================= MATH GENERATORS ================= */
 const R = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const P = a => a[Math.floor(Math.random() * a.length)];
@@ -994,7 +1244,7 @@ function genMath(key){ let q, g = 0; do { q = G[key](); } while (q.regen && g++ 
 const tierOf = lv => Math.min(3, 1 + Math.floor(((lv % 1) + 1e-6) * 3));
 /* ================= CORE: state, helpers, art ================= */
 const APP_URL = 'https://handokokusalaviro-dev.github.io/temantumbuh/';
-const APP_VERSION = 'beta 6 · 25 Oct 2026';
+const APP_VERSION = 'beta 7 · 25 Oct 2026';
 const KEY = 'temantumbuh.v1';
 const SALT = 'tumbuh26';
 const COACH_PIN_HASH = '3571941926';
@@ -1245,8 +1495,8 @@ const SUBJ = {
 };
 function levelLabel(subj){
   const lv = ME.levels[subj], g = Math.floor(lv);
-  if (subj === 'eng'){ const b = bandOf(g); return {A:'CEFR A1', B:'CEFR A2', C:'CEFR B1', D:'CEFR B1+/B2'}[b]; }
   const t = tierOf(lv);
+  if (subj === 'eng'){ const b = bandOf(g); return {A:'CEFR A1', B:'CEFR A2', C:'CEFR B1', D:'CEFR B1+/B2'}[b] + ' · ' + L('level','level') + ' ' + t + '/3'; }
   if (g >= 12) return 'AS · ' + L('level','level') + ' ' + t + '/3'; if (g >= 10) return 'IGCSE · ' + (t === 3 ? 'Extended' : 'Core') + ' ' + t + '/3'; return 'Stage ' + g + ' · ' + L('level','level') + ' ' + t + '/3';
 }
 function topicKey(q){ return q.subj + ':' + q.topic; }
@@ -1291,8 +1541,9 @@ function makeMath(D, forceLv){
   D.lastGen = key;
   const q = genMath(key); q.subj = 'math'; q.lv = lv; return q;
 }
-function bankFor(subj, lv){ return (subj === 'eng' ? ESL : SCI)[bandOf(lv)]; }
+function bankFor(subj, lv){ return bankAll(subj, bandOf(lv)); }
 function prepBank(item, subj, lv){
+  item = materialize(item);
   const q = Object.assign({}, item, {kind:item.type, subj, lv, bank:true});
   if (item.opts){ const ord = SH(item.opts.map((_, i) => i)); q.opts = ord.map(i => item.opts[i]); q.a = ord.indexOf(item.a); }
   if (item.type === 'order'){ q.pool = SH(item.words.map((w, i) => ({w, i}))); if (q.pool.every((p, j) => p.i === j)) q.pool.reverse(); q.picked = []; }
@@ -1300,21 +1551,31 @@ function prepBank(item, subj, lv){
   if (item.type === 'poe'){ q.stage = 0; }
   return q;
 }
+/* English & Science: band from the level, difficulty tier (1-3) from the fraction, like math */
 function makeBank(D, subj, forceLv, topic){
-  let lv = forceLv || curLevel(D, subj);
-  if (!D.placement && !forceLv){ const r = Math.random(); if (r < .1 && stretchOK(D)) lv = clamp(Math.floor(lv) + 2, 3, 12); else if (r < .25) lv = clamp(Math.floor(lv) - 2, 3, 12); }
-  const bank = bankFor(subj, lv); const seen = ME.seen[subj] || [];
+  let lv = forceLv || curLevel(D, subj), g = Math.floor(lv), tier = D.placement ? (D.i < 4 ? 1 : 2) : tierOf(lv);
+  if (!D.placement && !forceLv){
+    if (D.challenge){ if (tier < 3) tier++; else if (g < 12){ g = clamp(g + 2, 3, 12); tier = 1; } }
+    const r = Math.random();
+    if (r < .1 && stretchOK(D) && tier === 3 && bandOf(g) !== 'D'){ g = clamp(g + 2, 3, 12); tier = 1; }
+    else if (r < .22 && bandOf(g) !== 'A'){ g = clamp(g - 2, 3, 12); tier = 3; }
+  }
+  const bank = bankFor(subj, g); const seen = ME.seen[subj] || [];
   let cands = bank.filter(x => !D.used.includes(x.id) && (!topic || x.topic === topic));
-  const fresh = cands.filter(x => !seen.includes(x.id)); if (fresh.length) cands = fresh;
-  if (!cands.length) cands = bank.filter(x => !D.used.includes(x.id));
-  if (!cands.length) cands = bank;
-  const item = P(cands); D.used.push(item.id); seen.push(item.id); while (seen.length > Math.min(30, bank.length - 2)) seen.shift(); ME.seen[subj] = seen;
-  return prepBank(item, subj, lv);
+  if (!cands.length && topic){ for (const b of ['A','B','C','D']){ const more = bankAll(subj, b).filter(x => x.topic === topic && !D.used.includes(x.id)); if (more.length){ cands = more; break; } } }
+  const exact = cands.filter(x => x.t === tier), below = cands.filter(x => x.t <= tier);
+  let pool = (exact.length && Math.random() < .65) ? exact : below.length ? below : cands;
+  const fresh = pool.filter(x => x.gen || !seen.includes(x.id)); if (fresh.length) pool = fresh;
+  if (!pool.length) pool = bank.filter(x => !D.used.includes(x.id));
+  if (!pool.length) pool = bank;
+  const item = P(pool); D.used.push(item.id);
+  if (!item.gen){ seen.push(item.id); while (seen.length > Math.min(60, bank.length - 4)) seen.shift(); ME.seen[subj] = seen; }
+  return prepBank(item, subj, g + ((item.t || 2) - 1) / 3);
 }
 function fromRef(ref){
   if (!ref){ const s = P(['math','eng','sci']); return s === 'math' ? makeMath(S.drill, ME.levels.math) : makeBank(S.drill, s, ME.levels[s]); }
   if (ref.subj === 'math'){ const q = genMath(ref.gen); q.subj = 'math'; q.lv = ref.lv; q.ref = ref; return q; }
-  const bankAll = (ref.subj === 'eng' ? ESL : SCI); for (const b in bankAll){ const it = bankAll[b].find(x => x.id === ref.id); if (it){ const q = prepBank(it, ref.subj, ref.lv); q.ref = ref; return q; } }
+  const it = findBankEntry(ref.subj, ref.id); if (it){ const q = prepBank(it, ref.subj, ref.lv); q.ref = ref; return q; }
   return makeMath(S.drill, ME.levels.math);
 }
 function nextQ(){
@@ -1335,7 +1596,7 @@ function queuePush(q){
 }
 function setLevel(subj, delta){ if (subj === 'mix') return; const low = Math.max(3, ME.grade - 3);
   if (subj === 'math'){ const cap = Math.min(12 + 2 / 3, ME.grade + 3); ME.levels.math = clamp(Math.round((ME.levels.math + (delta > 0 ? 1 : -1) / 3) * 3) / 3, low, cap); return; }
-  const cap = Math.min(12, ME.grade + 3); ME.levels[subj] = clamp(Math.round((ME.levels[subj] + delta) * 2) / 2, low, cap); }
+  const cap = Math.min(12 + 2 / 3, ME.grade + 3); ME.levels[subj] = clamp(Math.round((ME.levels[subj] + (delta > 0 ? 1 : -1) / 3) * 3) / 3, low, cap); }
 
 function graded(ok){
   const D = S.drill, q = D.q, subj = q.subj;
@@ -1359,6 +1620,7 @@ function graded(ok){
 function makeTwin(q){
   const D = S.drill;
   if (q.subj === 'math'){ if (q.why){ const t = makeMath(D, q.lv); return t; } const t = genMath(q.gen); t.subj = 'math'; t.lv = q.lv; return t; }
+  if (q.fromGen){ const e = findBankEntry(q.subj, q.id); if (e) return prepBank(e, q.subj, q.lv); }
   return makeBank(D, q.subj, q.lv, q.topic);
 }
 function finishDrill(){
